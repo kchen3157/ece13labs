@@ -56,7 +56,7 @@ int main(void) {
     }
     printf("%d]\r\n", valsToBeSorted[i]);
 
-    // Sorted array: []
+    // Sorted array: [4, 41, 45, 70, 207]
 
     BOARD_End();
     /* Returning from main() is bad form in embedded environments. So we
