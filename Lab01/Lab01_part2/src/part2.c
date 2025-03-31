@@ -27,7 +27,7 @@ int main(void) {
          * asterisks.                                                          *
          **********************************************************************/
         // Declare variables.
-        float fahr, celsius;
+        float fahr, celsius, kelv;
         int lower, upper, step;
 
         // Initialize variables.
@@ -35,14 +35,27 @@ int main(void) {
         upper = 300;
         step = 20;
         fahr = lower;
+        kelv = lower;
 
-        // Print out the table.
+        
+
+        // Print out the Fahrenheit -> Celsius table.
+        printf("    F     C\n");
         while (fahr <= upper) 
         {
             celsius = (5.0 / 9.0) * (fahr - 32.0);
-            printf("%7.1f %04.1f\r\n", (double) fahr, (double) celsius);
+            printf("%7.1f %04.0f\r\n", (double) fahr, (double) celsius);
             fahr = fahr + step;
         }
+        // Print out the Kelvin -> Fahrenheit table.
+        printf("    K    F\n");
+        while (kelv <= upper)
+        {
+            fahr = (kelv - 273.15) * (9.0 / 5.0) + 32.0;
+            printf("%7.3f %6.1f\r\n", (double) kelv, (double) fahr);
+            kelv += step;
+        }
+        
 
         /***********************************************************************
          * Your code goes in between this comment and the preceding one with   *
