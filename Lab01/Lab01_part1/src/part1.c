@@ -64,6 +64,5 @@ int main(void)
     BOARD_End();
     /* Returning from main() is bad form in embedded environments. So we
      * sit and spin.                                                          */
-    while (1)
-        ;
+    while (1);
 }
