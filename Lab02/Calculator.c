@@ -22,7 +22,6 @@ void CalculatorRun(void)
 {
     char operator;
     double operand1, operand2;
-    double result;
 
     printf(
         "\n\nWelcome to Kyle's calculator program! Compiled at %s %s\n",
@@ -98,20 +97,6 @@ void CalculatorRun(void)
         {
             printf("Type in operand: ");
             scanf("%lf", &operand1);
-            int round_result;
-
-            if (operand1 - Round(operand1) >= 0.5)
-            {
-                round_result = Round(operand1) + 1;
-            }
-            else if (operand1 - Round(operand1) <= -0.5)
-            {
-                round_result = Round(operand1) - 1;
-            }
-            else
-            {
-                round_result = Round(operand1);
-            }
             printf("Result of round(%f): %f\n", operand1, Round(operand1));
         }
         else // Default
