@@ -20,22 +20,22 @@
 
 void CalculatorRun(void)
 {
+    char operator;
+    double operand1, operand2;
+    double result;
+
     printf(
         "\n\nWelcome to Kyle's calculator program! Compiled at %s %s\n",
         __DATE__,
         __TIME__
     );
-    // Replace this while(1) with your main code loop.
-
-    char operator;
-    double operand1, operand2;
-    double result;
 
     while (1)
     {
         printf("Type in operator: ");
         scanf(" %c", &operator);
-        if (operator == '+')
+
+        if (operator == '+') // Addition
         {
             printf("Type in operand 1: ");
             scanf("%lf", &operand1);
@@ -43,7 +43,7 @@ void CalculatorRun(void)
             scanf("%lf", &operand2);
             printf("Result of %f + %f: %f\n", operand1, operand2, Add(operand1, operand2));
         }
-        else if (operator == '-')
+        else if (operator == '-') // Subtraction
         {
             printf("Type in operand 1: ");
             scanf("%lf", &operand1);
@@ -51,7 +51,7 @@ void CalculatorRun(void)
             scanf("%lf", &operand2);
             printf("Result of %f - %f: %f\n", operand1, operand2, Subtract(operand1, operand2));
         }
-        else if (operator == '*')
+        else if (operator == '*') // Multiplication
         {
             printf("Type in operand 1: ");
             scanf("%lf", &operand1);
@@ -59,48 +59,48 @@ void CalculatorRun(void)
             scanf("%lf", &operand2);
             printf("Result of %f * %f: %f\n", operand1, operand2, Multiply(operand1, operand2));
         }
-        else if (operator == '/')
+        else if (operator == '/') // Division
         {
             printf("Type in operand 1: ");
             scanf("%lf", &operand1);
             printf("Type in operand 2: ");
             scanf("%lf", &operand2);
-            if (operand2 == 0)
+            if (operand2 == 0) // Handle div by 0
             {
                 printf("ERROR: Cannot divide by zero!\n");
                 continue;
             }
             printf("Result of %f / %f: %f\n", operand1, operand2, Divide(operand1, operand2));
         }
-        else if (operator == 'c')
+        else if (operator == 'c') // Fahrenheit to Celsius
         {
             printf("Type in operand: ");
             scanf("%lf", &operand1);
             printf("Result of cels(%f): %f\n", operand1, FahrenheitToCelsius(operand1));
         }
-        else if (operator == 'f')
+        else if (operator == 'f') // Celsius to Fahrenheit
         {
             printf("Type in operand: ");
             scanf("%lf", &operand1);
             printf("Result of fahr(%f): %f\n", operand1, CelsiusToFahrenheit(operand1));
         }
-        else if (operator == 't')
+        else if (operator == 't') // Tangent function
         {
             printf("Type in operand: ");
             scanf("%lf", &operand1);
             printf("Result of tan(%f): %f\n", operand1, Tangent(operand1));
         }
-        else if (operator == 'q')
+        else if (operator == 'q') // Quit
         {
             return;
         }
-        else if (operator == 'r')
+        else if (operator == 'r') // Round
         {
             printf("Type in operand: ");
             scanf("%lf", &operand1);
             printf("Result of round(%f): %f\n", operand1, Round(operand1));
         }
-        else
+        else // Default
         {
             printf("Invalid Operator.\n");
         }
