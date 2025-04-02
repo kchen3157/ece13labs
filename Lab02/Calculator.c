@@ -98,6 +98,20 @@ void CalculatorRun(void)
         {
             printf("Type in operand: ");
             scanf("%lf", &operand1);
+            int round_result;
+
+            if (operand1 - Round(operand1) >= 0.5)
+            {
+                round_result = Round(operand1) + 1;
+            }
+            else if (operand1 - Round(operand1) <= -0.5)
+            {
+                round_result = Round(operand1) - 1;
+            }
+            else
+            {
+                round_result = Round(operand1);
+            }
             printf("Result of round(%f): %f\n", operand1, Round(operand1));
         }
         else // Default
@@ -192,6 +206,20 @@ double Tangent(double operand)
  ******************************************************************************/
 double Round(double operand)
 {
-    return (int) operand;
+    int round_result;
+
+    if (operand - (int)(operand) >= 0.5)
+    {
+        round_result = (int)(operand) + 1;
+    }
+    else if (operand - (int)(operand) <= -0.5)
+    {
+        round_result = (int)(operand) - 1;
+    }
+    else
+    {
+        round_result = (int)(operand);
+    }
+    return round_result;
 }
 
