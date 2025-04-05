@@ -1,3 +1,13 @@
+/**
+ * @file    Calculator.h
+ *
+ * Header File to use Calculator.c
+ *
+ * @author Kyle C.
+ *
+ * @date 2025-04-04
+ */
+
 #ifndef __CALCULATOR_H__
 
 #define __CALCULATOR_H__

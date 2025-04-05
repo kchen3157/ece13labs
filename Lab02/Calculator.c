@@ -7,14 +7,14 @@
  *
  * @date 2025-04-04
  */
+
 // Standard libraries.
 #include <stdio.h>
 #include <math.h>
 
 // Course libraries.
 // BOARD.h contains useful #defines, e.g. "SUCCESS".
-//#include "BOARD.h"
-
+// #include "BOARD.h"
 
 #include "Calculator.h"
 
@@ -26,15 +26,14 @@ void CalculatorRun(void)
     printf(
         "\n\nWelcome to Kyle's calculator program! Compiled at %s %s\n",
         __DATE__,
-        __TIME__
-    );
+        __TIME__);
 
     while (1)
     {
         printf("Type in operator: ");
         scanf(" %c", &operator);
 
-        if (operator == '+') // Addition
+        if (operator== '+') // Addition
         {
             printf("Type in operand 1: ");
             scanf("%lf", &operand1);
@@ -42,7 +41,7 @@ void CalculatorRun(void)
             scanf("%lf", &operand2);
             printf("Result of %f + %f: %f\n", operand1, operand2, Add(operand1, operand2));
         }
-        else if (operator == '-') // Subtraction
+        else if (operator== '-') // Subtraction
         {
             printf("Type in operand 1: ");
             scanf("%lf", &operand1);
@@ -50,7 +49,7 @@ void CalculatorRun(void)
             scanf("%lf", &operand2);
             printf("Result of %f - %f: %f\n", operand1, operand2, Subtract(operand1, operand2));
         }
-        else if (operator == '*') // Multiplication
+        else if (operator== '*') // Multiplication
         {
             printf("Type in operand 1: ");
             scanf("%lf", &operand1);
@@ -58,7 +57,7 @@ void CalculatorRun(void)
             scanf("%lf", &operand2);
             printf("Result of %f * %f: %f\n", operand1, operand2, Multiply(operand1, operand2));
         }
-        else if (operator == '/') // Division
+        else if (operator== '/') // Division
         {
             printf("Type in operand 1: ");
             scanf("%lf", &operand1);
@@ -71,29 +70,29 @@ void CalculatorRun(void)
             }
             printf("Result of %f / %f: %f\n", operand1, operand2, Divide(operand1, operand2));
         }
-        else if (operator == 'c') // Fahrenheit to Celsius
+        else if (operator== 'c') // Fahrenheit to Celsius
         {
             printf("Type in operand: ");
             scanf("%lf", &operand1);
             printf("Result of cels(%f): %f\n", operand1, FahrenheitToCelsius(operand1));
         }
-        else if (operator == 'f') // Celsius to Fahrenheit
+        else if (operator== 'f') // Celsius to Fahrenheit
         {
             printf("Type in operand: ");
             scanf("%lf", &operand1);
             printf("Result of fahr(%f): %f\n", operand1, CelsiusToFahrenheit(operand1));
         }
-        else if (operator == 't') // Tangent function
+        else if (operator== 't') // Tangent function
         {
             printf("Type in operand: ");
             scanf("%lf", &operand1);
             printf("Result of tan(%f): %f\n", operand1, Tangent(operand1));
         }
-        else if (operator == 'q') // Quit
+        else if (operator== 'q') // Quit
         {
             return;
         }
-        else if (operator == 'r') // Round
+        else if (operator== 'r') // Round
         {
             printf("Type in operand: ");
             scanf("%lf", &operand1);
@@ -104,7 +103,6 @@ void CalculatorRun(void)
             printf("Invalid Operator.\n");
         }
     }
-    
 }
 
 /*******************************************************************************
@@ -136,7 +134,7 @@ double Multiply(double operand1, double operand2)
  ******************************************************************************/
 double Divide(double operand1, double operand2)
 {
-	return operand1 / operand2;
+    return operand1 / operand2;
 }
 
 /*******************************************************************************
@@ -150,7 +148,6 @@ double AbsoluteValue(double operand)
     }
     return operand;
 }
- 
 
 /*******************************************************************************
  * Define the Fahrenheit to Celsius function here.
@@ -158,7 +155,7 @@ double AbsoluteValue(double operand)
 double FahrenheitToCelsius(double operand)
 {
     return (operand - 32.0) * (5.0 / 9.0);
-} 
+}
 
 /*******************************************************************************
  * Define the Celsius to Fahrenheit function here.
@@ -199,7 +196,7 @@ double Round(double operand)
     }
     else if (operand - (int)(operand) <= -0.5)
     {
-        round_result = (int)(operand) - 1;
+        round_result = (int)(operand)-1;
     }
     else
     {
@@ -207,4 +204,3 @@ double Round(double operand)
     }
     return round_result;
 }
-
