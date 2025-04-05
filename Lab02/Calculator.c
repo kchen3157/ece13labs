@@ -1,11 +1,11 @@
 /**
- * @file    Calculator_template.c
+ * @file    Calculator.c
  *
- * Add your description here.
+ * My implementation of the Calculator
  *
- * @author
+ * @author Kyle C.
  *
- * @date
+ * @date 2025-04-04
  */
 // Standard libraries.
 #include <stdio.h>
