@@ -1,15 +1,15 @@
 /**
- * @file    mml_test_template.c
+ * @file mml_test_template.c
+ * 
+ * Test suite for MatrixMath.c
  *
- * @author
+ * @author Kyle Chen
  *
- * @date
+ * @date 2025-04-07
  */
 // **** Include libraries here ****
 // Standard libraries.
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 
 // User libraries:
 #include "MatrixMath.h"
@@ -17,8 +17,8 @@
 // Module-level variables:
 float zero_matrix[3][3] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
 float id_matrix[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-float max_matrix[3][3] = {{99.0, 999.0, 999.0}, {99.0, 999.0, 99.0}, {999.0, 99.0, 999.0}};
-float min_matrix[3][3] = {{999.0, -999.0, -999.0}, {9.0, -999.0, -999.0}, {-999.0, -999.0, -999.0}};
+float max_matrix[3][3] = {{999.0, 999.0, 999.0}, {999.0, 999.0, 999.0}, {999.0, 999.0, 999.0}};
+float min_matrix[3][3] = {{999.0, -999.0, -999.0}, {999.0, -999.0, -999.0}, {-999.0, -999.0, -999.0}};
 
 float test_matrix_1[3][3] = {{4, 8, 2}, {1, 9, 7}, {1, 4, 8}};
 float test_matrix_2[3][3] = {{8, 5, 4}, {3, 3, 7}, {6, 0, 2}};
@@ -37,11 +37,12 @@ int main(void)
         __TIME__);
 
     printf("Demonstrating MatrixPrint():\n");
-    MatrixPrint(zero_matrix);
+    MatrixPrint(id_matrix);
     MatrixPrint(max_matrix);
     MatrixPrint(min_matrix);
     MatrixPrint(test_matrix_1);
 
+    // Temporary matrix to store function results
     float temp[3][3];
 
     // Test MatrixEquals()

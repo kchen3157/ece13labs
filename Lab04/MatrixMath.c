@@ -8,15 +8,14 @@
  * @date    07 Apr 2025
  */
 
-
 #include <stdio.h>
 #include <math.h>
 
-
 #include "MatrixMath.h"
 
-
-
+/*******************************************************************************
+ * Matrix Display:
+ ******************************************************************************/
 
 void MatrixPrint(float mat[DIM][DIM])
 {
@@ -30,6 +29,10 @@ void MatrixPrint(float mat[DIM][DIM])
     }
     printf("\n");
 }
+
+/*******************************************************************************
+ * Matrix - Matrix Operations
+ ******************************************************************************/
 
 int MatrixEquals(float mat1[DIM][DIM], float mat2[DIM][DIM])
 {
@@ -74,6 +77,10 @@ void MatrixMultiply(float mat1[DIM][DIM], float mat2[DIM][DIM], float result[DIM
     }
 }
 
+/*******************************************************************************
+ * Matrix - Scalar Operations
+ ******************************************************************************/
+
 void MatrixScalarAdd(float x, float mat[DIM][DIM], float result[DIM][DIM])
 {
     for (int i = 0; i < DIM; i++)
@@ -95,6 +102,10 @@ void MatrixScalarMultiply(float x, float mat[DIM][DIM], float result[DIM][DIM])
         }
     }
 }
+
+/*******************************************************************************
+ * Unary Matrix Operations
+ ******************************************************************************/
 
 float MatrixTrace(float mat[DIM][DIM])
 {
@@ -171,9 +182,8 @@ void MatrixInverse(float mat[DIM][DIM], float result[DIM][DIM])
         }
     }
 
-
     float mat_transposed[DIM][DIM];
-    
+
     MatrixTranspose(mat_cof, mat_transposed);
 
     // Apply signs to transposed matrix
@@ -187,6 +197,6 @@ void MatrixInverse(float mat[DIM][DIM], float result[DIM][DIM])
             }
         }
     }
-        
+
     MatrixScalarMultiply(1 / MatrixDeterminant(mat), mat_transposed, result);
 }
