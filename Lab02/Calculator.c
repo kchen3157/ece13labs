@@ -155,11 +155,7 @@ double Divide(double operand1, double operand2)
  ******************************************************************************/
 double AbsoluteValue(double operand)
 {
-    if (operand < 0)
-    {
-        return operand * -1;
-    }
-    return operand;
+    return (operand < 0) ? operand * -1 : operand;
 }
 
 /*******************************************************************************
@@ -201,19 +197,13 @@ double Tangent(double operand)
  ******************************************************************************/
 double Round(double operand)
 {
-    int round_result;
-
     if (operand - (int)(operand) >= 0.5)
     {
-        round_result = (int)(operand) + 1;
+        return (int)(operand) + 1;
     }
     else if (operand - (int)(operand) <= -0.5)
     {
-        round_result = (int)(operand)-1;
+        return (int)(operand) - 1;
     }
-    else
-    {
-        round_result = (int)(operand);
-    }
-    return round_result;
+    return (int)(operand);
 }
