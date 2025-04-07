@@ -8,7 +8,8 @@ CXXFLAGS = -Wall -Werror -Wextra -pedantic -g -fsanitize=address
 LDFLAGS = -fsanitize=address -lncurses
 
 # source files
-SRC += ./*.c
+SRC += ./MatrixMath.c
+SRC += ./mml_test.c
 
 # includes
 INC_FOLDERS += ../Common/

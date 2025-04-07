@@ -8,6 +8,10 @@
  * @date    07 Apr 2025
  */
 
+
+#include <stdio.h>
+
+
 #include "MatrixMath.h"
 
 void MatrixPrint(float mat[DIM][DIM])
@@ -150,7 +154,7 @@ float MatrixDeterminant(float mat[DIM][DIM])
 
 void MatrixInverse(float mat[DIM][DIM], float result[DIM][DIM])
 {
-    float mat_transposed[DIM][DIM], result[DIM][DIM];
+    float mat_transposed[DIM][DIM];
     
     MatrixTranspose(mat, mat_transposed);
 
@@ -167,5 +171,4 @@ void MatrixInverse(float mat[DIM][DIM], float result[DIM][DIM])
     }
     
     MatrixScalarMultiply(MatrixDeterminant(mat), mat, result);
-    return result;
 }

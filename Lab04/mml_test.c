@@ -16,9 +16,9 @@
 
 
 // Module-level variables:
-float zero_matrix[3][3] = {{},{},{}};
+float zero_matrix[3][3] = {{0, 0, 0},{0, 0, 0},{0, 0, 0}};
 
-int main()
+int main(void)
 {
     printf(
         "Beginning CRUZID's mml test harness, compiled on %s %s\n",
