@@ -20,7 +20,7 @@ void MatrixPrint(float mat[DIM][DIM])
     {
         for (int j = 0; j < DIM; j++)
         {
-            printf("%3.4f\r", mat[i][j]);
+            printf("%3.4f\t", mat[i][j]);
         }
         printf("\n");
     }
