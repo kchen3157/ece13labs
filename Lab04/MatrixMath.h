@@ -10,7 +10,7 @@
  *   3 4 5
  *   6 7 8
  * is represented by the array:
- * `float mat[3][3] = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}};`.
+ * `float mat[DIM][DIM] = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}};`.
  *
  * @author  HARE Lab
  * @author  jLab
@@ -50,7 +50,7 @@
  * negative numbers.  It should be able to display at least FP_DELTA precision,
  * and should handle numbers as large as 999.0 or -999.0.
  */
-void MatrixPrint(float mat[3][3]);
+void MatrixPrint(float mat[DIM][DIM]);
 
 
 /*******************************************************************************
@@ -69,7 +69,7 @@ void MatrixPrint(float mat[3][3]);
  *
  * Neither mat1 nor mat2 is modified by this function.
  */
-int MatrixEquals(float mat1[3][3], float mat2[3][3]);
+int MatrixEquals(float mat1[DIM][DIM], float mat2[DIM][DIM]);
 
 /**
  * MatrixAdd performs an element-wise matrix addition operation on two 3x3 
@@ -85,7 +85,7 @@ int MatrixEquals(float mat1[3][3], float mat2[3][3]);
  * mat1 and mat2 are not modified by this function. result is modified by this
  * function.
  */
-void MatrixAdd(float mat1[3][3], float mat2[3][3], float result[3][3]);
+void MatrixAdd(float mat1[DIM][DIM], float mat2[DIM][DIM], float result[DIM][DIM]);
 
 /**
  * MatrixMultiply performs a matrix-matrix multiplication operation on two 3x3
@@ -101,7 +101,7 @@ void MatrixAdd(float mat1[3][3], float mat2[3][3], float result[3][3]);
  * mat1 and mat2 are not modified by this function.  result is modified by 
  * this function.
  */
-void MatrixMultiply(float mat1[3][3], float mat2[3][3], float result[3][3]);
+void MatrixMultiply(float mat1[DIM][DIM], float mat2[DIM][DIM], float result[DIM][DIM]);
 
 
 /*******************************************************************************
@@ -122,7 +122,7 @@ void MatrixMultiply(float mat1[3][3], float mat2[3][3], float result[3][3]);
  * x and mat are not modified by this function.  result is modified by this 
  * function.
  */
-void MatrixScalarAdd(float x, float mat[3][3], float result[3][3]);
+void MatrixScalarAdd(float x, float mat[DIM][DIM], float result[DIM][DIM]);
 
 /**
  * MatrixScalarAdd performs the multiplication of a matrix and a scalar.
@@ -138,7 +138,7 @@ void MatrixScalarAdd(float x, float mat[3][3], float result[3][3]);
  * x and mat are not modified by this function.  result is modified by this 
  * function.
  */
-void MatrixScalarMultiply(float x, float mat[3][3], float result[3][3]);
+void MatrixScalarMultiply(float x, float mat[DIM][DIM], float result[DIM][DIM]);
 
 
 /*******************************************************************************
@@ -152,7 +152,7 @@ void MatrixScalarMultiply(float x, float mat[3][3], float result[3][3]);
  *
  * @return: the trace of mat
  */
-float MatrixTrace(float mat[3][3]);
+float MatrixTrace(float mat[DIM][DIM]);
 
 /**
  * MatrixTranspose calculates the transpose of a matrix and "returns" the
@@ -163,7 +163,7 @@ float MatrixTrace(float mat[3][3]);
  *
  * mat is not modified by this function.  result is modified by this function.
  */
-void MatrixTranspose(float mat[3][3], float result[3][3]);
+void MatrixTranspose(float mat[DIM][DIM], float result[DIM][DIM]);
 
 /**
  * MatrixSubmatrix finds a submatrix of a 3x3 matrix that is 
@@ -179,7 +179,7 @@ void MatrixTranspose(float mat[3][3], float result[3][3]);
  * 
  * mat is not modified by this function.  Result is modified by this function.
  */
-void MatrixSubmatrix(int i, int j, float mat[3][3], float result[2][2]);
+void MatrixSubmatrix(int i, int j, float mat[DIM][DIM], float result[2][2]);
 
 /**
  * MatrixDeterminant calculates the determinant of a 3x3 matrix 
@@ -191,7 +191,7 @@ void MatrixSubmatrix(int i, int j, float mat[3][3], float result[2][2]);
  *
  * mat is not modified by this function.
  * */
-float MatrixDeterminant(float mat[3][3]);
+float MatrixDeterminant(float mat[DIM][DIM]);
 
 
 /* MatrixInverse calculates the inverse of a matrix and
@@ -204,6 +204,6 @@ float MatrixDeterminant(float mat[3][3]);
  *
  * mat is not modified by this function.  result is modified by this function.
  */
-void MatrixInverse(float mat[3][3], float result[3][3]);
+void MatrixInverse(float mat[DIM][DIM], float result[DIM][DIM]);
 
 #endif /*   MATRIX_MATH_H   */
