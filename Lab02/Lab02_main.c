@@ -1,19 +1,30 @@
-/**
- * @file    Lab02_main.c
+/*
+ * @file    Lab2_main.c
  *
- * Top wrapper for Calculator
+ * Math is fun!!
  *
- * @author Kyle C.
+ * @author  HARE Lab
+ * @author  jLab
+ * @version 1.0.0
  *
- * @date 2025-04-04
+ * @date 13 Aug 2024.
  */
+// Standard libraries.
+#include <stdio.h>
+#include <math.h>
 
-#include "Calculator.h"
+
+// CalculatorRun() prototype.
+void CalculatorRun(void);
 
 int main(void)
 {
-    while (1)
-    {
-        CalculatorRun();
-    }
+    CalculatorRun();
+
+    printf(
+        "Calculator has exited; "
+        "please restart to perform more calculations.\r\n"
+    );
+    while(1);
 }
+

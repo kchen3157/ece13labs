@@ -16,7 +16,20 @@
 // BOARD.h contains useful #defines, e.g. "SUCCESS".
 // #include "BOARD.h"
 
-#include "Calculator.h"
+// Function declares
+void CalculatorRun(void);
+
+double Add(double operand1, double operand2);
+double Subtract(double operand1, double operand2);
+double Multiply(double operand1, double operand2);
+double Divide(double operand1, double operand2);
+double AbsoluteValue(double operand);
+double FahrenheitToCelsius(double operand);
+double CelsiusToFahrenheit(double operand);
+double Tangent(double operand);
+double Average(double operand1, double operand2);
+double Round(double operand);
+
 
 void CalculatorRun(void)
 {
