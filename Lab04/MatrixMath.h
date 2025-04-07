@@ -179,7 +179,7 @@ void MatrixTranspose(float mat[DIM][DIM], float result[DIM][DIM]);
  * 
  * mat is not modified by this function.  Result is modified by this function.
  */
-void MatrixSubmatrix(int i, int j, float mat[DIM][DIM], float result[2][2]);
+void MatrixSubmatrix(int i, int j, float mat[DIM][DIM], float result[DIM - 1][DIM - 1]);
 
 /**
  * MatrixDeterminant calculates the determinant of a 3x3 matrix 
