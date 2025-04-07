@@ -27,6 +27,7 @@ float test_matrix_4[3][3] = {{16, 32, 8}, {4, 36, 28}, {4, 16, 32}};            
 float test_matrix_5[3][3] = {{12, 13, 6}, {4, 12, 14}, {7, 4, 10}};                                                       // test_matrix_1 + test_matrix_2
 float test_matrix_6[3][3] = {{9, 13, 7}, {6, 14, 12}, {6, 9, 13}};                                                        // test_matrix_1 + 5
 float test_matrix_7[3][3] = {{0.27848, -0.35443, 0.24050}, {-0.00632, 0.18987, -0.16455}, {-0.03164, -0.05063, 0.17721}}; // test_matrix^-1
+float test_matrix_8[3][3] = {{4, 1, 1}, {8, 9, 4}, {2, 7, 8}};                                                            // trans(test_matrix)
 
 int main(void)
 {
@@ -133,15 +134,44 @@ int main(void)
     MatrixInverse(test_matrix_1, temp);
     if (!(MatrixEquals(test_matrix_7, temp)))
     {
-        MatrixPrint(temp);
         printf("Test 1 MatrixInverse() failed\n");
         return -1;
     }
+    MatrixInverse(id_matrix, temp);
+    if (!(MatrixEquals(id_matrix, temp)))
+    {
+        printf("Test 2 MatrixInverse() failed\n");
+        return -1;
+    }
     printf("All MatrixInverse() tests passed.\n");
-    // Test MatrixTranspose()
-    // Test MatrixTrace()
 
-    // Add more tests here!
-    while (1)
-        ;
+    // Test MatrixTranspose()
+    MatrixTranspose(id_matrix, temp);
+    if (!(MatrixEquals(id_matrix, temp)))
+    {
+        printf("Test 1 MatrixTranspose() failed\n");
+        return -1;
+    }
+    MatrixTranspose(test_matrix_1, temp);
+    if (!(MatrixEquals(test_matrix_8, temp)))
+    {
+        printf("Test 2 MatrixTranspose() failed\n");
+        return -1;
+    }
+    printf("All MatrixTranspose() tests passed.\n");
+
+    // Test MatrixTrace()
+    if (!(MatrixTrace(id_matrix) == DIM))
+    {
+        printf("Test 1 MatrixTrace() failed\n");
+        return -1;
+    }
+    if (!(MatrixTrace(test_matrix_1) == 21))
+    {
+        printf("Test 2 MatrixTrace() failed\n");
+        return -1;
+    }
+    printf("All MatrixTrace() tests passed.\n");
+
+    return 0;
 }

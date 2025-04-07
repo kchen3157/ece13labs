@@ -159,9 +159,22 @@ float MatrixDeterminant(float mat[DIM][DIM])
 
 void MatrixInverse(float mat[DIM][DIM], float result[DIM][DIM])
 {
+    // get cofactor matrix
+    float mat_cof[DIM][DIM];
+    float temp[DIM - 1][DIM - 1];
+    for (int i = 0; i < DIM; i++)
+    {
+        for (int j = 0; j < DIM; j++)
+        {
+            MatrixSubmatrix(i, j, mat, temp);
+            mat_cof[i][j] = temp[0][0] * temp[1][1] - temp[0][1] * temp[1][0];
+        }
+    }
+
+
     float mat_transposed[DIM][DIM];
     
-    MatrixTranspose(mat, mat_transposed);
+    MatrixTranspose(mat_cof, mat_transposed);
 
     // Apply signs to transposed matrix
     for (int i = 0; i < DIM; i++)
@@ -174,6 +187,6 @@ void MatrixInverse(float mat[DIM][DIM], float result[DIM][DIM])
             }
         }
     }
-    
-    MatrixScalarMultiply(MatrixDeterminant(mat), mat, result);
+        
+    MatrixScalarMultiply(1 / MatrixDeterminant(mat), mat_transposed, result);
 }
