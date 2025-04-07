@@ -10,9 +10,13 @@
 
 
 #include <stdio.h>
+#include <math.h>
 
 
 #include "MatrixMath.h"
+
+
+
 
 void MatrixPrint(float mat[DIM][DIM])
 {
@@ -20,10 +24,11 @@ void MatrixPrint(float mat[DIM][DIM])
     {
         for (int j = 0; j < DIM; j++)
         {
-            printf("%3.4f\t", mat[i][j]);
+            printf("%08.4f\t", mat[i][j]);
         }
         printf("\n");
     }
+    printf("\n");
 }
 
 int MatrixEquals(float mat1[DIM][DIM], float mat2[DIM][DIM])
@@ -32,7 +37,7 @@ int MatrixEquals(float mat1[DIM][DIM], float mat2[DIM][DIM])
     {
         for (int j = 0; j < DIM; j++)
         {
-            if (mat1[i][j] != mat2[i][j])
+            if (fabs(mat1[i][j] - mat2[i][j]) > FP_DELTA)
             {
                 return 0;
             }
@@ -63,7 +68,7 @@ void MatrixMultiply(float mat1[DIM][DIM], float mat2[DIM][DIM], float result[DIM
             // Sum all products of a row/col pair.
             for (int pos = 0; pos < DIM; pos++)
             {
-                result[mat1_row][mat2_col] += mat1[mat1_row][pos] * mat2[mat2_col][pos];
+                result[mat1_row][mat2_col] += mat1[mat1_row][pos] * mat2[pos][mat2_col];
             }
         }
     }
@@ -137,7 +142,7 @@ float MatrixDeterminant(float mat[DIM][DIM])
     int signs[DIM];
     for (int i = 0; i < DIM; i++)
     {
-        signs[i] = (i % 2 == 0) ? -1 : 1;
+        signs[i] = (i % 2 == 0) ? 1 : -1;
     }
 
     float result = 0;
@@ -145,8 +150,8 @@ float MatrixDeterminant(float mat[DIM][DIM])
     {
         // Sum of minor determinants
         float minor[DIM - 1][DIM - 1];
-        MatrixSubmatrix(col, 0, mat, minor);
-        result += signs[col] * (minor[0][0] * minor[1][1] - minor[0][1] * minor[1][0]);
+        MatrixSubmatrix(0, col, mat, minor);
+        result += signs[col] * mat[0][col] * (minor[0][0] * minor[1][1] - minor[0][1] * minor[1][0]);
     }
 
     return result;
