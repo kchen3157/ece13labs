@@ -76,7 +76,7 @@ void CalculatorRun(void)
             scanf("%lf", &operand1);
             printf("Type in operand 2: ");
             scanf("%lf", &operand2);
-            if (operand2 == 0) // Handle div by 0
+            if (Divide(operand1, operand2) == HUGE_VAL) // Handle div by 0
             {
                 printf("ERROR: Cannot divide by zero!\n");
                 continue;
@@ -147,6 +147,10 @@ double Multiply(double operand1, double operand2)
  ******************************************************************************/
 double Divide(double operand1, double operand2)
 {
+    if (operand2 == 0)
+    {
+        return HUGE_VAL;
+    }
     return operand1 / operand2;
 }
 
