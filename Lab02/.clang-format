@@ -1,0 +1,6 @@
+
+BasedOnStyle: LLVM
+SpaceBeforeAssignmentOperators: true
+SpacesInParentheses: false
+BreakBeforeBraces: Allman
+AllowShortFunctionsOnASingleLine: None
