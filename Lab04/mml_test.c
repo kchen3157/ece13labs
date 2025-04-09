@@ -31,6 +31,10 @@ float test_matrix_8[3][3] = {{4, 1, 1}, {8, 9, 4}, {2, 7, 8}};                  
 
 int main(void)
 {
+    // Temporary matrix to store function results
+    float temp[3][3];
+
+    // Test MatrixPrint()  
     printf(
         "Beginning CRUZID's mml test harness, compiled on %s %s\n",
         __DATE__,
@@ -41,9 +45,6 @@ int main(void)
     MatrixPrint(max_matrix);
     MatrixPrint(min_matrix);
     MatrixPrint(test_matrix_1);
-
-    // Temporary matrix to store function results
-    float temp[3][3];
 
     // Test MatrixEquals()
     if (!(MatrixEquals(test_matrix_1, test_matrix_1)))
