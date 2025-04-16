@@ -14,6 +14,7 @@
 #ifdef STM32F4
 #include <BOARD.h>
 #include <Dma.h>
+#include <stdio.h>
 #else
 #include <stdlib.h>
 #include "BOARD.h"
@@ -29,8 +30,7 @@ static int8_t initStatus = FALSE;
 
 // Define UART2 handler and setup printf() functionality.
 #ifdef STM32F4
-UART_HandleTypeDef huart2;
-DMA_HandleTypeDef hdma_usart2_rx;
+static char rxBuffer[UART_RX_CIRCULAR_BUFFER_SIZE];
 #ifdef __GNUC__
 #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
 #define GETCHAR_PROTOTYPE int __io_getchar(void)
@@ -54,8 +54,32 @@ GETCHAR_PROTOTYPE
 
     // Wait for reception of a character on the USART RX line and echo this
     // character on console.
-    HAL_UART_Receive(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+    // HAL_UART_Receive(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+    // #ifdef GETCHAR_ECHO_BACK_ENABLE
     // HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+    // #endif
+
+    // UART DMA circular buffer:
+    // Retrieve the next available character in the UART RX circular buffer.
+    // If there is no new data in rxBuffer, wait.
+    // Known issue: Overruns cause rxBuffer to be dumped.
+    // --> stdin_index interprets dma_index overtaking it as rxBuffer being empty of unread data.
+    uint32_t dma_index;
+    static uint32_t stdin_index = 0;
+    do
+    {
+        dma_index = UART_RX_CIRCULAR_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart2_rx);
+    } while (dma_index == stdin_index);
+    // while ((UART_RX_CIRCULAR_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart2_rx)) == stdin_index); // Equivalent statement as above.
+    ch = rxBuffer[stdin_index];
+#ifdef GETCHAR_ERASE_LAST_READ_BYTE_ENABLE
+    rxBuffer[stdin_index] = 0;
+#endif
+#ifdef GETCHAR_LOOPBACK_ENABLE
+    HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+#endif
+    stdin_index = (stdin_index + 1) % UART_RX_CIRCULAR_BUFFER_SIZE;
+
     return ch;
 }
 #endif /*  STM32F4 */
@@ -129,32 +153,6 @@ static int8_t Serial_Init(void)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /* USART2 DMA Init */
-    /* USART2_RX Init */
-    hdma_usart2_rx.Instance = DMA1_Stream5;
-    hdma_usart2_rx.Init.Channel = DMA_CHANNEL_4;
-    hdma_usart2_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
-    hdma_usart2_rx.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_usart2_rx.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_usart2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_usart2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_usart2_rx.Init.Mode = DMA_CIRCULAR;
-    hdma_usart2_rx.Init.Priority = DMA_PRIORITY_LOW;
-    hdma_usart2_rx.Init.FIFOMode = DMA_FIFOMODE_ENABLE;          // Disable for idle line?
-    hdma_usart2_rx.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL; // not needed?
-    hdma_usart2_rx.Init.MemBurst = DMA_MBURST_SINGLE;
-    hdma_usart2_rx.Init.PeriphBurst = DMA_PBURST_SINGLE;
-    if (HAL_DMA_Init(&hdma_usart2_rx) != HAL_OK)
-    {
-        ErrorHandler();
-    }
-
-    __HAL_LINKDMA(&huart2, hdmarx, hdma_usart2_rx);
-
-    /* USART2 interrupt Init */
-    HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(USART2_IRQn);
-
     // Initialize UART2 for serial communications over USB.
     huart2.Instance = USART2;
     huart2.Init.BaudRate = 115200;
@@ -166,8 +164,41 @@ static int8_t Serial_Init(void)
     huart2.Init.OverSampling = UART_OVERSAMPLING_16;
     if (HAL_UART_Init(&huart2) != HAL_OK)
     {
-        ErrorHandler();
+        return ERROR;
     }
+
+    /* USART2 DMA Init */
+    /* USART2_RX Init */
+    hdma_usart2_rx.Instance = DMA1_Stream5;
+    hdma_usart2_rx.Init.Channel = DMA_CHANNEL_4;
+    hdma_usart2_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_usart2_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_usart2_rx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_usart2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_usart2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_usart2_rx.Init.Mode = DMA_CIRCULAR;
+    hdma_usart2_rx.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_usart2_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE; // Disable for idle line?
+    // hdma_usart2_rx.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL; // not needed?
+    // hdma_usart2_rx.Init.MemBurst = DMA_MBURST_SINGLE;
+    // hdma_usart2_rx.Init.PeriphBurst = DMA_PBURST_SINGLE;
+    if (HAL_DMA_Init(&hdma_usart2_rx) != HAL_OK)
+    {
+        return ERROR;
+    }
+
+    __HAL_LINKDMA(&huart2, hdmarx, hdma_usart2_rx);
+
+    /* USART2 interrupt Init */
+    HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USART2_IRQn);
+
+    if (HAL_UARTEx_ReceiveToIdle_DMA(&huart2, (uint8_t *)rxBuffer, UART_RX_CIRCULAR_BUFFER_SIZE) != HAL_OK)
+    {
+        return ERROR;
+    }
+    setvbuf(stdin, rxBuffer, _IONBF, UART_RX_CIRCULAR_BUFFER_SIZE); // No effect?
+    setvbuf(stdout, NULL, _IONBF, 0);
 #endif
     return SUCCESS;
 }
@@ -237,7 +268,7 @@ int8_t BOARD_Init()
     {
 #ifdef STM32F4
         HAL_Init();
-#endif  /*  STM32F4 */
+#endif /*  STM32F4 */
         SystemClock_Config();
 
         if (Nucleo_Init() == ERROR)
@@ -246,7 +277,7 @@ int8_t BOARD_Init()
         }
 #ifdef STM32F4
         DMA_Init(); // Manages RX FIFO for UART 1 2 6
-#endif   /*  STM32F4 */
+#endif              /*  STM32F4 */
         if (Serial_Init() == ERROR)
         {
             return ERROR;

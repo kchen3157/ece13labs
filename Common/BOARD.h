@@ -46,6 +46,19 @@ enum {
   STANDARD_ERROR
 };
 
+#ifdef STM32F4
+UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_usart2_rx;
+#ifndef UART_RX_CIRCULAR_BUFFER_SIZE
+#define UART_RX_CIRCULAR_BUFFER_SIZE 1000
+#endif
+#if defined(UART_RX_CIRCULAR_BUFFER_SIZE) && (UART_RX_CIRCULAR_BUFFER_SIZE > (0xFFFF))
+#error UART_RX_CIRCULAR_BUFFER_SIZE may not exceed the DMA NDTR register 16-bit maximum value of 65535 (0xFFFF).
+#endif
+#define GETCHAR_LOOPBACK_ENABLE
+// #define GETCHAR_ERASE_LAST_READ_BYTE_ENABLE
+#endif
+
 
 /*  PROTOTYPES  */
 /** BOARD_Init()

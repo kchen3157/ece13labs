@@ -103,17 +103,14 @@ int8_t UART1_ConfigDMA(void)
     hdma_usart1_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_usart1_rx.Init.Mode = DMA_CIRCULAR;
     hdma_usart1_rx.Init.Priority = DMA_PRIORITY_LOW;
-    hdma_usart1_rx.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
-    hdma_usart1_rx.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
-    hdma_usart1_rx.Init.MemBurst = DMA_MBURST_SINGLE;
-    hdma_usart1_rx.Init.PeriphBurst = DMA_PBURST_SINGLE;
+    hdma_usart1_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     if (HAL_DMA_Init(&hdma_usart1_rx) != HAL_OK)
     {
         return ERROR;
     }
 
     __HAL_LINKDMA(&huart1, hdmarx, hdma_usart1_rx);
-    
+
     return SUCCESS;
 }
 
@@ -150,10 +147,7 @@ int8_t UART6_ConfigDMA(void)
     hdma_usart6_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_usart6_rx.Init.Mode = DMA_CIRCULAR;
     hdma_usart6_rx.Init.Priority = DMA_PRIORITY_LOW;
-    hdma_usart6_rx.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
-    hdma_usart6_rx.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
-    hdma_usart6_rx.Init.MemBurst = DMA_MBURST_SINGLE;
-    hdma_usart6_rx.Init.PeriphBurst = DMA_PBURST_SINGLE;
+    hdma_usart6_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     if (HAL_DMA_Init(&hdma_usart6_rx) != HAL_OK)
     {
         return ERROR;
@@ -198,13 +192,22 @@ int8_t UART1_Init(int rate, uint8_t *rxBuffer)
         {
             return ERROR;
         }
-        
+
         UART1_ConfigDMA();
 
         HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
         HAL_NVIC_EnableIRQ(USART1_IRQn);
 
         HAL_UART_Receive_IT(&huart1, rxBuffer, 1);
+        // // Set up DMA to move bytes from UART1 RX data register to rxBuffer
+        // if (HAL_UARTEx_ReceiveToIdle_DMA(&huart1, rxBuffer, /* # of elements in rxBuffer */) != HAL_OK)
+        // {
+        //     return ERROR;
+        // }
+        // // Optional buffer settings and redirection.
+        // setvbuf(stdin, rxBuffer, _IONBF, UART_RX_CIRCULAR_BUFFER_SIZE); // No effect?
+        // setvbuf(stdout, NULL, _IONBF, 0);
+
         initStatusUart1 = TRUE;
     }
     return SUCCESS;
@@ -291,6 +294,16 @@ int8_t UART6_Init(int rate, uint8_t *rxBuffer)
         HAL_NVIC_EnableIRQ(USART6_IRQn);
 
         HAL_UART_Receive_IT(&huart6, rxBuffer, 1);
+
+        // // Set up DMA to move bytes from UART6 RX data register to rxBuffer
+        // if (HAL_UARTEx_ReceiveToIdle_DMA(&huart6, rxBuffer, /* # of elements in rxBuffer */) != HAL_OK)
+        // {
+        //     return ERROR;
+        // }
+        // // Optional buffer settings and redirection.
+        // setvbuf(stdin, rxBuffer, _IONBF, UART_RX_CIRCULAR_BUFFER_SIZE); // No effect?
+        // setvbuf(stdout, NULL, _IONBF, 0);
+
         initStatusUart6 = TRUE;
     }
 
