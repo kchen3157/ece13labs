@@ -44,7 +44,7 @@ enum rpn_error{
  * decimal floats.  RPN_Evaluate should be able to handle strings of 
  * at least 255 length.
  * */
-int RPN_Evaluate(char * rpn_string, double * result);
+int RPN_Evaluate(char *rpn_string, double *result);
 
 
 /**
