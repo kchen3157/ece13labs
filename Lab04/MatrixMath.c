@@ -17,7 +17,7 @@
  * Matrix Display:
  ******************************************************************************/
 
-void MatrixPrint(float mat[DIM][DIM])
+void MatrixPrint(float mat[3][3])
 {
     for (int i = 0; i < DIM; i++)
     {
@@ -34,7 +34,7 @@ void MatrixPrint(float mat[DIM][DIM])
  * Matrix - Matrix Operations
  ******************************************************************************/
 
-int MatrixEquals(float mat1[DIM][DIM], float mat2[DIM][DIM])
+int MatrixEquals(float mat1[3][3], float mat2[3][3])
 {
     for (int i = 0; i < DIM; i++)
     {
@@ -50,7 +50,7 @@ int MatrixEquals(float mat1[DIM][DIM], float mat2[DIM][DIM])
     return 1;
 }
 
-void MatrixAdd(float mat1[DIM][DIM], float mat2[DIM][DIM], float result[DIM][DIM])
+void MatrixAdd(float mat1[3][3], float mat2[3][3], float result[3][3])
 {
     for (int i = 0; i < DIM; i++)
     {
@@ -61,7 +61,7 @@ void MatrixAdd(float mat1[DIM][DIM], float mat2[DIM][DIM], float result[DIM][DIM
     }
 }
 
-void MatrixMultiply(float mat1[DIM][DIM], float mat2[DIM][DIM], float result[DIM][DIM])
+void MatrixMultiply(float mat1[3][3], float mat2[3][3], float result[3][3])
 {
     for (int mat1_row = 0; mat1_row < DIM; mat1_row++)
     {
@@ -81,7 +81,7 @@ void MatrixMultiply(float mat1[DIM][DIM], float mat2[DIM][DIM], float result[DIM
  * Matrix - Scalar Operations
  ******************************************************************************/
 
-void MatrixScalarAdd(float x, float mat[DIM][DIM], float result[DIM][DIM])
+void MatrixScalarAdd(float x, float mat[3][3], float result[3][3])
 {
     for (int i = 0; i < DIM; i++)
     {
@@ -92,7 +92,7 @@ void MatrixScalarAdd(float x, float mat[DIM][DIM], float result[DIM][DIM])
     }
 }
 
-void MatrixScalarMultiply(float x, float mat[DIM][DIM], float result[DIM][DIM])
+void MatrixScalarMultiply(float x, float mat[3][3], float result[3][3])
 {
     for (int i = 0; i < DIM; i++)
     {
@@ -107,7 +107,7 @@ void MatrixScalarMultiply(float x, float mat[DIM][DIM], float result[DIM][DIM])
  * Unary Matrix Operations
  ******************************************************************************/
 
-float MatrixTrace(float mat[DIM][DIM])
+float MatrixTrace(float mat[3][3])
 {
     float trace = 0;
     for (int i = 0; i < DIM; i++)
@@ -117,7 +117,7 @@ float MatrixTrace(float mat[DIM][DIM])
     return trace;
 }
 
-void MatrixTranspose(float mat[DIM][DIM], float result[DIM][DIM])
+void MatrixTranspose(float mat[3][3], float result[3][3])
 {
     for (int i = 0; i < DIM; i++)
     {
@@ -128,7 +128,7 @@ void MatrixTranspose(float mat[DIM][DIM], float result[DIM][DIM])
     }
 }
 
-void MatrixSubmatrix(int i, int j, float mat[DIM][DIM], float result[DIM - 1][DIM - 1])
+void MatrixSubmatrix(int i, int j, float mat[3][3], float result[3 - 1][3 - 1])
 {
     for (int mat_row = 0, res_row = 0; mat_row < DIM && res_row < (DIM - 1); mat_row++)
     {
@@ -147,7 +147,7 @@ void MatrixSubmatrix(int i, int j, float mat[DIM][DIM], float result[DIM - 1][DI
     }
 }
 
-float MatrixDeterminant(float mat[DIM][DIM])
+float MatrixDeterminant(float mat[3][3])
 {
     // Generate vector of signs for first row
     int signs[DIM];
@@ -168,7 +168,7 @@ float MatrixDeterminant(float mat[DIM][DIM])
     return result;
 }
 
-void MatrixInverse(float mat[DIM][DIM], float result[DIM][DIM])
+void MatrixInverse(float mat[3][3], float result[3][3])
 {
     // get cofactor matrix
     float mat_cof[DIM][DIM];
