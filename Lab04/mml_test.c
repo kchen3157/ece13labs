@@ -66,10 +66,16 @@ int main(void)
         printf("Test 1 MatrixMultiply() failed\n");
         return -1;
     }
+    MatrixMultiply(test_matrix_2, test_matrix_1, temp);
+    if ((MatrixEquals(test_matrix_3, temp)))
+    {
+        printf("Test 2 MatrixMultiply() failed\n");
+        return -1;
+    }
     MatrixMultiply(test_matrix_1, zero_matrix, temp);
     if (!(MatrixEquals(zero_matrix, temp)))
     {
-        printf("Test 2 MatrixMultiply() failed\n");
+        printf("Test 3 MatrixMultiply() failed\n");
         return -1;
     }
     printf("All MatrixMultiply() tests passed.\n");
@@ -115,6 +121,12 @@ int main(void)
         printf("Test 2 MatrixAdd() failed\n");
         return -1;
     }
+    MatrixAdd(test_matrix_2, test_matrix_1, temp);
+    if (!(MatrixEquals(temp, test_matrix_5)))
+    {
+        printf("Test 3 MatrixAdd() failed\n");
+        return -1;
+    }
     printf("All MatrixAdd() tests passed.\n");
 
     // Test MatrixScalarAdd()
@@ -133,16 +145,22 @@ int main(void)
     printf("All MatrixScalarAdd() tests passed.\n");
 
     // Test MatrixInverse()
-    MatrixInverse(test_matrix_1, temp);
+    MatrixInverse(test_matrix_1, temp); // M1^-1 = M7
     if (!(MatrixEquals(test_matrix_7, temp)))
     {
         printf("Test 1 MatrixInverse() failed\n");
         return -1;
     }
-    MatrixInverse(id_matrix, temp);
+    MatrixInverse(temp, temp); // M1^-1^-1 = M1
+    if (!(MatrixEquals(test_matrix_1, temp)))
+    {   
+        printf("Test 2 MatrixInverse() failed\n");
+        return -1;
+    }
+    MatrixInverse(id_matrix, temp); // I^-1 = I
     if (!(MatrixEquals(id_matrix, temp)))
     {
-        printf("Test 2 MatrixInverse() failed\n");
+        printf("Test 3 MatrixInverse() failed\n");
         return -1;
     }
     printf("All MatrixInverse() tests passed.\n");
@@ -158,6 +176,12 @@ int main(void)
     if (!(MatrixEquals(test_matrix_8, temp)))
     {
         printf("Test 2 MatrixTranspose() failed\n");
+        return -1;
+    }
+    MatrixTranspose(test_matrix_8, temp);
+    if (!(MatrixEquals(test_matrix_1, temp)))
+    {
+        printf("Test 3 MatrixTranspose() failed\n");
         return -1;
     }
     printf("All MatrixTranspose() tests passed.\n");
