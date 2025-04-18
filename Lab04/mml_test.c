@@ -1,6 +1,6 @@
 /**
  * @file mml_test_template.c
- * 
+ *
  * Test suite for MatrixMath.c
  *
  * @author Kyle Chen
@@ -34,17 +34,15 @@ int main(void)
     // Temporary matrix to store function results
     float temp[3][3];
 
-    // Test MatrixPrint()  
+    // Test MatrixPrint()
     printf(
         "Beginning CRUZID's mml test harness, compiled on %s %s\n",
         __DATE__,
         __TIME__);
 
     printf("Demonstrating MatrixPrint():\n");
-    MatrixPrint(id_matrix);
     MatrixPrint(max_matrix);
     MatrixPrint(min_matrix);
-    MatrixPrint(test_matrix_1);
 
     // Test MatrixEquals()
     if (!(MatrixEquals(test_matrix_1, test_matrix_1)))
@@ -158,7 +156,7 @@ int main(void)
     }
     MatrixInverse(temp, temp); // M1^-1^-1 = M1
     if (!(MatrixEquals(test_matrix_1, temp)))
-    {   
+    {
         printf("Test 2 MatrixInverse() failed\n");
         return -1;
     }
