@@ -57,6 +57,11 @@ int main(void)
         printf("Test 2 MatrixEquals() failed\n");
         return -1;
     }
+    if (MatrixEquals(test_matrix_1, test_matrix_5))
+    {
+        printf("Test 3 MatrixEquals() failed\n");
+        return -1;
+    }
     printf("All MatrixEquals() tests passed.\n");
 
     // Test MatrixMultiply()
