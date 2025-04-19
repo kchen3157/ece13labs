@@ -35,7 +35,7 @@ float test_matrix_8[3][3] = {{4, 1, 1}, {8, 9, 4}, {2, 7, 8}}; // trans(test_mat
 float test_matrix_9[2][2] = {{1, 7}, {1, 8}}; // MatrixSubmatrix(test_matrix_1)
 
 // Helper test functions
-int MatrixEquals_2(float mat1[2][2], float mat2[2][2]); // Based on MatrixEquals
+int MatrixEquals_2(float mat1[DIM - 1][DIM - 1], float mat2[DIM - 1][DIM - 1]); // Based on MatrixEquals, modified for DIM-1*DIM-1 matrix
 
 int main(void)
 {
@@ -228,7 +228,9 @@ int main(void)
     return 0;
 }
 
-int MatrixEquals_2(float mat1[2][2], float mat2[2][2])
+
+// Helper equals function
+int MatrixEquals_2(float mat1[DIM - 1][DIM - 1], float mat2[DIM - 1][DIM - 1])
 {
     for (int i = 0; i < (DIM - 1); i++)
     {
