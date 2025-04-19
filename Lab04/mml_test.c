@@ -10,29 +10,37 @@
 // **** Include libraries here ****
 // Standard libraries.
 #include <stdio.h>
+#include <math.h>
 
 // User libraries:
 #include "MatrixMath.h"
 
 // Module-level variables:
 float zero_matrix[3][3] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
-float id_matrix[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+float id_matrix_3[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+float id_matrix_2[2][2] = {{1, 0}, {0, 1}};
 float max_matrix[3][3] = {{999.0, 999.0, 999.0}, {999.0, 999.0, 999.0}, {999.0, 999.0, 999.0}};
 float min_matrix[3][3] = {{999.0, -999.0, -999.0}, {999.0, -999.0, -999.0}, {-999.0, -999.0, -999.0}};
 
 float test_matrix_1[3][3] = {{4, 8, 2}, {1, 9, 7}, {1, 4, 8}};
 float test_matrix_2[3][3] = {{8, 5, 4}, {3, 3, 7}, {6, 0, 2}};
-float test_matrix_3[3][3] = {{68, 44, 76}, {77, 32, 81}, {68, 17, 48}};                                                   // test_matrix_1 * test_matrix_2
-float test_matrix_4[3][3] = {{16, 32, 8}, {4, 36, 28}, {4, 16, 32}};                                                      // test_matrix_1 * 4
-float test_matrix_5[3][3] = {{12, 13, 6}, {4, 12, 14}, {7, 4, 10}};                                                       // test_matrix_1 + test_matrix_2
-float test_matrix_6[3][3] = {{9, 13, 7}, {6, 14, 12}, {6, 9, 13}};                                                        // test_matrix_1 + 5
-float test_matrix_7[3][3] = {{0.27848, -0.35443, 0.24050}, {-0.00632, 0.18987, -0.16455}, {-0.03164, -0.05063, 0.17721}}; // test_matrix^-1
-float test_matrix_8[3][3] = {{4, 1, 1}, {8, 9, 4}, {2, 7, 8}};                                                            // trans(test_matrix)
+float test_matrix_3[3][3] = {{68, 44, 76}, {77, 32, 81}, {68, 17, 48}}; // test_matrix_1 * test_matrix_2
+float test_matrix_4[3][3] = {{16, 32, 8}, {4, 36, 28}, {4, 16, 32}};    // test_matrix_1 * 4
+float test_matrix_5[3][3] = {{12, 13, 6}, {4, 12, 14}, {7, 4, 10}};     // test_matrix_1 + test_matrix_2
+float test_matrix_6[3][3] = {{9, 13, 7}, {6, 14, 12}, {6, 9, 13}};      // test_matrix_1 + 5
+float test_matrix_7[3][3] = {{0.27848, -0.35443, 0.24050},
+                             {-0.00632, 0.18987, -0.16455},
+                             {-0.03164, -0.05063, 0.17721}};   // test_matrix^-1
+float test_matrix_8[3][3] = {{4, 1, 1}, {8, 9, 4}, {2, 7, 8}}; // trans(test_matrix)
+float test_matrix_9[2][2] = {{1, 7}, {1, 8}}; // MatrixSubmatrix(test_matrix_1)
+
+// Helper test functions
+int MatrixEquals_2(float mat1[2][2], float mat2[2][2]); // Based on MatrixEquals
 
 int main(void)
 {
     // Temporary matrix to store function results
-    float temp[3][3];
+    float temp[3][3], temp_2[2][2];
 
     // Test MatrixPrint()
     printf(
@@ -43,6 +51,21 @@ int main(void)
     printf("Demonstrating MatrixPrint():\n");
     MatrixPrint(max_matrix);
     MatrixPrint(min_matrix);
+
+    // Test MatrixSubmatrix()
+    MatrixSubmatrix(0, 0, id_matrix_3, temp_2);
+    if (!(MatrixEquals_2(id_matrix_2, temp_2)))
+    {
+        printf("Test 1 MatrixSubmatrix() failed\n");
+        return -1;
+    }
+    MatrixSubmatrix(0, 1, test_matrix_1, temp_2);
+    if (!(MatrixEquals_2(test_matrix_9, temp_2)))
+    {
+        printf("Test 2 MatrixSubmatrix() failed\n");
+        return -1;
+    }
+    printf("All MatrixSubmatrix() tests passed.\n");
 
     // Test MatrixEquals()
     if (!(MatrixEquals(test_matrix_1, test_matrix_1)))
@@ -160,8 +183,8 @@ int main(void)
         printf("Test 2 MatrixInverse() failed\n");
         return -1;
     }
-    MatrixInverse(id_matrix, temp); // I^-1 = I
-    if (!(MatrixEquals(id_matrix, temp)))
+    MatrixInverse(id_matrix_3, temp); // I^-1 = I
+    if (!(MatrixEquals(id_matrix_3, temp)))
     {
         printf("Test 3 MatrixInverse() failed\n");
         return -1;
@@ -169,8 +192,8 @@ int main(void)
     printf("All MatrixInverse() tests passed.\n");
 
     // Test MatrixTranspose()
-    MatrixTranspose(id_matrix, temp);
-    if (!(MatrixEquals(id_matrix, temp)))
+    MatrixTranspose(id_matrix_3, temp);
+    if (!(MatrixEquals(id_matrix_3, temp)))
     {
         printf("Test 1 MatrixTranspose() failed\n");
         return -1;
@@ -190,7 +213,7 @@ int main(void)
     printf("All MatrixTranspose() tests passed.\n");
 
     // Test MatrixTrace()
-    if (!(MatrixTrace(id_matrix) == DIM))
+    if (!(MatrixTrace(id_matrix_3) == DIM))
     {
         printf("Test 1 MatrixTrace() failed\n");
         return -1;
@@ -203,4 +226,20 @@ int main(void)
     printf("All MatrixTrace() tests passed.\n");
 
     return 0;
+}
+
+int MatrixEquals_2(float mat1[2][2], float mat2[2][2])
+{
+    for (int i = 0; i < (DIM - 1); i++)
+    {
+        for (int j = 0; j < (DIM - 1); j++)
+        {
+            if (fabs(mat1[i][j] - mat2[i][j]) > FP_DELTA)
+            {
+                return 0;
+            }
+        }
+    }
+
+    return 1;
 }
