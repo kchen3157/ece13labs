@@ -125,7 +125,7 @@
     }
     else if (operator == '/')
     {
-        if (operand2 == 0)
+        if (operand1 == 0)
         {
             return RPN_ERROR_DIVIDE_BY_ZERO;
         }
