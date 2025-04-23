@@ -24,15 +24,61 @@ int main(void)
 
     // What follows is starter code. You will need to modify it!
     
-    printf("Does StackInit() set the currentItemIndex appropriately?\n");
     struct Stack stack;
+
+    //* Check Stack initializes properly
+    printf("Does StackInit() set the currentItemIndex appropriately?\n");
     StackInit(&stack);
-    if (stack.currentItemIndex == -1) {
-        printf("passed");
-    } else {
-        printf("failed");
+    if (stack.currentItemIndex != -1)
+    {
+        printf("failed\n");
+    }
+    printf("passed\n");
+
+    //* Check Stack stores values properly
+    printf("Does StackPush() store values properly?\n");
+    // Push digits of pi
+    StackPush(&stack, 3);
+    StackPush(&stack, 1);
+    StackPush(&stack, 4);
+    StackPush(&stack, 1);
+    StackPush(&stack, 5);
+    StackPush(&stack, 9);
+    StackPush(&stack, 2);
+
+    // Check if currentItemIndex is updated correctly
+    if (stack.currentItemIndex != 6)
+    {
+        printf("failed\n");
     }
 
+    // Check if stack is valid
+    if (stack.stackItems[6] != 2 
+        || stack.stackItems[5] != 9 
+        || stack.stackItems[4] != 5 
+        || stack.stackItems[3] != 1 
+        || stack.stackItems[2] != 4 
+        || stack.stackItems[1] != 1 
+        || stack.stackItems[0] != 3)
+    {
+        printf("failed\n");
+    } 
+
+    printf("passed\n");
+
+    //* Check Stack handles overflow properly
+
+    // Pop digits of pi
+    double value;
+    StackPop(&stack, &value);
+    if (value != 2) {
+        printf("failed\n");
+    }
+    StackPop(&stack, &value);
+    if (value != 9) {
+        printf("failed\n");
+    }
+    
     BOARD_End();
     //test stackInit:
     while (1);
