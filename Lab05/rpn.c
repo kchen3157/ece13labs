@@ -46,50 +46,53 @@
     
     StackInit(&rpn_stack);
 
-    // Init strtok()
-    strtok(rpn_string, &SPACE);
+    //* Load tokens into stack
+    token_ptr = strtok(rpn_string, &SPACE); // Init strtok(), read first token
     do
     {
-        token_ptr = strtok((char*) NULL, &SPACE);
+        // End of string
         if (token_ptr == NULL)
         {
             break;
         }
 
+        // Check if token is a number
         char* token_end_ptr;
         double token_numval = strtod(token_ptr, &token_end_ptr);
 
-        if (*token_end_ptr == '\0')
+        if (*token_end_ptr == '\0') // If token is a number
         {
             StackPush(&rpn_stack, token_numval);
         }
-        else
+        else // If token is operator
         {
             StackPop(&rpn_stack, &operand1);
             StackPop(&rpn_stack, &operand2);
+
+            if (*token_end_ptr == '+')
+            {
+                StackPush(&rpn_stack, operand1 + operand2);
+            }
+            else if (*token_end_ptr == '-')
+            {
+                StackPush(&rpn_stack, operand1 - operand2);
+            }
+            else if (*token_end_ptr == '*')
+            {
+                StackPush(&rpn_stack, operand1 * operand2);
+            }
+            else if (*token_end_ptr == '/')
+            {
+                StackPush(&rpn_stack, operand1 / operand2);
+            }
         }
 
-        if (token == '+')
-        { 
-            StackPush(&rpn_stack, operand1 + operand2);
-        }
-        else if (token == '-')
-        {
-            StackPush(&rpn_stack, operand1 - operand2);
-        }
-        else if (token == '*')
-        {
-            StackPush(&rpn_stack, operand1 + operand2);
-        }
-        else if (token == '/')
-        {
-            StackPush(&rpn_stack, operand2 / operand1);
-        }
-
+        // Next token
+        token_ptr = strtok((char*) NULL, &SPACE);
     } while (!(StackIsEmpty(&rpn_stack)));
 
     StackPop(&rpn_stack, result);
-    return SUCCESS;
+    return 0;
  }
 
  /**

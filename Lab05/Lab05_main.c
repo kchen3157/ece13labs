@@ -31,7 +31,7 @@ int main(void) {
     double result;
 
     printf(
-        "Welcome to CRUZID'S RPN calculator.  Compiled on %s %s",
+        "Welcome to CRUZID'S RPN calculator.  Compiled on %s %s\n",
         __DATE__,
         __TIME__
     );

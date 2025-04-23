@@ -24,7 +24,6 @@ int main(void)
 
     printf("\n###### Beginning CRUZID's stack test harness: ####\n\n");
 
-    // What follows is starter code. You will need to modify it!
     
     struct Stack stack;
     double temp;
