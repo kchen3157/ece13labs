@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
 // Course library.
 #include "BOARD.h"
@@ -17,28 +18,119 @@
 // User libraries.
 #include "rpn.h"
 
+#define FAIL(...) printf("failed: %s\n", __VA_ARGS__); return -1;
+#define PASS(...) printf("passed: %s\n", __VA_ARGS__);
+
+char simple_test_cases[8][70] = {"1 1 +", "7 8 +", "9 4 *", "5 6 *", 
+    "64 8 /", "81 3 /", "7 1 -", "4 2 -"};
+double simple_test_results[8] = {2, 15, 36, 30, 8, 27, 6, 2};
+
+char f_test_cases[8][70] = {"1.89 1.13 +", "7.23 8.63 +", 
+"9.36 4.75 *", "5.42 6.72 *", 
+"64.11 8.27 /", "82.60 3.34 /", 
+"7.61 1.36 -", "4.45 2.26 -"};
+double f_test_results[8] = {3.02, 15.86, 44.46, 36.4224, 7.752116, 24.730539, 6.25, 2.19};
+
+char complex_test_cases[5][70] = {"8 8.2 + 4 * 7 -", "8 6 2.34 89.3 74.3 / / - +", 
+"92 31.13 / 23 + 4.2 83 / /", "8 3 * 62.3 / 72.38 +",
+"74.23 74 8 0 7238 74 + + / - *"};
+double complex_test_results[5] = {57.8, 12.053057, 512.927126, 72.765233, 5492.938786};
+
+char error_test_cases[14][70] = {"4 0 /", "74.23 74 8 0 7238 74 + / / - *",  //RPN_ERROR_DIVIDE_BY_ZERO
+                                "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1", //RPN_ERROR_STACK_OVERFLOW
+                                "9 9 9 9 9 9 9 9 9 9 + 9 9 9 9 9 - 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9", //RPN_ERROR_STACK_OVERFLOW
+                                "8 97 / + *", "7 /", "", "*", "8 3 * 62.3 / 72.38 + -", "8 - - -", //RPN_ERROR_TOO_FEW_ITEMS_REMAIN
+                                "8 7 6 +", "74.23 74 8 0 7238 74 + + /", //RPN_ERROR_TOO_MANY_ITEMS_REMAIN
+                                "8 7 f", "783 73 627 / 87.3 + 84 k /"}; 
+int error_test_results[14] = {RPN_ERROR_DIVIDE_BY_ZERO, RPN_ERROR_DIVIDE_BY_ZERO,
+                                RPN_ERROR_STACK_OVERFLOW, RPN_ERROR_STACK_OVERFLOW,
+                                RPN_ERROR_TOO_FEW_ITEMS_REMAIN, RPN_ERROR_TOO_FEW_ITEMS_REMAIN,
+                                RPN_ERROR_TOO_FEW_ITEMS_REMAIN, RPN_ERROR_TOO_FEW_ITEMS_REMAIN,
+                                RPN_ERROR_TOO_FEW_ITEMS_REMAIN, RPN_ERROR_TOO_FEW_ITEMS_REMAIN,
+                                RPN_ERROR_TOO_MANY_ITEMS_REMAIN, RPN_ERROR_TOO_MANY_ITEMS_REMAIN,
+                                RPN_ERROR_INVALID_TOKEN, RPN_ERROR_INVALID_TOKEN};
 
 int main(void)
 {
     BOARD_Init();
-    int error;
 
     printf("\n###### Beginning CRUZID's rpn test harness: ####\n\n");
 
-    // What follows is starter code. You will need to modify it!
-    
-    char test0[] = "1 1 +";
-    double result0;
-    double expected0 = 2;
-    printf("Testing RPN_Evaluate with \"%s\"... \n ", test0);
-    error = RPN_Evaluate(test0, &result0);
-    if (error) {
-        printf("   Failed, RPN_Evaluate produced an error\n");
-    } else if (result0 != expected0) {
-        printf("   Failed, expected = %f , result = %f\n", expected0, result0);
-    } else {
-        printf("   Success!\n");
+    //* test simple testcases
+    double temp;
+    for (int i = 0; i < 8; i++)
+    {
+        printf("Testing RPN_Evaluate with \"%s\"... \n ", simple_test_cases[i]);
+        if (RPN_Evaluate(simple_test_cases[i], &temp) != RPN_NO_ERROR)
+        {
+            printf("\tFailed, RPN_Evaluate produced an error\n");
+        }
+        else if (temp != simple_test_results[i])
+        {
+            printf("\tFailed, expected = %f , result = %f\n", simple_test_results[i], temp);
+        }
+        else
+        {
+            printf("   Success!\n");
+        }
     }
+
+    //* test float testcases
+    for (int i = 0; i < 8; i++)
+    {
+        printf("Testing RPN_Evaluate with \"%s\"... \n ", f_test_cases[i]);
+        if (RPN_Evaluate(f_test_cases[i], &temp) != RPN_NO_ERROR)
+        {
+            printf("\tFailed, RPN_Evaluate produced an error\n");
+        }
+        else if (fabs(temp - f_test_results[i]) > 0.0001)
+        {
+            printf("\tFailed, expected = %f , result = %f\n", f_test_results[i], temp);
+        }
+        else
+        {
+            printf("   Success!\n");
+        }
+    }
+    
+    //* test complex testcases
+    for (int i = 0; i < 5; i++)
+    {
+        printf("Testing RPN_Evaluate with \"%s\"... \n ", complex_test_cases[i]);
+        if (RPN_Evaluate(complex_test_cases[i], &temp) != RPN_NO_ERROR)
+        {
+            printf("\tFailed, RPN_Evaluate produced an error\n");
+        }
+        else if (fabs(temp - complex_test_results[i]) > 0.0001)
+        {
+            printf("\tFailed, expected = %f , result = %f\n", complex_test_results[i], temp);
+        }
+        else
+        {
+            printf("   Success!\n");
+        }
+    }
+
+    //* test error testcases
+    int error_temp;
+    for (int i = 0; i < 14; i++)
+    {
+        printf("Error testing RPN_Evaluate with \"%s\"... \n ", error_test_cases[i]);
+        error_temp = RPN_Evaluate(error_test_cases[i], &temp);
+        if (error_temp == RPN_NO_ERROR)
+        {
+            printf("\tFailed, RPN_Evaluate did not produce an error\n");
+        }
+        else if (abs(error_temp - error_test_results[i]) > 0.0001)
+        {
+            printf("\tFailed, expected = %d , result = %d\n", error_test_results[i], error_temp);
+        }
+        else
+        {
+            printf("   Success!\n");
+        }
+    }
+    
 
     printf("Testing ProcessBackspaces:\n");
     char test_pb1[] = "123\b34";
