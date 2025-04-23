@@ -12,28 +12,9 @@
  #include "rpn.h"
  #include "stack.h"
 
+ int ProcessOperator(struct Stack *rpn_stack_ptr, char operator);
 
 
- /* RPN_Evaluate() parses and evaluates a string that contains 
- * a valid Reverse Polish Notation string (no newlines!)  
- *
- * @param:  rpn_string - a string in polish notation.  Tokens must be either 
- *          arithmetic operators or numbers.
- * @param:  result - a pointer to a double that will be modified to contain
- *          the return value of the rpn expression.
- *
- * @return: error - if the rpn expression is invalid, 
- *          an appropriate rpn_error value is returned.
- * 
- * RPN_Evaluate supports the following basic arithmetic operations:
- *   + : addition
- *   - : subtraction
- *   * : multiplication
- *   / : division
- * Numeric tokens can be positive or negative, and can be integers or 
- * decimal floats.  RPN_Evaluate should be able to handle strings of 
- * at least 255 length.
- * */
  int RPN_Evaluate(char *rpn_string, double *result)
  {
     const char SPACE = ' ';
@@ -42,7 +23,6 @@
     char token;
     char *token_ptr = &token;
 
-    double operand1, operand2;
     
     StackInit(&rpn_stack);
 
@@ -62,28 +42,18 @@
 
         if (*token_end_ptr == '\0') // If token is a number
         {
-            StackPush(&rpn_stack, token_numval);
+            // Push to stack
+            if (StackPush(&rpn_stack, token_numval) == STANDARD_ERROR)
+            {
+                return RPN_ERROR_STACK_OVERFLOW;
+            }
         }
         else // If token is operator
         {
-            StackPop(&rpn_stack, &operand1);
-            StackPop(&rpn_stack, &operand2);
-
-            if (*token_end_ptr == '+')
+            int error_status = ProcessOperator(&rpn_stack, *token_end_ptr);
+            if (error_status != RPN_NO_ERROR)
             {
-                StackPush(&rpn_stack, operand1 + operand2);
-            }
-            else if (*token_end_ptr == '-')
-            {
-                StackPush(&rpn_stack, operand1 - operand2);
-            }
-            else if (*token_end_ptr == '*')
-            {
-                StackPush(&rpn_stack, operand1 * operand2);
-            }
-            else if (*token_end_ptr == '/')
-            {
-                StackPush(&rpn_stack, operand1 / operand2);
+                return error_status;
             }
         }
 
@@ -91,25 +61,91 @@
         token_ptr = strtok((char*) NULL, &SPACE);
     } while (!(StackIsEmpty(&rpn_stack)));
 
-    StackPop(&rpn_stack, result);
-    return 0;
+    if (StackGetSize(&rpn_stack) > 1)
+    {
+        return RPN_ERROR_TOO_MANY_ITEMS_REMAIN;
+    }
+    else if (StackGetSize(&rpn_stack) < 1)
+    {
+        return RPN_ERROR_TOO_FEW_ITEMS_REMAIN;
+    }
+    
+
+    if (StackPop(&rpn_stack, result) == STANDARD_ERROR)
+    {
+        return RPN_ERROR_STACK_UNDERFLOW;
+    }
+
+    return RPN_NO_ERROR;
  }
 
- /**
- * This function should read through an array of characters, checking for 
- * backspace characters.  When it encounters a backspace character, it 
- * eliminates the backspace, the preceeding character (if such a character 
- * exists), and shifts all subsequent characters as appropriate.
- *
- * @param string_to_modify The string that will be processed for backspaces. 
- *        This string is modified "in place", so it is both an input and an
- *        output to the function.
- * @return Returns the size of the resulting string in "string_to_modify".
- *
- * ProcessBackspaces() should be able to handle multiple repeated backspaces 
- * and also strings with more backspaces than characters. It should be able 
- * to handle strings of at least 255 length. 
- * */
+
+ int ProcessOperator(struct Stack *rpn_stack_ptr, char operator)
+ {
+    double operand1, operand2;
+
+    if (StackGetSize(rpn_stack_ptr) < 2)
+    {
+        return RPN_ERROR_TOO_FEW_ITEMS_REMAIN;
+    }
+
+
+
+    if (StackPop(rpn_stack_ptr, &operand1) == STANDARD_ERROR)
+    {
+        return RPN_ERROR_STACK_UNDERFLOW;
+    }
+    if (StackPop(rpn_stack_ptr, &operand2) == STANDARD_ERROR)
+    {
+        return RPN_ERROR_STACK_UNDERFLOW;
+    }
+
+
+
+    if (operator == '+')
+    {
+        if (StackPush(rpn_stack_ptr, operand2 + operand1) == STANDARD_ERROR)
+        {
+            return RPN_ERROR_STACK_OVERFLOW;
+        }
+    }
+    else if (operator == '-')
+    {
+        if (StackPush(rpn_stack_ptr, operand2 - operand1) == STANDARD_ERROR)
+        {
+            return RPN_ERROR_STACK_OVERFLOW;
+        }
+    }
+    else if (operator == '*')
+    {
+        if (StackPush(rpn_stack_ptr, operand2 * operand1) == STANDARD_ERROR)
+        {
+            return RPN_ERROR_STACK_OVERFLOW;
+        }
+    }
+    else if (operator == '/')
+    {
+        if (operand2 == 0)
+        {
+            return RPN_ERROR_DIVIDE_BY_ZERO;
+        }
+
+        if (StackPush(rpn_stack_ptr, operand2 / operand1) == STANDARD_ERROR)
+        {
+            return RPN_ERROR_STACK_OVERFLOW;
+        }
+    }
+    else
+    {
+        return RPN_ERROR_INVALID_TOKEN;
+    }
+
+    return RPN_NO_ERROR;
+ }
+
+
+
+
  int ProcessBackspaces(char *rpn_sentence)
  {
     int size_var = (sizeof(*rpn_sentence) / sizeof(char)) - 1;
