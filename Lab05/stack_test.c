@@ -15,6 +15,8 @@
 // User libraries.
 #include "stack.h"
 
+#define FAIL(...) printf("failed: %s\n", __VA_ARGS__); return -1;
+#define PASS(...) printf("passed: %s\n", __VA_ARGS__);
 
 int main(void)
 {
@@ -25,18 +27,47 @@ int main(void)
     // What follows is starter code. You will need to modify it!
     
     struct Stack stack;
+    double temp;
 
-    //* Check Stack initializes properly
-    printf("Does StackInit() set the currentItemIndex appropriately?\n");
+    //* Check StackInit() 
+    // Check operation functions return errors/false on a uninitialized stack
+    if (StackPush(&stack, 1) != STANDARD_ERROR) {FAIL("StackInit() Test: Uninitialized, StackPush() should return error")}
+    if (StackPop(&stack, &temp) != STANDARD_ERROR) {FAIL("StackInit() Test: Uninitialized, StackPop() should return error")}
+    if (StackIsEmpty(&stack) != FALSE) {FAIL("StackInit() Test: Uninitialized, StackIsEmpty() should return false")}
+    if (StackIsFull(&stack) != FALSE) {FAIL("StackInit() Test: Uninitialized, StackIsFull() should return false")}
+    if (StackGetSize(&stack) != SIZE_ERROR) {FAIL("StackInit() Test: Uninitialized, StackGetSize() should return error")}
+
     StackInit(&stack);
+
+    // Check if currentItemIndex is updated correctly
     if (stack.currentItemIndex != -1)
     {
-        printf("failed\n");
+        FAIL("StackInit() Test: currentItemIndex not set properly");
     }
-    printf("passed\n");
+    // Check if StackIsEmpty is updated correctly
+    if (!StackIsEmpty(&stack))
+    {
+        FAIL("StackInit() Test: StackIsEmpty not set properly");
+        return -1;
+    }
+    // Check if StackIsFull is updated correctly
+    if (StackIsFull(&stack))
+    {
+        FAIL("StackInit() Test: StackIsFull not set properly");
+        return -1;
+    }
+    // Check if StackGetSize is updated correctly
+    if (StackGetSize(&stack) != 0)
+    {
+        FAIL("StackInit() Test: StackGetSize not set properly");
+        return -1;
+    }
 
-    //* Check Stack stores values properly
-    printf("Does StackPush() store values properly?\n");
+    PASS("StackInit() Test")
+
+
+
+    //* Check StackPush()
     // Push digits of pi
     StackPush(&stack, 3);
     StackPush(&stack, 1);
@@ -49,7 +80,27 @@ int main(void)
     // Check if currentItemIndex is updated correctly
     if (stack.currentItemIndex != 6)
     {
-        printf("failed\n");
+        FAIL("StackPush() Test: currentItemIndex not set properly");
+        return -1;
+    }
+
+    // Check if StackIsEmpty is updated correctly
+    if (StackIsEmpty(&stack))
+    {
+        FAIL("StackPush() Test: StackIsEmpty not set properly");
+        return -1;
+    }
+    // Check if StackIsFull is updated correctly
+    if (StackIsFull(&stack))
+    {
+        FAIL("StackPush() Test: StackIsFull not set properly");
+        return -1;
+    }
+    // Check if StackGetSize is updated correctly
+    if (StackGetSize(&stack) != 7)
+    {
+        FAIL("StackPush() Test: StackGetSize not set properly");
+        return -1;
     }
 
     // Check if stack is valid
@@ -61,23 +112,109 @@ int main(void)
         || stack.stackItems[1] != 1 
         || stack.stackItems[0] != 3)
     {
-        printf("failed\n");
+        FAIL("StackPush() Test: pushed items not stored properly (value incorrect)");
+        return -1;
     } 
 
-    printf("passed\n");
+    PASS("StackPush() Test")
+
+
+
+
+    
+    //* Check StackPop()
+    StackPop(&stack, &temp);
+    if (temp != 2) {FAIL("StackPop() Test: incorrect value popped")}
+    StackPop(&stack, &temp);
+    if (temp != 9) {FAIL("StackPop() Test: incorrect value popped")}
+    StackPop(&stack, &temp);
+    if (temp != 5) {FAIL("StackPop() Test: incorrect value popped")}
+    StackPop(&stack, &temp);
+    if (temp != 1) {FAIL("StackPop() Test: incorrect value popped")}
+    StackPop(&stack, &temp);
+    if (temp != 4) {FAIL("StackPop() Test: incorrect value popped")}
+    StackPop(&stack, &temp);    
+    if (temp != 1) {FAIL("StackPop() Test: incorrect value popped")}
+    StackPop(&stack, &temp);
+    if (temp != 3) {FAIL("StackPop() Test: incorrect value popped")}
+
+    // Check if currentItemIndex is updated correctly
+    if (stack.currentItemIndex!= -1)
+    {
+        FAIL("StackPop() Test: currentItemIndex not set properly");
+        return -1;
+    }
+
+    // Check if StackIsEmpty is updated correctly
+    if (!StackIsEmpty(&stack))
+    {
+        FAIL("StackPop() Test: StackIsEmpty not set properly");
+        return -1;
+    }
+    // Check if StackIsFull is updated correctly
+    if (StackIsFull(&stack))
+    {
+        FAIL("StackPop() Test: StackIsFull not set properly");
+        return -1;
+    }
+    // Check if StackGetSize is updated correctly
+    if (StackGetSize(&stack) != 0)
+    {
+        FAIL("StackPop() Test: StackGetSize not set properly");
+        return -1;
+    }
+
+    PASS("StackPop() Test")
+
+
+
+
+
+    //* Check Stack handles underflow properly
+    
+    if (StackPop(&stack, &temp) != STANDARD_ERROR) {FAIL("Underflow Test: StackPop() should return error")}
+    
+    PASS("Underflow")
+    
 
     //* Check Stack handles overflow properly
+    // fill stack
+    for (int i = 0; i < STACK_SIZE; i++)
+    {
+        if (StackPush(&stack, i) != SUCCESS) {FAIL("Overflow Test: Premature overflow")}
+    }
 
-    // Pop digits of pi
-    double value;
-    StackPop(&stack, &value);
-    if (value != 2) {
-        printf("failed\n");
+    // Check if currentItemIndex is updated correctly
+    if (stack.currentItemIndex != 19)
+    {
+        FAIL("Overflow Test: currentItemIndex not set properly");
+        return -1;
     }
-    StackPop(&stack, &value);
-    if (value != 9) {
-        printf("failed\n");
+
+    // Check if StackIsEmpty is updated correctly
+    if (StackIsEmpty(&stack))
+    {
+        FAIL("Overflow Test: StackIsEmpty not set properly");
+        return -1;
     }
+    // Check if StackIsFull is updated correctly
+    if (!StackIsFull(&stack))
+    {
+        FAIL("Overflow Test: StackIsFull not set properly");
+        return -1;
+    }
+    // Check if StackGetSize is updated correctly
+    if (StackGetSize(&stack) != 20)
+    {
+        FAIL("Overflow Test: StackGetSize not set properly");
+        return -1;
+    }
+
+    if (StackPush(&stack, 1) != STANDARD_ERROR) {FAIL("Overflow Test: StackPush() should return error")}
+    
+    PASS("Overflow Test")
+
+    printf("All tests passed.\n");
     
     BOARD_End();
     //test stackInit:
