@@ -41,9 +41,37 @@ int main(void) {
 
         fgets(rpn_sentence, sizeof (rpn_sentence), stdin);
 
-        RPN_Evaluate(rpn_sentence, &result);
+        int error = RPN_Evaluate(rpn_sentence, &result);
 
-        printf("result = %f\n", result);
+        switch (error)
+        {
+            case RPN_NO_ERROR:
+                printf("result = %f\n", result);
+                break;
+            case RPN_ERROR_STACK_OVERFLOW:
+                printf("Error: Stack overflow.\n");
+                break;
+            case RPN_ERROR_STACK_UNDERFLOW:
+                printf("Error: Stack underflow.\n");
+                break;
+            case RPN_ERROR_INVALID_TOKEN:
+                printf("Error: Invalid token/operator.\n");
+                break;
+            case RPN_ERROR_DIVIDE_BY_ZERO:
+                printf("Error: Cannot divide by 0.\n");
+                break;
+            case RPN_ERROR_TOO_FEW_ITEMS_REMAIN:
+                printf("Error: Too few operands to complete computation.\n");
+                break;
+            case RPN_ERROR_TOO_MANY_ITEMS_REMAIN:
+                printf("Error: More than one item on stack following computation. Too few operators.\n");
+                break;
+            default:
+                printf("Error: Unknown error.\n");
+        }
+
+
+        
 
     }
 
