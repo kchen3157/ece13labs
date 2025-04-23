@@ -23,7 +23,7 @@
 #define MAX_INPUT_LENGTH 60
 
 
-int main() {
+int main(void) {
     BOARD_Init();
 
     // What follows is starter code. You will need to modify it!

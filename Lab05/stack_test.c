@@ -16,7 +16,7 @@
 #include "stack.h"
 
 
-int main()
+int main(void)
 {
     BOARD_Init();
 
@@ -25,7 +25,7 @@ int main()
     // What follows is starter code. You will need to modify it!
     
     printf("Does StackInit() set the currentItemIndex appropriately?\n");
-    struct Stack stack = {};
+    struct Stack stack;
     StackInit(&stack);
     if (stack.currentItemIndex == -1) {
         printf("passed");

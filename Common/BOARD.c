@@ -262,7 +262,7 @@ static int8_t Nucleo_Init(void)
  *
  * @return  (int8_t)    [SUCCESS, ERROR]
  */
-int8_t BOARD_Init()
+int8_t BOARD_Init(void)
 {
     if (initStatus == FALSE)
     {

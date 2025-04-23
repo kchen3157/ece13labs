@@ -18,7 +18,7 @@
 #include "rpn.h"
 
 
-int main()
+int main(void)
 {
     BOARD_Init();
     int error;
