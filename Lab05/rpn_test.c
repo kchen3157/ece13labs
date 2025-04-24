@@ -18,30 +18,34 @@
 // User libraries.
 #include "rpn.h"
 
-#define FAIL(...) printf("failed: %s\n", __VA_ARGS__); return -1;
-#define PASS(...) printf("passed: %s\n", __VA_ARGS__);
 
+//* Test case / expected value data
+
+// Simple: Ints and single operations
 char simple_test_cases[8][70] = {"1 1 +", "7 8 +", "9 4 *", "5 6 *", 
     "64 8 /", "81 3 /", "7 1 -", "4 2 -"};
 double simple_test_results[8] = {2, 15, 36, 30, 8, 27, 6, 2};
 
+// Float: Floats and single operations
 char f_test_cases[8][70] = {"1.89 1.13 +", "7.23 8.63 +", 
 "9.36 4.75 *", "5.42 6.72 *", 
 "64.11 8.27 /", "82.60 3.34 /", 
 "7.61 1.36 -", "4.45 2.26 -"};
 double f_test_results[8] = {3.02, 15.86, 44.46, 36.4224, 7.752116, 24.730539, 6.25, 2.19};
 
+// Complex: >1 operation, multiple 
 char complex_test_cases[5][70] = {"8 8.2 + 4 * 7 -", "8 6 2.34 89.3 74.3 / / - +", 
 "92 31.13 / 23 + 4.2 83 / /", "8 3 * 62.3 / 72.38 +",
 "74.23 74 8 0 7238 74 + + / - *"};
 double complex_test_results[5] = {57.8, 12.053057, 512.927126, 72.765233, 5492.938786};
 
+// Error: All should generate some type of error.
 char error_test_cases[14][70] = {"4 0 /", "74.23 74 8 0 7238 74 + / / - *",  //RPN_ERROR_DIVIDE_BY_ZERO
                                 "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1", //RPN_ERROR_STACK_OVERFLOW
                                 "9 9 9 9 9 9 9 9 9 9 + 9 9 9 9 9 - 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9", //RPN_ERROR_STACK_OVERFLOW
                                 "8 97 / + *", "7 /", "", "*", "8 3 * 62.3 / 72.38 + -", "8 - - -", //RPN_ERROR_TOO_FEW_ITEMS_REMAIN
                                 "8 7 6 +", "74.23 74 8 0 7238 74 + + /", //RPN_ERROR_TOO_MANY_ITEMS_REMAIN
-                                "8 7 f", "783 73 627 / 87.3 + 84 k /"}; 
+                                "8 7 f", "783 73 627 / 87.3 + 84 k /"}; //RPN_ERROR_INVALID_TOKEN
 int error_test_results[14] = {RPN_ERROR_DIVIDE_BY_ZERO, RPN_ERROR_DIVIDE_BY_ZERO,
                                 RPN_ERROR_STACK_OVERFLOW, RPN_ERROR_STACK_OVERFLOW,
                                 RPN_ERROR_TOO_FEW_ITEMS_REMAIN, RPN_ERROR_TOO_FEW_ITEMS_REMAIN,
