@@ -137,10 +137,13 @@ int main(void)
     
 
     printf("Testing ProcessBackspaces:\n");
-    char test_pb1[] = "123\b34";
+    char test_pb1[] = "123\b\b\b34";
     ProcessBackspaces(test_pb1);
     printf("result    : %s\n", test_pb1);
-    printf("should be : 1234\n");
+    if (!(strcmp(test_pb1, "1234")))
+    {
+        printf("success");
+    }
     BOARD_End();
     while (1);
 }
