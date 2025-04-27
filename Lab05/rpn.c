@@ -161,5 +161,8 @@ int ProcessBackspaces(char *rpn_sentence)
             save_ptr++;
         }
     }
+
+    *save_ptr = '\0';
+
     return size_var;
 }
