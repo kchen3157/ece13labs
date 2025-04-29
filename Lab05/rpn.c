@@ -76,17 +76,17 @@ int ProcessOperator(struct Stack *rpn_stack_ptr, char operator)
 
     if (StackGetSize(rpn_stack_ptr) < 2)
     {
-        return RPN_ERROR_TOO_FEW_ITEMS_REMAIN;
+        return RPN_ERROR_STACK_UNDERFLOW;
     }
 
     if (StackPop(rpn_stack_ptr, &operand1) == STANDARD_ERROR)
     {
-        //! Should never get here. All cases should be handled by RPN_ERROR_TOO_FEW_ITEMS_REMAIN
+        //! Should never get here. All cases should be handled by above
         return RPN_ERROR_STACK_UNDERFLOW;
     }
     if (StackPop(rpn_stack_ptr, &operand2) == STANDARD_ERROR)
     {
-        //! Should never get here. All cases should be handled by RPN_ERROR_TOO_FEW_ITEMS_REMAIN
+        //! Should never get here. All cases should be handled by above
         return RPN_ERROR_STACK_UNDERFLOW;
     }
 
