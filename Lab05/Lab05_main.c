@@ -41,6 +41,18 @@ int main(void) {
 
         fgets(rpn_sentence, sizeof (rpn_sentence), stdin);
 
+        // get rid of last \n following input
+        char* rpn_sentence_ptr = rpn_sentence;
+        while (1)
+        {
+            if (*rpn_sentence_ptr == '\n')
+            {
+                *rpn_sentence_ptr = '\0';
+                break;
+            }
+            rpn_sentence_ptr++;
+        }
+
         int error = RPN_Evaluate(rpn_sentence, &result);
 
         switch (error)
