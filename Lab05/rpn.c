@@ -20,14 +20,11 @@ int RPN_Evaluate(char *rpn_string, double *result)
 {
     // user defined vars
     struct Stack rpn_stack;
-    char *token_ptr; //
-
-    const char SPACE = ' ';
 
     StackInit(&rpn_stack);
 
     //* Process tokens via stack
-    token_ptr = strtok(rpn_string, &SPACE); // Init strtok(), read first token
+    char *token_ptr = strtok(rpn_string, " "); // Init strtok(), read first token
     while (token_ptr != NULL)
     {
         //* Check if token is a number
@@ -51,7 +48,7 @@ int RPN_Evaluate(char *rpn_string, double *result)
         }
 
         // Next token
-        token_ptr = strtok((char *)NULL, &SPACE);
+        token_ptr = strtok((char *)NULL, " ");
     }
 
     // RPN eval processing complete. Check if singular answer remains
