@@ -14,7 +14,7 @@
 #include "BOARD.h"
 
 // Keep a fixed stack size as a constant. This macro should be used to avoid
-// "magic numbers". For example, finding the last element of the stack should 
+// "magic numbers". For example, finding the last element of the stack should
 // be done with stack.stackItems[STACK_SIZE - 1]
 // instead of
 //   stack.stackItems[19]
@@ -34,7 +34,8 @@
  *  - intialized: Stores whether or not the array was initialized. FALSE if
  *                it isn't and TRUE if it is.
  */
-struct Stack {
+struct Stack
+{
     double stackItems[STACK_SIZE];
     int currentItemIndex;
     uint8_t initialized;
@@ -49,7 +50,7 @@ struct Stack {
 void StackInit(struct Stack *stack);
 
 /**
- * Pushes a value onto the stack. The stack index is incremented, and the 
+ * Pushes a value onto the stack. The stack index is incremented, and the
  * passed value is placed on top of the stack.
  *
  * @param:  *stack, a pointer to a stack, which is read and modified in place
@@ -63,8 +64,8 @@ void StackInit(struct Stack *stack);
 int StackPush(struct Stack *stack, double value);
 
 /**
- * Pop an element off of a stack.   The popped value is passed out by 
- * reference, and the stack index is decremented.  
+ * Pop an element off of a stack.   The popped value is passed out by
+ * reference, and the stack index is decremented.
  *
  * @param:  *stack, a pointer to a stack, which is read and modified in place
  * @param:  *value, pointer to a double which stores the popped value.
@@ -75,14 +76,14 @@ int StackPush(struct Stack *stack, double value);
  * NOTE: When trying to return the output into the value variable, you'll need
  * to write it with an extra asterisk, like:
  *   *value = 7.0;
- * This is because "value" is a pointer. K&R 5.1-5.2 should explain this 
+ * This is because "value" is a pointer. K&R 5.1-5.2 should explain this
  * practice of "passing by reference".
  */
 int StackPop(struct Stack *stack, double *value);
 
 /**
  * This function checks for whether the stack is empty or not. In this simple
- * case this merely checks if the currentItemIndex == -1. 
+ * case this merely checks if the currentItemIndex == -1.
  * @param:  *stack, a pointer to a stack
  * @return: TRUE if stack is initialized and empty
  *          FALSE if the stack isn't initialized, or is not empty.
@@ -92,7 +93,7 @@ int StackIsEmpty(const struct Stack *stack);
 
 /**
  * This function checks for whether the stack is empty or not. For this simple
- * implementation that is merely if the currentItemIndex == STACK_SIZE - 1. 
+ * implementation that is merely if the currentItemIndex == STACK_SIZE - 1.
  * @param:  *stack, a pointer to a stack
  * @return: TRUE if the stack is full and FALSE if not.
  *          Also returns FALSE if the stack isn't initialized.
@@ -101,10 +102,10 @@ int StackIsFull(const struct Stack *stack);
 
 /**
  * Returns the current size of the stack in terms of how many active elements
- * are in it. 
+ * are in it.
  * @param:  *stack, a pointer to a stack
- * @return: SIZE_ERROR for uninitialized stacks, 
- *          the number of elements in the stack for initialized stacks, 
+ * @return: SIZE_ERROR for uninitialized stacks,
+ *          the number of elements in the stack for initialized stacks,
  *          otherwise. Note that SIZE_ERROR is declared in the BOARD.h header
  *          file.
  */

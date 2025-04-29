@@ -15,7 +15,9 @@
 // User libraries.
 #include "stack.h"
 
-#define FAIL(...) printf("failed: %s\n", __VA_ARGS__); return -1;
+#define FAIL(...)                        \
+    printf("failed: %s\n", __VA_ARGS__); \
+    return -1;
 #define PASS(...) printf("passed: %s\n", __VA_ARGS__);
 
 int main(void)
@@ -24,17 +26,31 @@ int main(void)
 
     printf("\n###### Beginning CRUZID's stack test harness: ####\n\n");
 
-    
     struct Stack stack;
     double temp;
 
-    //* Check StackInit() 
+    //* Check StackInit()
     // Check operation functions return errors/false on a uninitialized stack
-    if (StackPush(&stack, 1) != STANDARD_ERROR) {FAIL("StackInit() Test: Uninitialized, StackPush() should return error")}
-    if (StackPop(&stack, &temp) != STANDARD_ERROR) {FAIL("StackInit() Test: Uninitialized, StackPop() should return error")}
-    if (StackIsEmpty(&stack) != FALSE) {FAIL("StackInit() Test: Uninitialized, StackIsEmpty() should return false")}
-    if (StackIsFull(&stack) != FALSE) {FAIL("StackInit() Test: Uninitialized, StackIsFull() should return false")}
-    if (StackGetSize(&stack) != SIZE_ERROR) {FAIL("StackInit() Test: Uninitialized, StackGetSize() should return error")}
+    if (StackPush(&stack, 1) != STANDARD_ERROR)
+    {
+        FAIL("StackInit() Test: Uninitialized, StackPush() should return error")
+    }
+    if (StackPop(&stack, &temp) != STANDARD_ERROR)
+    {
+        FAIL("StackInit() Test: Uninitialized, StackPop() should return error")
+    }
+    if (StackIsEmpty(&stack) != FALSE)
+    {
+        FAIL("StackInit() Test: Uninitialized, StackIsEmpty() should return false")
+    }
+    if (StackIsFull(&stack) != FALSE)
+    {
+        FAIL("StackInit() Test: Uninitialized, StackIsFull() should return false")
+    }
+    if (StackGetSize(&stack) != SIZE_ERROR)
+    {
+        FAIL("StackInit() Test: Uninitialized, StackGetSize() should return error")
+    }
 
     StackInit(&stack);
 
@@ -63,8 +79,6 @@ int main(void)
     }
 
     PASS("StackInit() Test")
-
-
 
     //* Check StackPush()
     // Push digits of pi
@@ -103,42 +117,53 @@ int main(void)
     }
 
     // Check if stack is valid
-    if (stack.stackItems[6] != 2 
-        || stack.stackItems[5] != 9 
-        || stack.stackItems[4] != 5 
-        || stack.stackItems[3] != 1 
-        || stack.stackItems[2] != 4 
-        || stack.stackItems[1] != 1 
-        || stack.stackItems[0] != 3)
+    if (stack.stackItems[6] != 2 || stack.stackItems[5] != 9 || stack.stackItems[4] != 5 || stack.stackItems[3] != 1 || stack.stackItems[2] != 4 || stack.stackItems[1] != 1 || stack.stackItems[0] != 3)
     {
         FAIL("StackPush() Test: pushed items not stored properly (value incorrect)");
         return -1;
-    } 
+    }
 
     PASS("StackPush() Test")
 
-
-
-
-    
     //* Check StackPop()
     StackPop(&stack, &temp);
-    if (temp != 2) {FAIL("StackPop() Test: incorrect value popped")}
+    if (temp != 2)
+    {
+        FAIL("StackPop() Test: incorrect value popped")
+    }
     StackPop(&stack, &temp);
-    if (temp != 9) {FAIL("StackPop() Test: incorrect value popped")}
+    if (temp != 9)
+    {
+        FAIL("StackPop() Test: incorrect value popped")
+    }
     StackPop(&stack, &temp);
-    if (temp != 5) {FAIL("StackPop() Test: incorrect value popped")}
+    if (temp != 5)
+    {
+        FAIL("StackPop() Test: incorrect value popped")
+    }
     StackPop(&stack, &temp);
-    if (temp != 1) {FAIL("StackPop() Test: incorrect value popped")}
+    if (temp != 1)
+    {
+        FAIL("StackPop() Test: incorrect value popped")
+    }
     StackPop(&stack, &temp);
-    if (temp != 4) {FAIL("StackPop() Test: incorrect value popped")}
-    StackPop(&stack, &temp);    
-    if (temp != 1) {FAIL("StackPop() Test: incorrect value popped")}
+    if (temp != 4)
+    {
+        FAIL("StackPop() Test: incorrect value popped")
+    }
     StackPop(&stack, &temp);
-    if (temp != 3) {FAIL("StackPop() Test: incorrect value popped")}
+    if (temp != 1)
+    {
+        FAIL("StackPop() Test: incorrect value popped")
+    }
+    StackPop(&stack, &temp);
+    if (temp != 3)
+    {
+        FAIL("StackPop() Test: incorrect value popped")
+    }
 
     // Check if currentItemIndex is updated correctly
-    if (stack.currentItemIndex!= -1)
+    if (stack.currentItemIndex != -1)
     {
         FAIL("StackPop() Test: currentItemIndex not set properly");
         return -1;
@@ -165,22 +190,23 @@ int main(void)
 
     PASS("StackPop() Test")
 
-
-
-
-
     //* Check Stack handles underflow properly
-    
-    if (StackPop(&stack, &temp) != STANDARD_ERROR) {FAIL("Underflow Test: StackPop() should return error")}
-    
+
+    if (StackPop(&stack, &temp) != STANDARD_ERROR)
+    {
+        FAIL("Underflow Test: StackPop() should return error")
+    }
+
     PASS("Underflow")
-    
 
     //* Check Stack handles overflow properly
     // fill stack
     for (int i = 0; i < STACK_SIZE; i++)
     {
-        if (StackPush(&stack, i) != SUCCESS) {FAIL("Overflow Test: Premature overflow")}
+        if (StackPush(&stack, i) != SUCCESS)
+        {
+            FAIL("Overflow Test: Premature overflow")
+        }
     }
 
     // Check if currentItemIndex is updated correctly
@@ -209,16 +235,18 @@ int main(void)
         return -1;
     }
 
-    if (StackPush(&stack, 1) != STANDARD_ERROR) {FAIL("Overflow Test: StackPush() should return error")}
-    
+    if (StackPush(&stack, 1) != STANDARD_ERROR)
+    {
+        FAIL("Overflow Test: StackPush() should return error")
+    }
+
     PASS("Overflow Test")
 
     printf("All tests passed.\n");
-    
+
     BOARD_End();
-    //test stackInit:
-    while (1);
+    // test stackInit:
+    while (1)
+        ;
     return 0;
 }
-
-
