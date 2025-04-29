@@ -58,9 +58,9 @@ char error_test_cases[NUM_ERROR_CASES][MID_STR_LEN] = {"4 0 /", "74.23 74 8 0 72
                                                        "8 7 f", "783 73 627 / 87.3 + 84 k /"};                                // RPN_ERROR_INVALID_TOKEN
 int error_test_results[NUM_ERROR_CASES] = {RPN_ERROR_DIVIDE_BY_ZERO, RPN_ERROR_DIVIDE_BY_ZERO,
                                            RPN_ERROR_STACK_OVERFLOW, RPN_ERROR_STACK_OVERFLOW,
-                                           RPN_ERROR_TOO_FEW_ITEMS_REMAIN, RPN_ERROR_TOO_FEW_ITEMS_REMAIN,
-                                           RPN_ERROR_TOO_FEW_ITEMS_REMAIN, RPN_ERROR_TOO_FEW_ITEMS_REMAIN,
-                                           RPN_ERROR_TOO_FEW_ITEMS_REMAIN, RPN_ERROR_TOO_FEW_ITEMS_REMAIN,
+                                           RPN_ERROR_STACK_UNDERFLOW, RPN_ERROR_STACK_UNDERFLOW,
+                                           RPN_ERROR_TOO_FEW_ITEMS_REMAIN, RPN_ERROR_STACK_UNDERFLOW,
+                                           RPN_ERROR_STACK_UNDERFLOW, RPN_ERROR_STACK_UNDERFLOW,
                                            RPN_ERROR_TOO_MANY_ITEMS_REMAIN, RPN_ERROR_TOO_MANY_ITEMS_REMAIN,
                                            RPN_ERROR_INVALID_TOKEN, RPN_ERROR_INVALID_TOKEN};
 
@@ -106,7 +106,7 @@ int main(void)
         }
         else
         {
-            printf("   Success!\n");
+            printf("\tSuccess!\n");
         }
     }
 
@@ -124,7 +124,7 @@ int main(void)
         }
         else
         {
-            printf("   Success!\n");
+            printf("\tSuccess!\n");
         }
     }
 
@@ -142,7 +142,7 @@ int main(void)
         }
         else
         {
-            printf("   Success!\n");
+            printf("\tSuccess!\n");
         }
     }
 
@@ -162,7 +162,7 @@ int main(void)
         }
         else
         {
-            printf("   Success!\n");
+            printf("\tSuccess!\n");
         }
     }
 
