@@ -74,6 +74,11 @@ int ProcessOperator(struct Stack *rpn_stack_ptr, char operator)
 {
     double operand1, operand2;
 
+    if (operator != '-' && operator != '+' && operator != '*' && operator != '/')
+    {
+        return RPN_ERROR_INVALID_TOKEN;
+    }
+
     if (StackGetSize(rpn_stack_ptr) < 2)
     {
         return RPN_ERROR_STACK_UNDERFLOW;
@@ -126,10 +131,6 @@ int ProcessOperator(struct Stack *rpn_stack_ptr, char operator)
             //! Should never get here. Operators decrease stack size
             return RPN_ERROR_STACK_OVERFLOW;
         }
-    }
-    else
-    {
-        return RPN_ERROR_INVALID_TOKEN;
     }
 
     return RPN_NO_ERROR;
