@@ -33,7 +33,7 @@ int main(void)
         "Welcome to CRUZID'S RPN calculator.  Compiled on %s %s\n",
         __DATE__,
         __TIME__);
-    while (1)
+    while (TRUE)
     {
 
         printf("Enter floats and + - / * in RPN format:\n");
@@ -42,7 +42,7 @@ int main(void)
 
         // get rid of last \n following input
         char *rpn_sentence_ptr = rpn_sentence;
-        while (1)
+        while (TRUE)
         {
             if (*rpn_sentence_ptr == '\n')
             {
@@ -82,6 +82,6 @@ int main(void)
         }
     }
 
-    while (1)
+    while (TRUE)
         ;
 }

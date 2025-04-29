@@ -24,6 +24,8 @@
 #define NUM_ERROR_CASES 14
 #define NUM_PROCESS_BKSPCE_CASES 8
 
+#define F_EQ_ERROR 0.0001
+
 #define MID_STR_LEN 70
 #define MAX_STR_LEN 256
 
@@ -89,9 +91,9 @@ int main(void)
 
     printf("\n###### Beginning CRUZID's rpn test harness: ####\n\n");
 
-    //* test simple testcases
+    //* test simple testcases (integer)
     double temp;
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < NUM_SIMPLE_CASES; i++)
     {
         printf("Testing RPN_Evaluate with \"%s\"... \n ", simple_test_cases[i]);
         if (RPN_Evaluate(simple_test_cases[i], &temp) != RPN_NO_ERROR)
@@ -109,14 +111,14 @@ int main(void)
     }
 
     //* test float testcases
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < NUM_F_CASES; i++)
     {
         printf("Testing RPN_Evaluate with \"%s\"... \n ", f_test_cases[i]);
         if (RPN_Evaluate(f_test_cases[i], &temp) != RPN_NO_ERROR)
         {
             printf("\tFailed, RPN_Evaluate produced an error\n");
         }
-        else if (fabs(temp - f_test_results[i]) > 0.0001)
+        else if (fabs(temp - f_test_results[i]) > F_EQ_ERROR)
         {
             printf("\tFailed, expected = %f , result = %f\n", f_test_results[i], temp);
         }
@@ -127,14 +129,14 @@ int main(void)
     }
 
     //* test complex testcases
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < NUM_COMPLEX_CASES; i++)
     {
         printf("Testing RPN_Evaluate with \"%s\"... \n ", complex_test_cases[i]);
         if (RPN_Evaluate(complex_test_cases[i], &temp) != RPN_NO_ERROR)
         {
             printf("\tFailed, RPN_Evaluate produced an error\n");
         }
-        else if (fabs(temp - complex_test_results[i]) > 0.0001)
+        else if (fabs(temp - complex_test_results[i]) > F_EQ_ERROR)
         {
             printf("\tFailed, expected = %f , result = %f\n", complex_test_results[i], temp);
         }
@@ -146,15 +148,15 @@ int main(void)
 
     //* test error testcases
     int error_temp;
-    for (int i = 0; i < 14; i++)
+    for (int i = 0; i < NUM_ERROR_CASES; i++)
     {
-        printf("Error testing RPN_Evaluate with \"%s\"... \n ", error_test_cases[i]);
+        printf("Testing error handling RPN_Evaluate with \"%s\"... \n ", error_test_cases[i]);
         error_temp = RPN_Evaluate(error_test_cases[i], &temp);
         if (error_temp == RPN_NO_ERROR)
         {
             printf("\tFailed, RPN_Evaluate did not produce an error\n");
         }
-        else if (abs(error_temp - error_test_results[i]) > 0.0001)
+        else if (abs(error_temp - error_test_results[i]) > F_EQ_ERROR)
         {
             printf("\tFailed, expected = %d , result = %d\n", error_test_results[i], error_temp);
         }
@@ -165,7 +167,7 @@ int main(void)
     }
 
     //* test processbackspaces
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < NUM_PROCESS_BKSPCE_CASES; i++)
     {
         char test_string[MAX_STR_LEN];
         strcpy(test_string, process_backspaces_test_cases[i]);
@@ -185,7 +187,7 @@ int main(void)
     }
 
     BOARD_End();
-    while (1)
+    while (TRUE)
         ;
 }
 
