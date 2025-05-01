@@ -17,7 +17,7 @@ CFLAGS := -Wall -std=c11
 CPPFLAGS := -I$(include_dir) -Iinclude
 
 # Source and object files.
-DEFAULT_SRCS := src/Lab06_main.c src/sort.c src/LinkedList.c src/stopwatch.c
+DEFAULT_SRCS := src/Lab06_main.c src/sort.c src/LinkedList.c src/stopwatch.c $(include_dir)/BOARD.c
 DEFAULT_OBJS := $(DEFAULT_SRCS:.c=.o)
 
 LLTEST_SRCS := src/LinkedListTest.c src/LinkedList.c $(include_dir)/BOARD.c
