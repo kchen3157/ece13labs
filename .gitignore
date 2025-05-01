@@ -49,6 +49,8 @@ a.out
 *.zip
 *.7z
 
+/.vscode/*
+
 # MPLABX Whitelist
 !project.xml
 !configurations.xml
