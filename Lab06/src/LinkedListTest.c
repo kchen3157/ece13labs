@@ -175,7 +175,7 @@ int main(void)
 
     printf("\n\n");
 
-    printf("Testbench done. Verify results.");
+    printf("Testbench done. Verify results.\n");
 
     return 0;
 }
