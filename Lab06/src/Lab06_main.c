@@ -24,9 +24,9 @@
 #include <windows.h>
 #define SLEEP(ms)   Sleep(ms)
 #elif __unix || __APPLE__     // Linux, MacOS, other UNIX-like systems
-#include <unistd.h>
+#include <time.h>
 #define SLEEP(ms) do {          \
-    usleep(ms * 1000);          \
+    nanosleep((const struct timespec[]) {{0, ms * 100000L}}, NULL); \
 } while (0)
 #else                         // Unknown system.
 #error "Unknown system"
