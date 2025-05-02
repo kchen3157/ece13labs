@@ -59,6 +59,11 @@ ListItem *LinkedListCreateBefore(ListItem *item, char *data)
         return NULL;
     }
 
+    if (item == NULL)
+    {
+        return new_item_ptr;
+    }
+
     if (item->previousItem != NULL) // If not head, move original previous item back
     {
         ListItem *ori_previous_item_ptr = item->previousItem;
@@ -95,6 +100,11 @@ ListItem *LinkedListCreateAfter(ListItem *item, char *data)
         return NULL;
     }
 
+    if (item == NULL)
+    {
+        return new_item_ptr;
+    }
+
     if (item->nextItem != NULL) // If not head, move original next item forward
     {
         ListItem *ori_next_item_ptr = item->nextItem;
@@ -123,12 +133,14 @@ ListItem *LinkedListCreateAfter(ListItem *item, char *data)
  */
 char *LinkedListRemove(ListItem *item)
 {
-    char *item_data_ptr = item->data;
-
     if (item == NULL)
     {
         return (char*) NULL;
     }
+    
+    char *item_data_ptr = item->data;
+
+   
 
     // If inbetween
     if (item->previousItem != NULL && item->nextItem != NULL)

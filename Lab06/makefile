@@ -11,8 +11,8 @@ LDFLAGS = -fsanitize=address
 #SRC += ./src/Lab06_main.c
 SRC += ./src/LinkedList.c
 SRC += ./src/LinkedListTest.c
-#SRC += ./src/sort.c
-#SRC += ./src/stopwatch.c
+SRC += ./src/sort.c
+SRC += ./src/stopwatch.c
 SRC += ../Common/BOARD.c
 
 # includes
