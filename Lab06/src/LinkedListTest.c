@@ -2,11 +2,11 @@
 #include <stdio.h>
 
 #include "BOARD.h"
-#include "sort.h"
 #include "LinkedList.h"
 
 int main(void)
 {
+    BOARD_Init();
 
     printf("Starting Testbench.\n");
 
@@ -134,7 +134,8 @@ int main(void)
     LinkedListPrint(uut_1);
     printf("\tExpected: [(null), UUT 1, (null)]\n");
 
-    printf("LinkedListRemove(NULL): %s\n\tExpected: (null)\n", LinkedListRemove(NULL));
+    printf("LinkedListRemove(NULL): %s\n\tExpected: Is null\n", 
+        LinkedListRemove(NULL) == NULL ? "Is null" : "Not null");
 
     printf("LinkedListSize(NULL): %d\n\tExpected: 0\n", LinkedListSize(NULL));
 
@@ -152,30 +153,9 @@ int main(void)
 
     printf("\n\n");
 
-
-    printf("****************** Testing SelectionSort ******************\n\n");
-
-    ListItem *list_uut = CreateUnsortedList();
-    printf("Original: ");
-    LinkedListPrint(list_uut);
-    SelectionSort(list_uut);
-    printf("\nSorted: ");
-    LinkedListPrint(list_uut);
-
-    printf("\n\n");
-
-    printf("****************** Testing InsertionSort ******************\n\n");
-
-    list_uut = CreateUnsortedList();
-    printf("Original: ");
-    LinkedListPrint(list_uut);
-    InsertionSort(list_uut);
-    printf("\nSorted: ");
-    LinkedListPrint(list_uut);
-
-    printf("\n\n");
-
     printf("Testbench done. Verify results.\n");
+
+    while (1);
 
     return 0;
 }
