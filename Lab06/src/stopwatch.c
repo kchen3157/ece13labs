@@ -43,7 +43,7 @@ static clock_t end_cycle;
  *
  * @returns success (int) : 0 for success, 1 for failure.
  */
-int Stopwatch_Init()
+int Stopwatch_Init(void)
 {
   int success = 0;
 #ifdef STM32F4
@@ -58,7 +58,7 @@ int Stopwatch_Init()
  *
  * @returns success (int) : 0 for success, 1 for failure.
  */
-int Stopwatch_StartBenchmark()
+int Stopwatch_StartBenchmark(void)
 {
   start_cycle = clock();
   if (!start_cycle)
@@ -68,7 +68,7 @@ int Stopwatch_StartBenchmark()
   return 0;
 }
 
-int Stopwatch_StopBenchmark()
+int Stopwatch_StopBenchmark(void)
 {
   /**Stopwatch_StopBenchmark()
    *
@@ -84,7 +84,7 @@ int Stopwatch_StopBenchmark()
   return 1;
 }
 
-void Stopwatch_PrintBenchmarkResults()
+void Stopwatch_PrintBenchmarkResults(void)
 {
   /**Stopwatch_PrintBenchmarkResults()
    *
