@@ -49,7 +49,9 @@ a.out
 *.zip
 *.7z
 
-/.vscode/*
+.vscode
+.pio
+
 
 # MPLABX Whitelist
 !project.xml
