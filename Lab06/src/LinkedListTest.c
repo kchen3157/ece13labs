@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "BOARD.h"
+#include "sort.h"
 #include "LinkedList.h"
 
 int main(void)
@@ -37,5 +38,18 @@ int main(void)
     LinkedListPrint(list_item_uut_1);
 
     printf("Size: %d\n", LinkedListSize(list_item_uut_1));
+
+    printf("%s\n%s\n", LinkedListRemove(list_item_uut_1), LinkedListRemove(list_item_uut_1_5));
+
+    ListItem *list_uut = CreateUnsortedList();
+    LinkedListPrint(list_uut);
+    SelectionSort(list_uut);
+    LinkedListPrint(list_uut);
+
+    list_uut = CreateUnsortedList();
+    LinkedListPrint(list_uut);
+    InsertionSort(list_uut);
+    LinkedListPrint(list_uut);
+
     return 0;
 }
