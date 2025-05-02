@@ -31,7 +31,6 @@
 
 #include "stopwatch.h"
 
-
 // Module-level variables.
 static clock_t start_cycle;
 static clock_t end_cycle;

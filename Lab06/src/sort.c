@@ -26,12 +26,13 @@
  *
  * This function does not print.
  */
-ListItem *SelectionSort(ListItem *list){
+ListItem *SelectionSort(ListItem *list)
+{
 
     list = LinkedListGetFirst(list);
 
     ListItem *unsorted_list_part_ptr = list;
-    
+
     while (unsorted_list_part_ptr != NULL)
     {
         ListItem *smallest_ptr = unsorted_list_part_ptr;
@@ -91,7 +92,7 @@ ListItem *InsertionSort(ListItem *list)
         // Move to next part
         unsorted_list_part_ptr = ori_unsorted->nextItem;
     }
-    
+
     return list;
 }
 
