@@ -303,7 +303,7 @@ int LinkedListPrint(ListItem *list)
 
     while (list != NULL)
     {
-        printf("%s", list->data);
+        printf("%s", list->data ? list->data : "(null)");
 
         if (list->nextItem != NULL)
         {
