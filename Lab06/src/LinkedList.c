@@ -27,13 +27,16 @@
 ListItem *LinkedListNew(char *data)
 {
     ListItem *list_item_ptr = (ListItem*) (malloc(sizeof(ListItem)));
+
     if (list_item_ptr == NULL)
     {
         return NULL;
     }
+
     list_item_ptr->data = data;
     list_item_ptr->previousItem = NULL;
     list_item_ptr->nextItem = NULL;
+
     return list_item_ptr;
 }
 
@@ -67,11 +70,11 @@ ListItem *LinkedListCreateBefore(ListItem *item, char *data)
     if (item->previousItem != NULL) // If not head, move original previous item back
     {
         ListItem *ori_previous_item_ptr = item->previousItem;
-
         ori_previous_item_ptr->nextItem = new_item_ptr;
         new_item_ptr->previousItem = ori_previous_item_ptr;
     }
 
+    // Connect new next to item previous
     new_item_ptr->nextItem = item;
     item->previousItem = new_item_ptr;
 
@@ -113,6 +116,7 @@ ListItem *LinkedListCreateAfter(ListItem *item, char *data)
         new_item_ptr->nextItem = ori_next_item_ptr;
     }
 
+    // Connect new previous with item next
     item->nextItem = new_item_ptr;
     new_item_ptr->previousItem = item;
 
@@ -148,15 +152,11 @@ char *LinkedListRemove(ListItem *item)
         item->previousItem->nextItem = item->nextItem;
         item->nextItem->previousItem = item->previousItem;
     }
-
-    // If tail
-    if (item->previousItem != NULL && item->nextItem == NULL)
+    else if (item->nextItem == NULL) // If tail
     {
         item->previousItem->nextItem = NULL;
     }
-
-    // If head
-    if (item->previousItem == NULL && item->nextItem != NULL)
+    else if (item->previousItem == NULL) // if head
     {
         item->nextItem->previousItem = NULL;
     }
@@ -241,7 +241,7 @@ ListItem *LinkedListGetLast(ListItem *list)
         return NULL;
     }
 
-    // get to head of list
+    // get to tail of list
     while (list->nextItem != NULL)
     {
         list = list->nextItem;
@@ -297,10 +297,12 @@ int LinkedListPrint(ListItem *list)
         return STANDARD_ERROR;
     }
 
+    // make sure we start from beginning
     list = LinkedListGetFirst(list);
 
     putc('[', stdout);
 
+    // print content
     while (list != NULL)
     {
         printf("%s", list->data ? list->data : "(null)");

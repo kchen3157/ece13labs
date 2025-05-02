@@ -1,9 +1,9 @@
 /**
- * @file    sort_template.c
+ * @file    sort.c
  *
- * @author
+ * @author   Kyle Chen
  *
- * @date
+ * @date    2025-05-02
  *
  * @note    Heap size of >= 1024 required!
  */
@@ -27,7 +27,6 @@
  * This function does not print.
  */
 ListItem *SelectionSort(ListItem *list){
-    // YOUR CODE GOES HERE!
 
     list = LinkedListGetFirst(list);
 
@@ -37,6 +36,8 @@ ListItem *SelectionSort(ListItem *list){
     {
         ListItem *smallest_ptr = unsorted_list_part_ptr;
         ListItem *curr_ptr = unsorted_list_part_ptr->nextItem;
+
+        // Find smallest
         while (curr_ptr != NULL)
         {
             if (strcmp(smallest_ptr->data, curr_ptr->data) > 0)
@@ -46,8 +47,10 @@ ListItem *SelectionSort(ListItem *list){
             curr_ptr = curr_ptr->nextItem;
         }
 
+        // Swap smallest with beginning of unsorted part
         LinkedListSwapData(smallest_ptr, unsorted_list_part_ptr);
 
+        // Increment unsorted part
         unsorted_list_part_ptr = unsorted_list_part_ptr->nextItem;
     }
 
@@ -68,7 +71,6 @@ ListItem *SelectionSort(ListItem *list){
  */
 ListItem *InsertionSort(ListItem *list)
 {
-    // YOUR CODE GOES HERE!
     list = LinkedListGetFirst(list);
 
     ListItem *unsorted_list_part_ptr = list->nextItem;
@@ -78,20 +80,15 @@ ListItem *InsertionSort(ListItem *list)
         ListItem *ori_unsorted = unsorted_list_part_ptr;
         ListItem *curr_ptr = unsorted_list_part_ptr->previousItem;
 
-        while (curr_ptr != NULL)
+        // If pair in wrong order, swap, move to next pair
+        while (curr_ptr != NULL && strcmp(curr_ptr->data, unsorted_list_part_ptr->data) > 0)
         {
-            if (strcmp(curr_ptr->data, unsorted_list_part_ptr->data) > 0)
-            {
-                LinkedListSwapData(curr_ptr, unsorted_list_part_ptr);
-                unsorted_list_part_ptr = unsorted_list_part_ptr->previousItem;
-            }
-            else
-            {
-                break;
-            }
+            LinkedListSwapData(curr_ptr, unsorted_list_part_ptr);
+            unsorted_list_part_ptr = unsorted_list_part_ptr->previousItem;
             curr_ptr = curr_ptr->previousItem;
         }
 
+        // Move to next part
         unsorted_list_part_ptr = ori_unsorted->nextItem;
     }
     
