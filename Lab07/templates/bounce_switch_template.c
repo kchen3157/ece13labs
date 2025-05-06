@@ -14,15 +14,20 @@
 #include <BOARD.h>
 #include <Buttons.h>
 #include <Timers.h>
-
+#include <Leds.h>
 
 // User libraries
 
 // **** Set macros and preprocessor directives ****
 
 // **** Declare any datatypes here ****
+struct Timer {
+  uint8_t event;
+  int16_t timeRemaining;
+};
 
 // **** Define global, module-level, or external variables here ****
+static volatile struct Timer TimerA = {.event = FALSE, .timeRemaining = 0};
 
 // **** Declare function prototypes ****
 
@@ -31,6 +36,7 @@ int main(void)
 {
     BOARD_Init();
     Timers_Init();
+    LEDs_Init();
     /***************************************************************************
      * Your code goes in between this comment and the following one with
      * asterisks.
@@ -41,8 +47,6 @@ int main(void)
         __TIME__,
         __DATE__
     );
-    
-    printf("Please press some buttons!\n");
     /***************************************************************************
      * Your code goes in between this comment and the preceding one with
      * asterisks.

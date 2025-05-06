@@ -18,7 +18,7 @@
 // User libraries
 
 // **** Set macros and preprocessor directives ****
-#define ADC_WINDOW_SIZE 1
+#define ADC_WINDOW_SIZE 50
 
 // **** Declare any datatypes here ****
 struct AdcResult
@@ -28,7 +28,7 @@ struct AdcResult
 };
 
 // **** Define global, module-level, or external variables here ****
-struct AdcResult AdcResult;
+static volatile struct AdcResult AdcResult;
 
 // **** Declare function prototypes ****
 
@@ -46,7 +46,7 @@ int main(void)
         "Compiled on %s %s.\n\r",
         __TIME__,
         __DATE__);
-
+    ADC_Start();
     /***************************************************************************
      * Your code goes in between this comment and the preceding one with
      * asterisks.

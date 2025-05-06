@@ -16,13 +16,13 @@
 #include <Buttons.h>
 #include <Timers.h>
 #include <Leds.h>
-
+#include <Oled.h>
 
 // User libraries
 
 
 // **** Set macros and preprocessor directives ****
-#define ADC_WINDOW_SIZE 1
+#define ADC_WINDOW_SIZE 50
 
 // **** Declare any datatypes here ****
 struct AdcResult
@@ -31,8 +31,15 @@ struct AdcResult
     uint16_t value;
 };
 
+struct Timer {
+  uint8_t event;
+  int16_t timeRemaining;
+};
+
 // **** Define global, module-level, or external variables here ****
-struct AdcResult AdcResult;
+static volatile struct AdcResult AdcResult;
+static volatile struct Timer TimerA = {.event = FALSE, .timeRemaining = 0};
+static volatile ButtonEventFlags buttonEvents;
 
 // **** Declare function prototypes ****
 
@@ -55,7 +62,7 @@ int main(void)
         __TIME__,
         __DATE__
     );
-    
+    ADC_Start();
     /***************************************************************************
      * Your code goes in between this comment and the preceding one with
      * asterisks.

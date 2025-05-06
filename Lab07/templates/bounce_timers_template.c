@@ -14,6 +14,7 @@
 #include <BOARD.h>
 #include <Buttons.h>
 #include <Timers.h>
+#include <Leds.h>
 
 // User libraries
 
@@ -26,6 +27,9 @@ struct Timer {
 };
 
 // **** Define global, module-level, or external variables here ****
+static volatile struct Timer TimerA = {.event = FALSE, .timeRemaining = 0},
+                             TimerB = {.event = FALSE, .timeRemaining = 0},
+                             TimerC = {.event = FALSE, .timeRemaining = 0}; // Set the initial event and timeRemaining for each timer here.
 
 // **** Declare function prototypes ****
 
@@ -34,6 +38,7 @@ int main(void)
 {
     BOARD_Init();
     Timers_Init();
+    LEDs_Init();
     /***************************************************************************
      * Your code goes in between this comment and the following one with
      * asterisks.

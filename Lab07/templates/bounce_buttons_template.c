@@ -23,7 +23,7 @@
 // **** Declare any datatypes here ****
 
 // **** Define global, module-level, or external variables here ****
-volatile uint8_t buttonEvents; // Filled in by the Timer's ISR.
+static volatile ButtonEventFlags buttonEvents; // Filled in by the Timer's ISR. May contain multiple ButtonEventFlags events.
 
 // **** Declare function prototypes ****
 
@@ -33,6 +33,7 @@ int main(void)
     BOARD_Init();
     Timers_Init();
     Buttons_Init();
+    LEDs_Init();
     /***************************************************************************
      * Your code goes in between this comment and the following one with
      * asterisks.
