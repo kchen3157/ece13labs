@@ -19,20 +19,27 @@
 // User libraries
 
 // **** Set macros and preprocessor directives ****
+#define TIMER_A_PERIOD 2
+#define TIMER_B_PERIOD 3
+#define TIMER_C_PERIOD 5
+
+#define TIMER_A_LED (0b1 << 7)
+#define TIMER_B_LED (0b1 << 6)
+#define TIMER_C_LED (0b1 << 5)
 
 // **** Declare any datatypes here ****
-struct Timer {
-  uint8_t event;
-  int16_t timeRemaining;
+struct Timer
+{
+    uint8_t event;
+    int16_t timeRemaining;
 };
 
 // **** Define global, module-level, or external variables here ****
-static volatile struct Timer TimerA = {.event = FALSE, .timeRemaining = 0},
-                             TimerB = {.event = FALSE, .timeRemaining = 0},
-                             TimerC = {.event = FALSE, .timeRemaining = 0}; // Set the initial event and timeRemaining for each timer here.
+static volatile struct Timer TimerA = {.event = FALSE, .timeRemaining = (TIMER_A_PERIOD * TIM2_DEFAULT_FREQ_HZ)},
+                             TimerB = {.event = FALSE, .timeRemaining = (TIMER_B_PERIOD * TIM2_DEFAULT_FREQ_HZ)},
+                             TimerC = {.event = FALSE, .timeRemaining = (TIMER_C_PERIOD * TIM2_DEFAULT_FREQ_HZ)}; // Set the initial event and timeRemaining for each timer here.
 
 // **** Declare function prototypes ****
-
 
 int main(void)
 {
@@ -47,19 +54,41 @@ int main(void)
         "Welcome to CRUZID's Lab07, Part 1 (bouce_timers)."
         "Compiled on %s %s.\n\r",
         __TIME__,
-        __DATE__
-    );
-    while (1) {
+        __DATE__);
+    while (1)
+    {
         // Poll "Timer A".
         // React to "Timer A" events.
         // Clear "Timer A" event flag.
+
+        if (TimerA.event)
+        {
+            printf("A ");
+            LEDs_Set(LEDs_Get() ^ TIMER_A_LED);
+            TimerA.event = FALSE;
+        }
+
+        if (TimerB.event)
+        {
+            printf("B ");
+            LEDs_Set(LEDs_Get() ^ TIMER_B_LED);
+            TimerB.event = FALSE;
+        }
+
+        if (TimerC.event)
+        {
+            printf("C ");
+            LEDs_Set(LEDs_Get() ^ TIMER_C_LED);
+            TimerC.event = FALSE;
+        }
     }
     /***************************************************************************
      * Your code goes in between this comment and the preceding one with
      * asterisks.
      **************************************************************************/
     BOARD_End();
-    while(1);
+    while (1)
+        ;
 }
 
 /**
@@ -71,40 +100,63 @@ int main(void)
  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  if (htim == &htim2) // This will be triggered every TIM2_DEFAULT_FREQ_HZ
-  {
-    /***************************************************************************
-     * Your code goes in between this comment and the following one with
-     * asterisks.
-     **************************************************************************/
+    if (htim == &htim2) // This will be triggered every TIM2_DEFAULT_FREQ_HZ
+    {
+        /***************************************************************************
+         * Your code goes in between this comment and the following one with
+         * asterisks.
+         **************************************************************************/
+        __HAL_TIM_CLEAR_FLAG(&htim2, TIM_FLAG_UPDATE);
 
-    /***************************************************************************
-     * Your code goes in between this comment and the preceding one with
-     * asterisks.
-     **************************************************************************/
-  }
-  else if (htim == &htim3) // This will be triggered every TIM3_DEFAULT_FREQ_HZ
-  {
-    /***************************************************************************
-     * Your code goes in between this comment and the following one with
-     * asterisks.
-     **************************************************************************/
+        TimerA.timeRemaining--;
+        TimerB.timeRemaining--;
+        TimerC.timeRemaining--;
 
-    /***************************************************************************
-     * Your code goes in between this comment and the preceding one with
-     * asterisks.
-     **************************************************************************/
-  }
-  else if (htim == &htim4) // This will be triggered every TIM4_DEFAULT_FREQ_HZ
-  {
-    /***************************************************************************
-     * Your code goes in between this comment and the following one with
-     * asterisks.
-     **************************************************************************/
+        if (TimerA.timeRemaining <= 0)
+        {
+            TimerA.event = TRUE;
+            TimerA.timeRemaining = (TIMER_A_PERIOD * TIM2_DEFAULT_FREQ_HZ);
+        }
 
-    /***************************************************************************
-     * Your code goes in between this comment and the preceding one with
-     * asterisks.
-     **************************************************************************/
-  }
+        if (TimerB.timeRemaining <= 0)
+        {
+            TimerB.event = TRUE;
+            TimerB.timeRemaining = (TIMER_B_PERIOD * TIM2_DEFAULT_FREQ_HZ);
+        }
+
+        if (TimerC.timeRemaining <= 0)
+        {
+            TimerC.event = TRUE;
+            TimerC.timeRemaining = (TIMER_C_PERIOD * TIM2_DEFAULT_FREQ_HZ);
+        }
+
+        /***************************************************************************
+         * Your code goes in between this comment and the preceding one with
+         * asterisks.
+         **************************************************************************/
+    }
+    else if (htim == &htim3) // This will be triggered every TIM3_DEFAULT_FREQ_HZ
+    {
+        /***************************************************************************
+         * Your code goes in between this comment and the following one with
+         * asterisks.
+         **************************************************************************/
+
+        /***************************************************************************
+         * Your code goes in between this comment and the preceding one with
+         * asterisks.
+         **************************************************************************/
+    }
+    else if (htim == &htim4) // This will be triggered every TIM4_DEFAULT_FREQ_HZ
+    {
+        /***************************************************************************
+         * Your code goes in between this comment and the following one with
+         * asterisks.
+         **************************************************************************/
+
+        /***************************************************************************
+         * Your code goes in between this comment and the preceding one with
+         * asterisks.
+         **************************************************************************/
+    }
 }
