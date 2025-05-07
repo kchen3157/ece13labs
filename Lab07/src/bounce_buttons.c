@@ -21,8 +21,15 @@
 // **** Set macros and preprocessor directives ****
 
 // **** Declare any datatypes here ****
+struct Timer
+{
+    uint8_t event;
+    int16_t timeRemaining;
+};
 
 // **** Define global, module-level, or external variables here ****
+static volatile struct Timer TimerA = {.event = FALSE, .timeRemaining = 0};
+
 static volatile ButtonEventFlags buttonEvents; // Filled in by the Timer's ISR. May contain multiple ButtonEventFlags events.
 
 // **** Declare function prototypes ****
@@ -44,6 +51,55 @@ int main(void)
         __TIME__,
         __DATE__
     );
+
+    while (TRUE)
+    {
+        if (TimerA.event)
+        {
+            TimerA.event = FALSE;
+
+            if (!SW1_STATE())
+            {
+                if (buttonEvents & BUTTON_EVENT_1DOWN)
+                {
+                    LEDs_Set(LEDs_Get() ^ (0b11 << 0));
+                }
+                if (buttonEvents & BUTTON_EVENT_2DOWN)
+                {
+                    LEDs_Set(LEDs_Get() ^ (0b11 << 2));
+                }
+                if (buttonEvents & BUTTON_EVENT_3DOWN)
+                {
+                    LEDs_Set(LEDs_Get() ^ (0b11 << 4));
+                }
+                if (buttonEvents & BUTTON_EVENT_4DOWN)
+                {
+                    LEDs_Set(LEDs_Get() ^ (0b11 << 6));
+                }
+            }
+            else
+            {
+                if (buttonEvents & BUTTON_EVENT_1UP)
+                {
+                    LEDs_Set(LEDs_Get() ^ (0b11 << 0));
+                }
+                if (buttonEvents & BUTTON_EVENT_2UP)
+                {
+                    LEDs_Set(LEDs_Get() ^ (0b11 << 2));
+                }
+                if (buttonEvents & BUTTON_EVENT_3UP)
+                {
+                    LEDs_Set(LEDs_Get() ^ (0b11 << 4));
+                }
+                if (buttonEvents & BUTTON_EVENT_4UP)
+                {
+                    LEDs_Set(LEDs_Get() ^ (0b11 << 6));
+                }
+            }
+
+            buttonEvents = BUTTON_EVENT_NONE;
+        }
+    }
     
     /***************************************************************************
      * Your code goes in between this comment and the preceding one with
@@ -92,7 +148,19 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
      * Your code goes in between this comment and the following one with
      * asterisks.
      **************************************************************************/
+    __HAL_TIM_CLEAR_FLAG(&htim4, TIM_FLAG_UPDATE);
 
+    TimerA.timeRemaining--;
+
+    if (TimerA.timeRemaining <= 0)
+    {
+        TimerA.event = TRUE;
+
+        buttonEvents = Buttons_CheckEvents();
+        
+        // Base period
+        TimerA.timeRemaining = (1);
+    }
     /***************************************************************************
      * Your code goes in between this comment and the preceding one with
      * asterisks.
