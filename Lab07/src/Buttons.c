@@ -20,7 +20,7 @@
 // **** Declare any datatypes here ****
 
 // **** Define global, module-level, or external variables here ****
-static volatile uint8_t buttonCooldown[4] = {0, 0, 0, 0};
+static volatile uint8_t debounceCounter[4] = {0, 0, 0, 0};
 static volatile uint8_t savedButtonState = 0x00;
 
 // **** Declare function prototypes ****
@@ -67,74 +67,74 @@ uint8_t Buttons_CheckEvents(void)
 
     if ((currentButtonState & BUTTON_STATE_1) != (savedButtonState & BUTTON_STATE_1) )
     {
-        if ((buttonCooldown[0] < BUTTONS_DEBOUNCE_PERIOD))
+        if ((debounceCounter[0] < BUTTONS_DEBOUNCE_PERIOD))
         {
-            buttonCooldown[0]++;
+            debounceCounter[0]++;
         }
         else
         {
             buttonEvents |= (currentButtonState & BUTTON_STATE_1) ? BUTTON_EVENT_1DOWN : BUTTON_EVENT_1UP;
             savedButtonState ^= BUTTON_STATE_1;
-            buttonCooldown[0] = 0;
+            debounceCounter[0] = 0;
         }
     }
     else
     {
-        buttonCooldown[0] = 0;
+        debounceCounter[0] = 0;
     }
 
     if ((currentButtonState & BUTTON_STATE_2) != (savedButtonState & BUTTON_STATE_2) )
     {
-        if ((buttonCooldown[1] < BUTTONS_DEBOUNCE_PERIOD))
+        if ((debounceCounter[1] < BUTTONS_DEBOUNCE_PERIOD))
         {
-            buttonCooldown[1]++;
+            debounceCounter[1]++;
         }
         else
         {
             buttonEvents |= (currentButtonState & BUTTON_STATE_2) ? BUTTON_EVENT_2DOWN : BUTTON_EVENT_2UP;
             savedButtonState ^= BUTTON_STATE_2;
-            buttonCooldown[1] = 0;
+            debounceCounter[1] = 0;
         }
     }
     else
     {
-        buttonCooldown[1] = 0;
+        debounceCounter[1] = 0;
     }
 
     if ((currentButtonState & BUTTON_STATE_3) != (savedButtonState & BUTTON_STATE_3) )
     {
-        if ((buttonCooldown[2] < BUTTONS_DEBOUNCE_PERIOD))
+        if ((debounceCounter[2] < BUTTONS_DEBOUNCE_PERIOD))
         {
-            buttonCooldown[2]++;
+            debounceCounter[2]++;
         }
         else
         {
             buttonEvents |= (currentButtonState & BUTTON_STATE_3) ? BUTTON_EVENT_3DOWN : BUTTON_EVENT_3UP;
             savedButtonState ^= BUTTON_STATE_3;
-            buttonCooldown[2] = 0;
+            debounceCounter[2] = 0;
         }
     }
     else
     {
-        buttonCooldown[2] = 0;
+        debounceCounter[2] = 0;
     }
 
     if ((currentButtonState & BUTTON_STATE_4) != (savedButtonState & BUTTON_STATE_4) )
     {
-        if ((buttonCooldown[3] < BUTTONS_DEBOUNCE_PERIOD))
+        if ((debounceCounter[3] < BUTTONS_DEBOUNCE_PERIOD))
         {
-            buttonCooldown[3]++;
+            debounceCounter[3]++;
         }
         else
         {
             buttonEvents |= (currentButtonState & BUTTON_STATE_4) ? BUTTON_EVENT_4DOWN : BUTTON_EVENT_4UP;
             savedButtonState ^= BUTTON_STATE_4;
-            buttonCooldown[3] = 0;
+            debounceCounter[3] = 0;
         }
     }
     else
     {
-        buttonCooldown[3] = 0;
+        debounceCounter[3] = 0;
     }
 
     // savedButtonState = currentButtonState;
