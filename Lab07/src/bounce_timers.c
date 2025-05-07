@@ -1,9 +1,9 @@
 /**
- * @file    bounce_timers_template.c
+ * @file        bounce_timers.c
  *
- * @author
+ * @author      Kyle Chen
  *
- * @date
+ * @date        2025-05-06
  */
 
 // **** Include libraries here ****

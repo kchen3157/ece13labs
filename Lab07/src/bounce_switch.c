@@ -1,9 +1,9 @@
 /**
- * @file    bounce_switch_template.c
+ * @file    bounce_switch.c
  *
- * @author
+ * @author  Kyle Chen
  *
- * @date
+ * @date    2025-05-06
  */
 
 // **** Include libraries here ****

@@ -1,12 +1,12 @@
 /**
- * @file    Leds_template.c
+ * @file        Leds.c
  *
  * This library provides an interface for controlling the LEDs on the UCSC
  * Nucleo I/O Shield development board.
  *
- * @author
+ * @author      Kyle Chen
  *
- * @date
+ * @date        2025-05-06
  */
 // Standard libraries.
 #include <stdio.h>
