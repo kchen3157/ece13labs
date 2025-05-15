@@ -115,7 +115,8 @@ int main(void)
                 strcpy(button4Events, "----");
             }
 
-            printf("EVENT: 4: %s, 3: %s, 2: %s, 1: %s\n", button4Events, button3Events, button2Events, button1Events);
+            printf("EVENT: 4: %s, 3: %s, 2: %s, 1: %s\n", button4Events, button3Events, 
+                button2Events, button1Events);
         }
     }
     /***************************************************************************
@@ -171,7 +172,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         {
             TimerA.event = TRUE;
 
-            // Base period
+            // Poll buttons at 1000 Hz
             TimerA.timeRemaining = (1);
         }
         /***************************************************************************

@@ -18,9 +18,10 @@
 // User libraries
 
 // **** Set macros and preprocessor directives ****
-#define ADC_WINDOW_SIZE 50
-#define ADC_MAX_READING 4095
-#define ADC_MIN_READING 0
+#define ADC_WINDOW_SIZE             50
+#define ADC_MAX_READING             4095
+#define ADC_MIN_READING             0
+#define OLED_CHAR_BUFFER_SIZE       20
 
 // **** Declare any datatypes here ****
 struct AdcResult
@@ -52,11 +53,12 @@ int main(void)
 
     while (TRUE)
     {
+        // Update OLED when new ADC result arrives
         if (AdcResult.event)
         {
             AdcResult.event = FALSE;
 
-            char buffer[20];
+            char buffer[OLED_CHAR_BUFFER_SIZE];
 
             sprintf(buffer, "%d", AdcResult.value);
 
@@ -70,7 +72,7 @@ int main(void)
      * asterisks.
      **************************************************************************/
     BOARD_End();
-    while (1)
+    while (TRUE)
         ;
 }
 
@@ -118,16 +120,20 @@ void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef *hadc)
 
         AdcResult.value = HAL_ADC_GetValue(&hadc1);
 
+        //******Config ADC watchdog with new window values based upon new result******
+
         int16_t lim_upper = (int16_t)AdcResult.value + (ADC_WINDOW_SIZE / 2);
+        int16_t lim_lower = (int16_t)AdcResult.value - (ADC_WINDOW_SIZE / 2);
+
+        // Create deadzone; do not let upper/lower limit surpass the max/min
         lim_upper = (lim_upper > ADC_MAX_READING) ? (ADC_MAX_READING - 1) : lim_upper;
         lim_upper = (lim_upper < ADC_MIN_READING) ? (ADC_MIN_READING + 1) : lim_upper;
-
-        int16_t lim_lower = (int16_t)AdcResult.value - (ADC_WINDOW_SIZE / 2);
         lim_lower = (lim_lower > ADC_MAX_READING) ? (ADC_MAX_READING - 1) : lim_lower;
         lim_lower = (lim_lower < ADC_MIN_READING) ? (ADC_MIN_READING + 1) : lim_lower;
 
         ADC_Watchdog_Config((uint16_t)lim_upper, (uint16_t)lim_lower);
 
+        // Broadcast ADC has new result
         AdcResult.event = TRUE;
 
         /***************************************************************************

@@ -87,10 +87,12 @@ int main(void)
 
     while (TRUE)
     {
+        //******** Bouncing LED logic ********
         if (TimerA.event)
         {
             uint8_t led_state = LEDs_Get();
 
+            // Change direction when reach end
             if (led_state & LED_8)
             {
                 direction = 1;
@@ -100,6 +102,7 @@ int main(void)
                 direction = 0;
             }
 
+            // Stop if switch says so
             if (bounce_led_enable)
             {
                 LEDs_Set(direction ? (led_state << 1) : (led_state >> 1));
@@ -108,11 +111,13 @@ int main(void)
             TimerA.event = FALSE;
         }
 
+        //******** Bouncing LED Pause Switch logic ********
         if (TimerB.event)
         {
             TimerB.event = FALSE;
             if (!SW1_STATE())
             {
+                // Stop LED bounce on button down
                 if (buttonEvents & (BUTTON_EVENT_1DOWN | BUTTON_EVENT_2DOWN | BUTTON_EVENT_3DOWN | BUTTON_EVENT_4DOWN))
                 {
                     bounce_led_enable = !bounce_led_enable;
@@ -120,6 +125,7 @@ int main(void)
             }
             else
             {
+                // Stop LED bounce on button up
                 if (buttonEvents & (BUTTON_EVENT_1UP | BUTTON_EVENT_2UP | BUTTON_EVENT_3UP | BUTTON_EVENT_4UP))
                 {
                     bounce_led_enable = !bounce_led_enable;
@@ -172,9 +178,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         {
             TimerA.event = TRUE;
 
-            // Base period
-
-            TimerA.timeRemaining = (MIN_INTERVAL + ((MAX_INTERVAL - MIN_INTERVAL) * (ADC_MAX_READING - AdcResult.value)) / ADC_MAX_READING) / 10;
+            // Set timer period using ADC reading, scaled to go between MAX_INTERVAL and MIN_INTERVAL
+            int16_t time_temp = ((MAX_INTERVAL - MIN_INTERVAL) * (ADC_MAX_READING - AdcResult.value));
+            TimerA.timeRemaining = (MIN_INTERVAL + (time_temp) / ADC_MAX_READING) / 10;
         }
 
         /***************************************************************************
@@ -197,8 +203,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
             buttonEvents = Buttons_CheckEvents();
 
-            // Base period
-
+            // Poll button at frequency of 1000Hz
             TimerB.timeRemaining = (1);
         }
 
@@ -251,19 +256,23 @@ void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef *hadc)
          * asterisks.
          **************************************************************************/
 
-        AdcResult.value = HAL_ADC_GetValue(&hadc1);
+         AdcResult.value = HAL_ADC_GetValue(&hadc1);
 
-        int16_t lim_upper = (int16_t)AdcResult.value + (ADC_WINDOW_SIZE / 2);
-        lim_upper = (lim_upper > ADC_MAX_READING) ? (ADC_MAX_READING - 1) : lim_upper;
-        lim_upper = (lim_upper < ADC_MIN_READING) ? (ADC_MIN_READING + 1) : lim_upper;
-
-        int16_t lim_lower = (int16_t)AdcResult.value - (ADC_WINDOW_SIZE / 2);
-        lim_lower = (lim_lower > ADC_MAX_READING) ? (ADC_MAX_READING - 1) : lim_lower;
-        lim_lower = (lim_lower < ADC_MIN_READING) ? (ADC_MIN_READING + 1) : lim_lower;
-
-        ADC_Watchdog_Config((uint16_t)lim_upper, (uint16_t)lim_lower);
-
-        AdcResult.event = TRUE;
+         //******Config ADC watchdog with new window values based upon new result******
+ 
+         int16_t lim_upper = (int16_t)AdcResult.value + (ADC_WINDOW_SIZE / 2);
+         int16_t lim_lower = (int16_t)AdcResult.value - (ADC_WINDOW_SIZE / 2);
+ 
+         // Create deadzone; do not let upper/lower limit surpass the max/min
+         lim_upper = (lim_upper > ADC_MAX_READING) ? (ADC_MAX_READING - 1) : lim_upper;
+         lim_upper = (lim_upper < ADC_MIN_READING) ? (ADC_MIN_READING + 1) : lim_upper;
+         lim_lower = (lim_lower > ADC_MAX_READING) ? (ADC_MAX_READING - 1) : lim_lower;
+         lim_lower = (lim_lower < ADC_MIN_READING) ? (ADC_MIN_READING + 1) : lim_lower;
+ 
+         ADC_Watchdog_Config((uint16_t)lim_upper, (uint16_t)lim_lower);
+ 
+         // Broadcast ADC has new result
+         AdcResult.event = TRUE;
 
         /***************************************************************************
          * Your code goes in between this comment and the preceding one with

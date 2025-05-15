@@ -161,7 +161,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
             buttonEvents = Buttons_CheckEvents();
 
-            // Base period
+            // 1 cycle equates to frequency of 1000 Hz
             TimerA.timeRemaining = (1);
         }
         /***************************************************************************

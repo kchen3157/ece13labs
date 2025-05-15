@@ -19,6 +19,7 @@
 // User libraries
 
 // **** Set macros and preprocessor directives ****
+// Period in seconds
 #define TIMER_A_PERIOD 2
 #define TIMER_B_PERIOD 3
 #define TIMER_C_PERIOD 5
@@ -35,9 +36,9 @@ struct Timer
 };
 
 // **** Define global, module-level, or external variables here ****
-static volatile struct Timer TimerA = {.event = FALSE, .timeRemaining = (TIMER_A_PERIOD * TIM2_DEFAULT_FREQ_HZ)},
-                             TimerB = {.event = FALSE, .timeRemaining = (TIMER_B_PERIOD * TIM2_DEFAULT_FREQ_HZ)},
-                             TimerC = {.event = FALSE, .timeRemaining = (TIMER_C_PERIOD * TIM2_DEFAULT_FREQ_HZ)}; // Set the initial event and timeRemaining for each timer here.
+static volatile struct Timer TimerA = {.event = FALSE, .timeRemaining = (TIMER_A_PERIOD * TIM4_DEFAULT_FREQ_HZ)},
+                             TimerB = {.event = FALSE, .timeRemaining = (TIMER_B_PERIOD * TIM4_DEFAULT_FREQ_HZ)},
+                             TimerC = {.event = FALSE, .timeRemaining = (TIMER_C_PERIOD * TIM4_DEFAULT_FREQ_HZ)}; // Set the initial event and timeRemaining for each timer here.
 
 // **** Declare function prototypes ****
 
@@ -57,9 +58,9 @@ int main(void)
         __DATE__);
     while (1)
     {
-        // Poll "Timer A".
-        // React to "Timer A" events.
-        // Clear "Timer A" event flag.
+        // TIMA -> LD1 (2 sec.)
+        // TIMB -> LD2 (3 sec.)
+        // TIMC -> LD3 (5 sec.)
 
         if (TimerA.event)
         {
@@ -107,28 +108,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
          * asterisks.
          **************************************************************************/
 
-        TimerA.timeRemaining--;
-        TimerB.timeRemaining--;
-        TimerC.timeRemaining--;
-
-        if (TimerA.timeRemaining <= 0)
-        {
-            TimerA.event = TRUE;
-            TimerA.timeRemaining = (TIMER_A_PERIOD * TIM2_DEFAULT_FREQ_HZ);
-        }
-
-        if (TimerB.timeRemaining <= 0)
-        {
-            TimerB.event = TRUE;
-            TimerB.timeRemaining = (TIMER_B_PERIOD * TIM2_DEFAULT_FREQ_HZ);
-        }
-
-        if (TimerC.timeRemaining <= 0)
-        {
-            TimerC.event = TRUE;
-            TimerC.timeRemaining = (TIMER_C_PERIOD * TIM2_DEFAULT_FREQ_HZ);
-        }
-
         /***************************************************************************
          * Your code goes in between this comment and the preceding one with
          * asterisks.
@@ -152,6 +131,28 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
          * Your code goes in between this comment and the following one with
          * asterisks.
          **************************************************************************/
+
+        TimerA.timeRemaining--;
+        TimerB.timeRemaining--;
+        TimerC.timeRemaining--;
+
+        if (TimerA.timeRemaining <= 0)
+        {
+            TimerA.event = TRUE;
+            TimerA.timeRemaining = (TIMER_A_PERIOD * TIM4_DEFAULT_FREQ_HZ);
+        }
+
+        if (TimerB.timeRemaining <= 0)
+        {
+            TimerB.event = TRUE;
+            TimerB.timeRemaining = (TIMER_B_PERIOD * TIM4_DEFAULT_FREQ_HZ);
+        }
+
+        if (TimerC.timeRemaining <= 0)
+        {
+            TimerC.event = TRUE;
+            TimerC.timeRemaining = (TIMER_C_PERIOD * TIM4_DEFAULT_FREQ_HZ);
+        }
 
         /***************************************************************************
          * Your code goes in between this comment and the preceding one with

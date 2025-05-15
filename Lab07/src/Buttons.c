@@ -61,6 +61,7 @@ uint8_t Buttons_CheckEvents(void)
 #ifdef STM32F4
     enum ButtonStateFlags currentButtonState = ~BUTTON_STATES();
 
+    //********** Debounce filter for BTN_1 **********
     if ((currentButtonState & BUTTON_STATE_1) != (savedButtonState & BUTTON_STATE_1))
     {
         if ((debounceCounter[0] < BUTTONS_DEBOUNCE_PERIOD))
@@ -79,6 +80,7 @@ uint8_t Buttons_CheckEvents(void)
         debounceCounter[0] = 0;
     }
 
+    //********** Debounce filter for BTN_2 **********
     if ((currentButtonState & BUTTON_STATE_2) != (savedButtonState & BUTTON_STATE_2))
     {
         if ((debounceCounter[1] < BUTTONS_DEBOUNCE_PERIOD))
@@ -97,6 +99,7 @@ uint8_t Buttons_CheckEvents(void)
         debounceCounter[1] = 0;
     }
 
+    //********** Debounce filter for BTN_3 **********
     if ((currentButtonState & BUTTON_STATE_3) != (savedButtonState & BUTTON_STATE_3))
     {
         if ((debounceCounter[2] < BUTTONS_DEBOUNCE_PERIOD))
@@ -115,6 +118,7 @@ uint8_t Buttons_CheckEvents(void)
         debounceCounter[2] = 0;
     }
 
+    //********** Debounce filter for BTN_4 **********
     if ((currentButtonState & BUTTON_STATE_4) != (savedButtonState & BUTTON_STATE_4))
     {
         if ((debounceCounter[3] < BUTTONS_DEBOUNCE_PERIOD))
@@ -133,7 +137,6 @@ uint8_t Buttons_CheckEvents(void)
         debounceCounter[3] = 0;
     }
 
-    // savedButtonState = currentButtonState;
 #endif /*  STM32F4 */
 
     return buttonEvents;
