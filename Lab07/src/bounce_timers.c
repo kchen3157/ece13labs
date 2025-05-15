@@ -106,7 +106,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
          * Your code goes in between this comment and the following one with
          * asterisks.
          **************************************************************************/
-        __HAL_TIM_CLEAR_FLAG(&htim2, TIM_FLAG_UPDATE);
 
         TimerA.timeRemaining--;
         TimerB.timeRemaining--;

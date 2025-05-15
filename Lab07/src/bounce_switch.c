@@ -135,8 +135,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
          * asterisks.
          **************************************************************************/
 
-        __HAL_TIM_CLEAR_FLAG(&htim3, TIM_FLAG_UPDATE);
-
         TimerA.timeRemaining--;
    
         if (TimerA.timeRemaining <= 0)
