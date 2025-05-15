@@ -30,10 +30,6 @@
 #define LED_7 (0b1 << 1)
 #define LED_8 (0b1 << 0)
 
-#define TIMER_A_PERIOD 0.2
-#define BASE_PERIOD_CHANGE 0.06
-#define SW1_CHANGE (BASE_PERIOD_CHANGE * 1)
-#define SW2_CHANGE (BASE_PERIOD_CHANGE * 2)
 #define ADC_WINDOW_SIZE 50
 #define ADC_MAX_READING 4095
 #define ADC_MIN_READING 0
@@ -179,8 +175,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
             TimerA.event = TRUE;
 
             // Set timer period using ADC reading, scaled to go between MAX_INTERVAL and MIN_INTERVAL
-            int16_t time_temp = ((MAX_INTERVAL - MIN_INTERVAL) * (ADC_MAX_READING - AdcResult.value));
-            TimerA.timeRemaining = (MIN_INTERVAL + (time_temp) / ADC_MAX_READING) / 10;
+            TimerA.timeRemaining = (MIN_INTERVAL + ((MAX_INTERVAL - MIN_INTERVAL) * (ADC_MAX_READING - AdcResult.value)) / ADC_MAX_READING) / 10;
         }
 
         /***************************************************************************

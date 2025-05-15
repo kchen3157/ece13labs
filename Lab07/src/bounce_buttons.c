@@ -96,7 +96,7 @@ int main(void)
                 }
                 if (buttonEvents & BUTTON_EVENT_4UP)
                 {
-                    LEDs_Set(LEDs_Get() ^ (0b11 << 1));
+                    LEDs_Set(LEDs_Get() ^ (0b11 << 0));
                 }
             }
 
