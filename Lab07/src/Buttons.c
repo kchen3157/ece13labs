@@ -12,9 +12,6 @@
 // Course libraries.
 #include "Buttons.h"
 
-
-
-
 // **** Set macros and preprocessor directives ****
 
 // **** Declare any datatypes here ****
@@ -29,7 +26,6 @@ void Buttons_Init(void)
 {
     return;
 }
-
 
 uint8_t Buttons_End(void)
 {
@@ -65,7 +61,7 @@ uint8_t Buttons_CheckEvents(void)
 #ifdef STM32F4
     enum ButtonStateFlags currentButtonState = ~BUTTON_STATES();
 
-    if ((currentButtonState & BUTTON_STATE_1) != (savedButtonState & BUTTON_STATE_1) )
+    if ((currentButtonState & BUTTON_STATE_1) != (savedButtonState & BUTTON_STATE_1))
     {
         if ((debounceCounter[0] < BUTTONS_DEBOUNCE_PERIOD))
         {
@@ -83,7 +79,7 @@ uint8_t Buttons_CheckEvents(void)
         debounceCounter[0] = 0;
     }
 
-    if ((currentButtonState & BUTTON_STATE_2) != (savedButtonState & BUTTON_STATE_2) )
+    if ((currentButtonState & BUTTON_STATE_2) != (savedButtonState & BUTTON_STATE_2))
     {
         if ((debounceCounter[1] < BUTTONS_DEBOUNCE_PERIOD))
         {
@@ -101,7 +97,7 @@ uint8_t Buttons_CheckEvents(void)
         debounceCounter[1] = 0;
     }
 
-    if ((currentButtonState & BUTTON_STATE_3) != (savedButtonState & BUTTON_STATE_3) )
+    if ((currentButtonState & BUTTON_STATE_3) != (savedButtonState & BUTTON_STATE_3))
     {
         if ((debounceCounter[2] < BUTTONS_DEBOUNCE_PERIOD))
         {
@@ -119,7 +115,7 @@ uint8_t Buttons_CheckEvents(void)
         debounceCounter[2] = 0;
     }
 
-    if ((currentButtonState & BUTTON_STATE_4) != (savedButtonState & BUTTON_STATE_4) )
+    if ((currentButtonState & BUTTON_STATE_4) != (savedButtonState & BUTTON_STATE_4))
     {
         if ((debounceCounter[3] < BUTTONS_DEBOUNCE_PERIOD))
         {
@@ -141,5 +137,4 @@ uint8_t Buttons_CheckEvents(void)
 #endif /*  STM32F4 */
 
     return buttonEvents;
-    
 }

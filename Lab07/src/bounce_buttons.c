@@ -15,7 +15,6 @@
 #include <Timers.h>
 #include <Leds.h>
 
-
 // User libraries.
 
 // **** Set macros and preprocessor directives ****
@@ -34,7 +33,6 @@ static volatile ButtonEventFlags buttonEvents; // Filled in by the Timer's ISR. 
 
 // **** Declare function prototypes ****
 
-
 int main(void)
 {
     BOARD_Init();
@@ -49,8 +47,7 @@ int main(void)
         "Welcome to CRUZID's Lab07, Part 5 (bounce_buttons)."
         "Compiled on %s %s.\n\r",
         __TIME__,
-        __DATE__
-    );
+        __DATE__);
 
     while (TRUE)
     {
@@ -100,13 +97,14 @@ int main(void)
             buttonEvents = BUTTON_EVENT_NONE;
         }
     }
-    
+
     /***************************************************************************
      * Your code goes in between this comment and the preceding one with
      * asterisks.
      **************************************************************************/
     BOARD_End();
-    while (1);
+    while (1)
+        ;
 }
 
 /**
@@ -118,51 +116,51 @@ int main(void)
  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  if (htim == &htim2) // This will be triggered every TIM2_DEFAULT_FREQ_HZ
-  {
-    /***************************************************************************
-     * Your code goes in between this comment and the following one with
-     * asterisks.
-     **************************************************************************/
-
-    /***************************************************************************
-     * Your code goes in between this comment and the preceding one with
-     * asterisks.
-     **************************************************************************/
-  }
-  else if (htim == &htim3) // This will be triggered every TIM3_DEFAULT_FREQ_HZ
-  {
-    /***************************************************************************
-     * Your code goes in between this comment and the following one with
-     * asterisks.
-     **************************************************************************/
-
-    /***************************************************************************
-     * Your code goes in between this comment and the preceding one with
-     * asterisks.
-     **************************************************************************/
-  }
-  else if (htim == &htim4) // This will be triggered every TIM4_DEFAULT_FREQ_HZ
-  {
-    /***************************************************************************
-     * Your code goes in between this comment and the following one with
-     * asterisks.
-     **************************************************************************/
-
-    TimerA.timeRemaining--;
-
-    if (TimerA.timeRemaining <= 0)
+    if (htim == &htim2) // This will be triggered every TIM2_DEFAULT_FREQ_HZ
     {
-        TimerA.event = TRUE;
+        /***************************************************************************
+         * Your code goes in between this comment and the following one with
+         * asterisks.
+         **************************************************************************/
 
-        buttonEvents = Buttons_CheckEvents();
-        
-        // Base period
-        TimerA.timeRemaining = (1);
+        /***************************************************************************
+         * Your code goes in between this comment and the preceding one with
+         * asterisks.
+         **************************************************************************/
     }
-    /***************************************************************************
-     * Your code goes in between this comment and the preceding one with
-     * asterisks.
-     **************************************************************************/
-  }
+    else if (htim == &htim3) // This will be triggered every TIM3_DEFAULT_FREQ_HZ
+    {
+        /***************************************************************************
+         * Your code goes in between this comment and the following one with
+         * asterisks.
+         **************************************************************************/
+
+        /***************************************************************************
+         * Your code goes in between this comment and the preceding one with
+         * asterisks.
+         **************************************************************************/
+    }
+    else if (htim == &htim4) // This will be triggered every TIM4_DEFAULT_FREQ_HZ
+    {
+        /***************************************************************************
+         * Your code goes in between this comment and the following one with
+         * asterisks.
+         **************************************************************************/
+
+        TimerA.timeRemaining--;
+
+        if (TimerA.timeRemaining <= 0)
+        {
+            TimerA.event = TRUE;
+
+            buttonEvents = Buttons_CheckEvents();
+
+            // Base period
+            TimerA.timeRemaining = (1);
+        }
+        /***************************************************************************
+         * Your code goes in between this comment and the preceding one with
+         * asterisks.
+         **************************************************************************/
+    }
 }

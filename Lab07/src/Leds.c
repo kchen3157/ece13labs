@@ -58,15 +58,16 @@ int8_t LEDs_Init(void)
  *
  * LEDs_Set should not change any LED pins to inputs.
  */
-void LEDs_Set(uint8_t newPattern){
+void LEDs_Set(uint8_t newPattern)
+{
 #ifdef STM32F4
     /***************************************************************************
      * Your code goes in between this comment and the following one with
      * asterisks.
      **************************************************************************/
 
-    GPIOC->BSRR |= ((0b1 << 7) & newPattern) ? (0b1 << 8) : (0b1 << (8 + 16)); // LD1 -> PC8
-    GPIOC->BSRR |= ((0b1 << 6) & newPattern) ? (0b1 << 9) : (0b1 << (9 + 16)); // LD2 -> PC9
+    GPIOC->BSRR |= ((0b1 << 7) & newPattern) ? (0b1 << 8) : (0b1 << (8 + 16));   // LD1 -> PC8
+    GPIOC->BSRR |= ((0b1 << 6) & newPattern) ? (0b1 << 9) : (0b1 << (9 + 16));   // LD2 -> PC9
     GPIOC->BSRR |= ((0b1 << 5) & newPattern) ? (0b1 << 10) : (0b1 << (10 + 16)); // LD3 -> PC10
     GPIOC->BSRR |= ((0b1 << 4) & newPattern) ? (0b1 << 11) : (0b1 << (11 + 16)); // LD4 -> PC11
 
@@ -74,7 +75,6 @@ void LEDs_Set(uint8_t newPattern){
     GPIOB->BSRR |= ((0b1 << 2) & newPattern) ? (0b1 << 1) : (0b1 << (1 + 16)); // LD6 -> PB1
     GPIOB->BSRR |= ((0b1 << 1) & newPattern) ? (0b1 << 2) : (0b1 << (2 + 16)); // LD7 -> PB2
     GPIOB->BSRR |= ((0b1 << 0) & newPattern) ? (0b1 << 3) : (0b1 << (3 + 16)); // LD8 -> PB3
-
 
 /***************************************************************************
  * Your code goes in between this comment and the preceding one with
@@ -106,8 +106,8 @@ uint8_t LEDs_Get(void)
      * asterisks.
      **************************************************************************/
 
-    ledState |= ((0b1 << 8) & GPIOC->ODR) ? (0b1 << 7) : 0; // LD1 -> PC8
-    ledState |= ((0b1 << 9) & GPIOC->ODR) ? (0b1 << 6) : 0; // LD2 -> PC9
+    ledState |= ((0b1 << 8) & GPIOC->ODR) ? (0b1 << 7) : 0;  // LD1 -> PC8
+    ledState |= ((0b1 << 9) & GPIOC->ODR) ? (0b1 << 6) : 0;  // LD2 -> PC9
     ledState |= ((0b1 << 10) & GPIOC->ODR) ? (0b1 << 5) : 0; // LD3 -> PC10
     ledState |= ((0b1 << 11) & GPIOC->ODR) ? (0b1 << 4) : 0; // LD4 -> PC11
 

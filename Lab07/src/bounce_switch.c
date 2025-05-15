@@ -19,20 +19,19 @@
 // User libraries
 
 // **** Set macros and preprocessor directives ****
-#define LED_1               (0b1 << 7)
-#define LED_2               (0b1 << 6)
-#define LED_3               (0b1 << 5)
-#define LED_4               (0b1 << 4)
-#define LED_5               (0b1 << 3)
-#define LED_6               (0b1 << 2)
-#define LED_7               (0b1 << 1)
-#define LED_8               (0b1 << 0)
+#define LED_1 (0b1 << 7)
+#define LED_2 (0b1 << 6)
+#define LED_3 (0b1 << 5)
+#define LED_4 (0b1 << 4)
+#define LED_5 (0b1 << 3)
+#define LED_6 (0b1 << 2)
+#define LED_7 (0b1 << 1)
+#define LED_8 (0b1 << 0)
 
-
-#define TIMER_A_PERIOD      0.2
-#define BASE_PERIOD_CHANGE  0.06
-#define SW1_CHANGE          (BASE_PERIOD_CHANGE * 1)
-#define SW2_CHANGE          (BASE_PERIOD_CHANGE * 2)
+#define TIMER_A_PERIOD 0.2
+#define BASE_PERIOD_CHANGE 0.06
+#define SW1_CHANGE (BASE_PERIOD_CHANGE * 1)
+#define SW2_CHANGE (BASE_PERIOD_CHANGE * 2)
 
 // **** Declare any datatypes here ****
 struct Timer
@@ -45,7 +44,6 @@ struct Timer
 static volatile struct Timer TimerA = {.event = FALSE, .timeRemaining = 0};
 
 static volatile uint8_t direction = 0; // 0 = LD 1->8 (bit 7 -> 0), 1 = LD 8->1 (bit 0 -> 7)
-
 
 // **** Declare function prototypes ****
 
@@ -136,18 +134,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
          **************************************************************************/
 
         TimerA.timeRemaining--;
-   
+
         if (TimerA.timeRemaining <= 0)
         {
             TimerA.event = TRUE;
-            
+
             // Base period
             TimerA.timeRemaining = (TIMER_A_PERIOD * TIM4_DEFAULT_FREQ_HZ);
 
             // Binary period adjustment
             TimerA.timeRemaining -= (SW1_STATE()) ? (SW1_CHANGE * TIM4_DEFAULT_FREQ_HZ) : 0;
             TimerA.timeRemaining -= (SW2_STATE()) ? (SW2_CHANGE * TIM4_DEFAULT_FREQ_HZ) : 0;
-            
         }
 
         /***************************************************************************

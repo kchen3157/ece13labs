@@ -57,13 +57,12 @@ int main(void)
             AdcResult.event = FALSE;
 
             char buffer[20];
-            
+
             sprintf(buffer, "%d", AdcResult.value);
 
             OLED_Clear(OLED_COLOR_BLACK);
             OLED_DrawString(buffer);
             OLED_Update();
-
         }
     }
     /***************************************************************************
@@ -117,21 +116,19 @@ void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef *hadc)
          * asterisks.
          **************************************************************************/
 
-         AdcResult.value = HAL_ADC_GetValue(&hadc1);
+        AdcResult.value = HAL_ADC_GetValue(&hadc1);
 
-         int16_t lim_upper = (int16_t) AdcResult.value + (ADC_WINDOW_SIZE / 2);
-         lim_upper = (lim_upper > ADC_MAX_READING) ? (ADC_MAX_READING - 1) : lim_upper;
-         lim_upper = (lim_upper < ADC_MIN_READING) ? (ADC_MIN_READING + 1) : lim_upper;
-         
-         int16_t lim_lower = (int16_t) AdcResult.value - (ADC_WINDOW_SIZE / 2);
-         lim_lower = (lim_lower > ADC_MAX_READING) ? (ADC_MAX_READING - 1) : lim_lower;
-         lim_lower = (lim_lower < ADC_MIN_READING) ? (ADC_MIN_READING + 1) : lim_lower;
+        int16_t lim_upper = (int16_t)AdcResult.value + (ADC_WINDOW_SIZE / 2);
+        lim_upper = (lim_upper > ADC_MAX_READING) ? (ADC_MAX_READING - 1) : lim_upper;
+        lim_upper = (lim_upper < ADC_MIN_READING) ? (ADC_MIN_READING + 1) : lim_upper;
 
-         ADC_Watchdog_Config((uint16_t) lim_upper, (uint16_t) lim_lower);
+        int16_t lim_lower = (int16_t)AdcResult.value - (ADC_WINDOW_SIZE / 2);
+        lim_lower = (lim_lower > ADC_MAX_READING) ? (ADC_MAX_READING - 1) : lim_lower;
+        lim_lower = (lim_lower < ADC_MIN_READING) ? (ADC_MIN_READING + 1) : lim_lower;
+
+        ADC_Watchdog_Config((uint16_t)lim_upper, (uint16_t)lim_lower);
 
         AdcResult.event = TRUE;
-
-
 
         /***************************************************************************
          * Your code goes in between this comment and the preceding one with
