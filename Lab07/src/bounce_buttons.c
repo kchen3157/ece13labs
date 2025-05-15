@@ -55,42 +55,48 @@ int main(void)
         {
             TimerA.event = FALSE;
 
-            if (!SW1_STATE())
+            //! LEDs wired from MSB
+            // BTN1 -> LED1/2 (0b11000000)
+            // BTN2 -> LED3/4 (0b00110000)
+            // BTN3 -> LED5/6 (0b00001100)
+            // BTN4 -> LED7/8 (0b00000011)
+
+            if (!SW1_STATE()) //* Set LEDs on Button Down
             {
                 if (buttonEvents & BUTTON_EVENT_1DOWN)
                 {
-                    LEDs_Set(LEDs_Get() ^ (0b11 << 0));
+                    LEDs_Set(LEDs_Get() ^ (0b11 << 6));
                 }
                 if (buttonEvents & BUTTON_EVENT_2DOWN)
                 {
-                    LEDs_Set(LEDs_Get() ^ (0b11 << 2));
+                    LEDs_Set(LEDs_Get() ^ (0b11 << 4));
                 }
                 if (buttonEvents & BUTTON_EVENT_3DOWN)
                 {
-                    LEDs_Set(LEDs_Get() ^ (0b11 << 4));
+                    LEDs_Set(LEDs_Get() ^ (0b11 << 2));
                 }
                 if (buttonEvents & BUTTON_EVENT_4DOWN)
                 {
-                    LEDs_Set(LEDs_Get() ^ (0b11 << 6));
+                    LEDs_Set(LEDs_Get() ^ (0b11 << 0));
                 }
             }
-            else
+            else //* Set LEDs on Button Up
             {
                 if (buttonEvents & BUTTON_EVENT_1UP)
                 {
-                    LEDs_Set(LEDs_Get() ^ (0b11 << 0));
+                    LEDs_Set(LEDs_Get() ^ (0b11 << 6));
                 }
                 if (buttonEvents & BUTTON_EVENT_2UP)
                 {
-                    LEDs_Set(LEDs_Get() ^ (0b11 << 2));
+                    LEDs_Set(LEDs_Get() ^ (0b11 << 4));
                 }
                 if (buttonEvents & BUTTON_EVENT_3UP)
                 {
-                    LEDs_Set(LEDs_Get() ^ (0b11 << 4));
+                    LEDs_Set(LEDs_Get() ^ (0b11 << 2));
                 }
                 if (buttonEvents & BUTTON_EVENT_4UP)
                 {
-                    LEDs_Set(LEDs_Get() ^ (0b11 << 6));
+                    LEDs_Set(LEDs_Get() ^ (0b11 << 1));
                 }
             }
 
