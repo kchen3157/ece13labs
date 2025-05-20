@@ -257,6 +257,48 @@ void runOvenSM(void)
             if (TimerB.event)
             {
                 TimerB.event = FALSE;
+
+                //! do this some other way  
+                uint8_t prog_bar;
+                if ((oven.cook_time_left * 8) / oven.setting_cook_time == 8)
+                {
+                    prog_bar = 0b11111111;
+                }
+                else if ((oven.cook_time_left * 8) / oven.setting_cook_time == 7)
+                {
+                    prog_bar = 0b01111111;
+                }
+                else if ((oven.cook_time_left * 8) / oven.setting_cook_time == 6)
+                {
+                    prog_bar = 0b00111111;
+                }
+                else if ((oven.cook_time_left * 8) / oven.setting_cook_time == 5)
+                {
+                    prog_bar = 0b00011111;
+                }
+                else if ((oven.cook_time_left * 8) / oven.setting_cook_time == 4)
+                {
+                    prog_bar = 0b00001111;
+                }
+                else if ((oven.cook_time_left * 8) / oven.setting_cook_time == 3)
+                {
+                    prog_bar = 0b00000111;
+                }
+                else if ((oven.cook_time_left * 8) / oven.setting_cook_time == 2)
+                {
+                    prog_bar = 0b00000011;
+                }
+                else if ((oven.cook_time_left * 8) / oven.setting_cook_time == 1)
+                {
+                    prog_bar = 0b00000001;
+                }
+                else
+                {
+                    prog_bar = 0;
+                }
+
+                LEDs_Set(prog_bar);
+
                 if (oven.cook_time_left <= 0)
                 {
                     oven.state = SETUP;
@@ -267,6 +309,7 @@ void runOvenSM(void)
                     updateOvenOLED();
                     oven.cook_time_left--;
                 }
+                
             }
             break;
         case RESET_PENDING:
