@@ -81,6 +81,7 @@ struct AdcResult
 // **** Define any module-level, global, or external variables here ****
 static volatile OvenData oven;
 static volatile struct Timer TimerA = {.event = FALSE, .timeRemaining = 0};
+static volatile struct Timer TimerB = {.event = FALSE, .timeRemaining = 0};
 static volatile uint16_t timestamp = 0;
 static volatile struct AdcResult AdcResult = {.event = FALSE, .value = 1};
 
@@ -182,13 +183,21 @@ void runOvenSM(void)
 {
     // Write your SM logic here.
 
+    uint8_t buttonEvents;
+
     switch (oven.state)
     {
         case SETUP:
-            if (Buttons_CheckEvents() == BUTTON_EVENT_3DOWN)
+            buttonEvents = Buttons_CheckEvents();
+            if (buttonEvents == BUTTON_EVENT_3DOWN)
             {
                 oven.button_hold_time = 0;
                 oven.state = SELECTOR_CHANGE_PENDING;
+            }
+            else if (buttonEvents == BUTTON_EVENT_4DOWN)
+            {
+                oven.cook_time_left = oven.setting_cook_time;
+                oven.state = COOKING;
             }
 
             if (AdcResult.event)
@@ -207,7 +216,8 @@ void runOvenSM(void)
             }
             break;
         case SELECTOR_CHANGE_PENDING:
-            if (Buttons_CheckEvents() == BUTTON_EVENT_3UP)
+            buttonEvents = Buttons_CheckEvents();
+            if (buttonEvents == BUTTON_EVENT_3UP)
             {
                 if (oven.button_hold_time > 500)
                 {
@@ -238,6 +248,20 @@ void runOvenSM(void)
             oven.button_hold_time++;
             break;
         case COOKING:
+            if (TimerB.event)
+            {
+                TimerB.event = FALSE;
+                if (oven.cook_time_left <= 0)
+                {
+                    oven.state = SETUP;
+                    updateOvenOLED();
+                }
+                else
+                {
+                    updateOvenOLED();
+                    oven.cook_time_left--;
+                }
+            }
             break;
         case RESET_PENDING:
             break;
@@ -302,7 +326,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim == &htim2) // This will be triggered every TIM2_DEFAULT_FREQ_HZ
     {
-        timestamp++;
+        TimerB.timeRemaining--;
+
+        if (TimerB.timeRemaining <= 0)
+        {
+            TimerB.event = TRUE;
+
+            // Poll at 1 Hz
+            TimerB.timeRemaining = (5);
+        }
     }
     else if (htim == &htim3) // This will be triggered every TIM3_DEFAULT_FREQ_HZ
     {
