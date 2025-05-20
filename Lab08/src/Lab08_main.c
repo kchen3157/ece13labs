@@ -189,12 +189,12 @@ void runOvenSM(void)
     {
         case SETUP:
             buttonEvents = Buttons_CheckEvents();
-            if (buttonEvents == BUTTON_EVENT_3DOWN)
+            if (buttonEvents & BUTTON_EVENT_3DOWN)
             {
                 oven.button_hold_time = 0;
                 oven.state = SELECTOR_CHANGE_PENDING;
             }
-            else if (buttonEvents == BUTTON_EVENT_4DOWN)
+            else if (buttonEvents & BUTTON_EVENT_4DOWN)
             {
                 oven.cook_time_left = oven.setting_cook_time;
                 oven.state = COOKING;
@@ -217,7 +217,7 @@ void runOvenSM(void)
             break;
         case SELECTOR_CHANGE_PENDING:
             buttonEvents = Buttons_CheckEvents();
-            if (buttonEvents == BUTTON_EVENT_3UP)
+            if (buttonEvents & BUTTON_EVENT_3UP)
             {
                 if (oven.button_hold_time > 500)
                 {
@@ -248,6 +248,12 @@ void runOvenSM(void)
             oven.button_hold_time++;
             break;
         case COOKING:
+            buttonEvents = Buttons_CheckEvents();
+            if (buttonEvents & BUTTON_EVENT_4DOWN)
+            {
+                oven.button_hold_time = 0;
+                oven.state = RESET_PENDING;
+            }
             if (TimerB.event)
             {
                 TimerB.event = FALSE;
@@ -264,6 +270,17 @@ void runOvenSM(void)
             }
             break;
         case RESET_PENDING:
+            buttonEvents = Buttons_CheckEvents();
+            if (oven.button_hold_time > 500)
+            {
+                oven.state = SETUP;
+                updateOvenOLED();
+            }
+            else if (buttonEvents & BUTTON_EVENT_4UP)
+            { 
+                oven.state = COOKING;
+            }
+            oven.button_hold_time++;
             break;
         default:
             break;
