@@ -43,7 +43,8 @@ typedef enum
     SETUP,
     SELECTOR_CHANGE_PENDING,
     COOKING,
-    RESET_PENDING
+    RESET_PENDING,
+    ALERT
 } OvenState;
 
 typedef enum
@@ -97,7 +98,22 @@ void updateOvenOLED(void)
     uint8_t time_min;
     uint8_t time_sec;
 
+    if (oven.state == ALERT)
+    {
+        if (OLED_GetPixel(0, 0) == OLED_COLOR_BLACK)
+        {
+            OLED_Clear(OLED_COLOR_WHITE);
+        }
+        else
+        {
+            OLED_Clear(OLED_COLOR_BLACK);
+        }
+        OLED_Update();
+        return;
+    }
+
     OLED_Clear(OLED_COLOR_BLACK);
+    
 
     if (oven.setting_select == TIME)
     {
@@ -166,11 +182,12 @@ void updateOvenOLED(void)
         sprintf(oled_buffer, "|\x02\x02\x02\x02\x02| MODE: %s\n|     | TIME: %d:%02d\n|     | TEMP: %d\xF8\n|\x04\x04\x04\x04\x04|",
                 cook_mode_ui, time_min, time_sec, oven.setting_temperature);
     }
-    else
+    else if (oven.cook_mode == BAKE)
     {
         sprintf(oled_buffer, "|\x02\x02\x02\x02\x02| MODE: %s\n|     | %cTIME: %d:%02d\n|     | %cTEMP: %d\xF8\n|\x04\x04\x04\x04\x04|",
                 cook_mode_ui, time_sel_ui, time_min, time_sec, temp_sel_ui, oven.setting_temperature);
     }
+    
 
     OLED_DrawString(oled_buffer);
     OLED_Update();
@@ -301,7 +318,7 @@ void runOvenSM(void)
 
                 if (oven.cook_time_left <= 0)
                 {
-                    oven.state = SETUP;
+                    oven.state = ALERT;
                     updateOvenOLED();
                 }
                 else
@@ -324,6 +341,19 @@ void runOvenSM(void)
                 oven.state = COOKING;
             }
             oven.button_hold_time++;
+            break;
+        case ALERT:
+            //! needs to be 2 Hz, currently 1 Hz
+            if (Buttons_CheckEvents() == BUTTON_EVENT_4DOWN)
+            {
+                oven.state = SETUP;
+                updateOvenOLED();
+            }
+            if (TimerB.event)
+            {
+                TimerB.event = FALSE;
+                updateOvenOLED();
+            }
             break;
         default:
             break;
