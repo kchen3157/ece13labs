@@ -27,7 +27,7 @@
 
 #define DEFAULT_COOK_MODE BAKE
 
-#define ADC_WINDOW_SIZE             50
+#define ADC_WINDOW_SIZE             100
 #define ADC_MAX_READING             4095
 #define ADC_MIN_READING             0
 
@@ -182,61 +182,67 @@ void runOvenSM(void)
 {
     // Write your SM logic here.
 
-    if (oven.state == SETUP)
+    switch (oven.state)
     {
-        if (Buttons_CheckEvents() == BUTTON_EVENT_3DOWN)
-        {
-            oven.button_hold_time = 0;
-            oven.state = SELECTOR_CHANGE_PENDING;
-        }
+        case SETUP:
+            if (Buttons_CheckEvents() == BUTTON_EVENT_3DOWN)
+            {
+                oven.button_hold_time = 0;
+                oven.state = SELECTOR_CHANGE_PENDING;
+            }
 
-        if (AdcResult.event)
-        {
-            AdcResult.event = FALSE;
-            if (oven.setting_select == TIME || oven.cook_mode == BROIL || oven.cook_mode == TOAST)
+            if (AdcResult.event)
             {
-                oven.setting_cook_time = ((AdcResult.value * 255) / 4095) + 1;
-                updateOvenOLED();
-            }
-            if (oven.setting_select == TEMP)
-            {
-                oven.setting_temperature = ((AdcResult.value * 255) / 4095) + 300;
-                updateOvenOLED();
-            }
-        }
-    }
-    else if (oven.state == SELECTOR_CHANGE_PENDING)
-    {
-        if (Buttons_CheckEvents() == BUTTON_EVENT_3UP)
-        {
-            if (oven.button_hold_time > 500)
-            {
-                if (oven.cook_mode == BROIL)
+                AdcResult.event = FALSE;
+                if (oven.setting_select == TIME || oven.cook_mode == BROIL || oven.cook_mode == TOAST)
                 {
-                    oven.cook_mode = BAKE;
+                    oven.setting_cook_time = ((AdcResult.value * 255) / 4095) + 1;
+                    updateOvenOLED();
                 }
-                else if (oven.cook_mode == BAKE)
+                else if (oven.setting_select == TEMP)
                 {
-                    oven.cook_mode = TOAST;
+                    oven.setting_temperature = ((AdcResult.value * 255) / 4095) + 300;
+                    updateOvenOLED();
+                }
+            }
+            break;
+        case SELECTOR_CHANGE_PENDING:
+            if (Buttons_CheckEvents() == BUTTON_EVENT_3UP)
+            {
+                if (oven.button_hold_time > 500)
+                {
+                    if (oven.cook_mode == BROIL)
+                    {
+                        oven.cook_mode = BAKE;
+                    }
+                    else if (oven.cook_mode == BAKE)
+                    {
+                        oven.cook_mode = TOAST;
+                    }
+                    else
+                    {
+                        oven.setting_temperature = 500;
+                        oven.cook_mode = BROIL;
+                    }
                 }
                 else
                 {
-                    oven.setting_temperature = 500;
-                    oven.cook_mode = BROIL;
+                    if (oven.cook_mode == BAKE)
+                    {
+                        oven.setting_select = (oven.setting_select == TIME ? TEMP : TIME);
+                    }
                 }
+                updateOvenOLED();
+                oven.state = SETUP;
             }
-            else
-            {
-                if (oven.cook_mode == BAKE)
-                {
-                    oven.setting_select = (oven.setting_select == TIME ? TEMP : TIME);
-                }
-            }
-            updateOvenOLED();
-            oven.state = SETUP;
-        }
-
-        oven.button_hold_time++;
+            oven.button_hold_time++;
+            break;
+        case COOKING:
+            break;
+        case RESET_PENDING:
+            break;
+        default:
+            break;
     }
 }
 
