@@ -147,8 +147,8 @@ void updateOvenOLED(void)
     }
     else if (oven.state == COOKING && oven.cook_mode == BROIL)
     {
-        sprintf(oled_buffer, "|\x01\x01\x01\x01\x01| MODE: %s\n|     | %cTIME: %d:%02d\n|     | %cTEMP: %d\xF8\n|\x04\x04\x04\x04\x04|",
-                cook_mode_ui, time_sel_ui, time_min, time_sec, temp_sel_ui, oven.setting_temperature);
+        sprintf(oled_buffer, "|\x01\x01\x01\x01\x01| MODE: %s\n|     | TIME: %d:%02d\n|     | TEMP: %d\xF8\n|\x04\x04\x04\x04\x04|",
+                cook_mode_ui, time_min, time_sec, oven.setting_temperature);
     }
     else if (oven.state == COOKING && oven.cook_mode == TOAST)
     {
@@ -159,6 +159,11 @@ void updateOvenOLED(void)
     {
         sprintf(oled_buffer, "|\x02\x02\x02\x02\x02| MODE: %s\n|     | TIME: %d:%02d\n|     |\n|\x04\x04\x04\x04\x04|",
                 cook_mode_ui, time_min, time_sec);
+    }
+    else if (oven.cook_mode == BROIL)
+    {
+        sprintf(oled_buffer, "|\x02\x02\x02\x02\x02| MODE: %s\n|     | TIME: %d:%02d\n|     | TEMP: %d\xF8\n|\x04\x04\x04\x04\x04|",
+                cook_mode_ui, time_min, time_sec, oven.setting_temperature);
     }
     else
     {
@@ -185,12 +190,17 @@ void runOvenSM(void)
             oven.state = SELECTOR_CHANGE_PENDING;
         }
 
-        if (oven.setting_select == TIME)
+        if (AdcResult.event)
         {
-            if (AdcResult.event)
+            AdcResult.event = FALSE;
+            if (oven.setting_select == TIME || oven.cook_mode == BROIL || oven.cook_mode == TOAST)
             {
-                AdcResult.event = FALSE;
-                oven.setting_cook_time = (AdcResult.value * 256) / 4095;
+                oven.setting_cook_time = ((AdcResult.value * 255) / 4095) + 1;
+                updateOvenOLED();
+            }
+            if (oven.setting_select == TEMP)
+            {
+                oven.setting_temperature = ((AdcResult.value * 255) / 4095) + 300;
                 updateOvenOLED();
             }
         }
@@ -211,12 +221,16 @@ void runOvenSM(void)
                 }
                 else
                 {
+                    oven.setting_temperature = 500;
                     oven.cook_mode = BROIL;
                 }
             }
             else
             {
-                oven.setting_select = (oven.setting_select == TIME ? TEMP : TIME);
+                if (oven.cook_mode == BAKE)
+                {
+                    oven.setting_select = (oven.setting_select == TIME ? TEMP : TIME);
+                }
             }
             updateOvenOLED();
             oven.state = SETUP;
