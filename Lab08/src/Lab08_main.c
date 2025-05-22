@@ -19,7 +19,7 @@
 
 // **** Set any macros or preprocessor directives here ****
 // Configs
-#define LONG_PRESS_MS               500         // Length of long press (ms)
+#define LONG_PRESS_MS               1000        // Length of long press (ms)
 #define OVEN_TEMP_MIN               300         // Minimum oven temp
 #define OVEN_TIME_MIN               1           // Minimum cook time (sec)
 #define OVEN_TEMP_MAX               555         // Maximum oven temp
@@ -27,6 +27,9 @@
 #define OVEN_TOAST_TEMP             500         // Constant temperature of toast cooking
 #define COOK_TIME_FREQ              1           // Frequency of cook timer countdown (Hz)
 #define ALERT_FREQ                  2           // Frequency of cooking done ALERT (Hz)
+#define BAKE_DEFAULT_SETTING_SEL    TIME        // Default setting selected when entering BAKE mode
+#define BAKE_DEFAULT_TEMP           350         // Default temp when entering BAKE mode
+#define BAKE_DEFAULT_TIME           1           // Default time when entering BAKE mode
 
 #define INIT_STATE                  SETUP       // Initial state upon startup
 #define INIT_COOK_MODE              BAKE        // Initial cook mode set upon startup
@@ -204,6 +207,9 @@ void runOvenSM(void)
                 switch (oven.cook_mode)
                 {
                     case BROIL:
+                        oven.setting_cook_time = BAKE_DEFAULT_TIME;
+                        oven.setting_temperature = BAKE_DEFAULT_TIME;
+                        oven.setting_select = BAKE_DEFAULT_SETTING_SEL;
                         oven.cook_mode = BAKE;
                         break;
                     case BAKE:
@@ -444,6 +450,13 @@ void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef *hadc)
         lim_lower = (lim_lower < ADC_MIN_READING) ? (ADC_MIN_READING + 1) : lim_lower;
 
         ADC_Watchdog_Config((uint16_t)lim_upper, (uint16_t)lim_lower);
+
+        // Don't set events while cooking, want to
+        // return to cooking state with unchanged settings
+        if (oven.state == COOKING)
+        {
+            return;
+        }
 
         // Broadcast ADC has new result
         AdcResult.event = TRUE;
