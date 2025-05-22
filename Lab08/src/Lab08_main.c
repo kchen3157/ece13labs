@@ -18,14 +18,46 @@
 #include <Timers.h>
 
 // **** Set any macros or preprocessor directives here ****
-#define BAKE_UI "BAKE"
-#define TOAST_UI "TOAST"
-#define BROIL_UI "BROIL"
-#define ERROR_UI "ERROR"
-#define SEL_UI '>'
-#define NOT_SEL_UI ' '
+#define BAKE_UI                     "BAKE"
+#define TOAST_UI                    "TOAST"
+#define BROIL_UI                    "BROIL"
+#define ERROR_UI                    "ERROR"
+#define SEL_UI                      '>'
+#define NOT_SEL_UI                  ' '
+#define SEC_PER_MIN                 60
+#define OLED_BUFFER_SIZE            100
 
-#define DEFAULT_COOK_MODE BAKE
+#define LONG_PRESS_MS               500
+
+#define OVEN_TEMP_MIN               300
+#define OVEN_TIME_MIN               1
+#define OVEN_TEMP_MAX               555
+#define OVEN_TIME_MAX               256
+
+#define OVEN_TOAST_TEMP             500
+
+#define INIT_STATE                  SETUP
+#define INIT_COOK_MODE              BAKE
+#define INIT_BUTTON_HOLD_TIME       0
+#define INIT_SETTING_COOK_TIME      1
+#define INIT_COOK_TIME_LEFT         1
+#define INIT_SETTING_TEMP           350
+#define INIT_SETTING_SEL            TIME
+
+#define NUM_LEDS                    8
+
+#define COOK_TIME_FREQ              1
+#define ALERT_FREQ                  2
+
+#define COOK_TIME_TICK_PERIOD       (TIM4_DEFAULT_FREQ_HZ / COOK_TIME_FREQ)
+#define ALERT_TICK_PERIOD           (TIM4_DEFAULT_FREQ_HZ / ALERT_FREQ)              
+
+
+#define ADC_TEMP_RES                (OVEN_TEMP_MAX - OVEN_TEMP_MIN)
+#define ADC_TIME_RES                (OVEN_TIME_MAX - OVEN_TIME_MIN)
+
+
+#define DEFAULT_COOK_MODE           BAKE
 
 #define ADC_WINDOW_SIZE             100
 #define ADC_MAX_READING             4095
@@ -82,7 +114,6 @@ struct AdcResult
 // **** Define any module-level, global, or external variables here ****
 static volatile OvenData oven;
 static volatile struct Timer systick = {.event = FALSE, .timeRemaining = 0};
-static volatile uint16_t timestamp = 0;
 static volatile struct AdcResult AdcResult = {.event = FALSE, .value = 1};
 static volatile uint16_t cooking_ticks = 0;
 static volatile uint16_t alert_ticks = 0;
@@ -92,7 +123,7 @@ static volatile uint16_t alert_ticks = 0;
 /* This function will update your OLED to reflect the state. */
 void updateOvenOLED(void)
 {
-    char oled_buffer[100];
+    char oled_buffer[OLED_BUFFER_SIZE];
     char *cook_mode_ui;
 
     if (oven.state == ALERT)
@@ -107,8 +138,10 @@ void updateOvenOLED(void)
     char time_sel_ui = (oven.setting_select == TIME) ? SEL_UI : NOT_SEL_UI;
     char temp_sel_ui = (oven.setting_select == TIME) ? NOT_SEL_UI : SEL_UI;
 
-    uint8_t time_min = (oven.state == COOKING) ? (oven.cook_time_left / 60) : (oven.setting_cook_time / 60);
-    uint8_t time_sec = (oven.state == COOKING) ? (oven.cook_time_left % 60) : (oven.setting_cook_time % 60);
+    uint8_t time_min = (oven.state == COOKING) ? 
+        (oven.cook_time_left / SEC_PER_MIN) : (oven.setting_cook_time / SEC_PER_MIN);
+    uint8_t time_sec = (oven.state == COOKING) ? 
+        (oven.cook_time_left % SEC_PER_MIN) : (oven.setting_cook_time % SEC_PER_MIN);
 
     // Oven cook mode display
     switch (oven.cook_mode)
@@ -174,13 +207,12 @@ void updateOvenOLED(void)
  */
 void runOvenSM(void)
 {
-    // Write your SM logic here.
-
     uint8_t buttonEvents;
-
     switch (oven.state)
     {
         case SETUP:
+        {
+            //********** Handle Button Events **********
             buttonEvents = Buttons_CheckEvents();
             if (buttonEvents & BUTTON_EVENT_3DOWN)
             {
@@ -193,24 +225,27 @@ void runOvenSM(void)
                 oven.state = COOKING;
             }
 
+            //********** Handle ADC Events **********
             if (AdcResult.event)
             {
                 AdcResult.event = FALSE;
                 if (oven.setting_select == TIME || oven.cook_mode == BROIL || oven.cook_mode == TOAST)
                 {
-                    oven.setting_cook_time = ((AdcResult.value * 255) / 4095) + 1;
+                    oven.setting_cook_time = ((AdcResult.value * ADC_TIME_RES) / ADC_MAX_READING) + 1;
                     updateOvenOLED();
                 }
                 else if (oven.setting_select == TEMP)
                 {
-                    oven.setting_temperature = ((AdcResult.value * 255) / 4095) + 300;
+                    oven.setting_temperature = ((AdcResult.value * ADC_TEMP_RES) / ADC_MAX_READING) + OVEN_TEMP_MIN;
                     updateOvenOLED();
                 }
             }
-            break;
-        case SELECTOR_CHANGE_PENDING:
 
-            if (oven.button_hold_time > 500)
+            break;
+        }
+        case SELECTOR_CHANGE_PENDING:
+        {
+            if (oven.button_hold_time > LONG_PRESS_MS) // Rotate to next mode if long press
             {
                 switch (oven.cook_mode)
                 {
@@ -222,15 +257,14 @@ void runOvenSM(void)
                         break;
                     case TOAST:
                     default:
-                        oven.setting_temperature = 500;
+                        oven.setting_temperature = OVEN_TOAST_TEMP;
                         oven.cook_mode = BROIL;
                 }
                 
                 updateOvenOLED();
                 oven.state = SETUP;
             }
-
-            if (Buttons_CheckEvents() & BUTTON_EVENT_3UP)
+            else if (Buttons_CheckEvents() & BUTTON_EVENT_3UP) // Otherwise, next setting selection
             {
                 if (oven.cook_mode == BAKE)
                 {
@@ -243,21 +277,25 @@ void runOvenSM(void)
             
             oven.button_hold_time++;
             break;
+        }
         case COOKING:
-            buttonEvents = Buttons_CheckEvents();
-            if (buttonEvents & BUTTON_EVENT_4DOWN)
+        {
+            //********** Handle Button Events **********
+            if (Buttons_CheckEvents() & BUTTON_EVENT_4DOWN)
             {
                 oven.button_hold_time = 0;
                 oven.state = RESET_PENDING;
             }
 
+            //********** Handle Default Countbar **********
             cooking_ticks++;
-            if (cooking_ticks >= 1000)
+            if (cooking_ticks >= COOK_TIME_TICK_PERIOD)
             {
                 cooking_ticks = 0;
 
                 // Light bar (rounds up according to percentage of time left)
-                uint8_t num_leds_on = ((oven.cook_time_left * 8) / oven.setting_cook_time) + 1;
+                uint8_t num_leds_on = (oven.setting_cook_time > 0) ? 
+                    (((oven.cook_time_left * NUM_LEDS) / oven.setting_cook_time) + 1) : 0;
                 uint8_t prog_bar = (oven.cook_time_left > 0) ? ((0b1 << num_leds_on) - 1) : 0;
 
                 LEDs_Set(prog_bar);
@@ -275,37 +313,44 @@ void runOvenSM(void)
                 
             }
             break;
+        }
         case RESET_PENDING:
-            buttonEvents = Buttons_CheckEvents();
-            if (oven.button_hold_time > 500)
+        {
+            if (oven.button_hold_time > LONG_PRESS_MS) // Reset if long press
             {
                 oven.state = SETUP;
                 updateOvenOLED();
                 LEDs_Set(0);
             }
-            else if (buttonEvents & BUTTON_EVENT_4UP)
+            else if (Buttons_CheckEvents() & BUTTON_EVENT_4UP) // Otherwise, return and do nothing
             { 
                 oven.state = COOKING;
-
             }
             oven.button_hold_time++;
             break;
+        }
         case ALERT:
+        {
+            //********** Handle Button Events **********
             if (Buttons_CheckEvents() == BUTTON_EVENT_4DOWN)
             {
                 oven.state = SETUP;
                 updateOvenOLED();
             }
 
+            //********** Handle Alert Display Update **********
             alert_ticks++;
-            if (alert_ticks >= 500)
+            if (alert_ticks >= ALERT_TICK_PERIOD)
             {
                 alert_ticks = 0;
                 updateOvenOLED();
             }
             break;
+        }
         default:
+        {
             break;
+        }
     }
 }
 
@@ -315,7 +360,7 @@ int main(void)
     Buttons_Init();
     LEDs_Init();
     Timers_Init();
-    ADC_Init(ADC_CONTINUOUS_WATCHDOG); // See the typedef of Adc_Modes_t in Adc.h for the ADC configuration options.
+    ADC_Init(ADC_CONTINUOUS_WATCHDOG);
     OLED_Init();
     ADC_Start();
 
@@ -325,23 +370,21 @@ int main(void)
         __TIME__,
         __DATE__);
 
-    // Initialize state machine (and anything else you need to init) here.
-    oven.state = SETUP;
-    oven.cook_mode = BAKE;
-    oven.button_hold_time = 0;
-    oven.setting_cook_time = 1;
-    oven.cook_time_left = 1;
-    oven.setting_temperature = 350;
-    oven.setting_select = TIME;
+    // Initialize state machine, display
+    oven = (OvenData) {
+        .state = INIT_STATE,
+        .cook_mode = INIT_COOK_MODE,
+        .button_hold_time = INIT_BUTTON_HOLD_TIME,
+        .setting_cook_time = INIT_SETTING_COOK_TIME,
+        .cook_time_left = INIT_COOK_TIME_LEFT,
+        .setting_temperature = INIT_SETTING_TEMP,
+        .setting_select = INIT_SETTING_SEL
+    };
     updateOvenOLED();
 
     while (1)
     {
-        // Add main loop code here:
-        // check for events
-        // on event, run runOvenSM()
-        // clear event flags
-
+        // Main system ticking
         if (systick.event == TRUE)
         {
             systick.event = FALSE;
@@ -365,7 +408,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim == &htim4) // This will be triggered every TIM4_DEFAULT_FREQ_HZ
     {
-
         systick.timeRemaining--;
 
         if (systick.timeRemaining <= 0)
@@ -375,18 +417,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
             // Poll buttons at 1000 Hz
             systick.timeRemaining = (1);
         }
-    }
-}
-
-/**
- * This is the interrupt for the ADC1 peripheral. It will trigger whenever a new
- * ADC reading is available in the ADC when you are configured as
- * ADC_CONTINUOUS_INTERRUPT or ADC_SINGLE_SHOT_INTERRUPT.
- */
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
-{
-    if (hadc == &hadc1)
-    {
     }
 }
 
