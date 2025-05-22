@@ -127,22 +127,24 @@ void updateOvenOLED(void)
     }
 
     // Oven cook mode display
-    if (oven.cook_mode == BAKE)
+    switch (oven.cook_mode)
     {
-        cook_mode_ui = BAKE_UI;
+        case BAKE:
+            cook_mode_ui = BAKE_UI;
+            break;
+        case BROIL:
+            cook_mode_ui = BROIL_UI;
+            break;
+        case TOAST:
+            cook_mode_ui = TOAST_UI;
+            break;
+        default:
+            cook_mode_ui = ERROR_UI;
+            break;
     }
-    else if (oven.cook_mode == BROIL)
-    {
-        cook_mode_ui = BROIL_UI;
-    }
-    else if (oven.cook_mode == TOAST)
-    {
-        cook_mode_ui = TOAST_UI;
-    }
-    else
-    {
-        cook_mode_ui = ERROR_UI;
-    }
+
+    time_min = (oven.state == COOKING) ? (oven.cook_time_left / 60) : (oven.setting_cook_time / 60);
+    time_sec = (oven.state == COOKING) ? (oven.cook_time_left % 60) : (oven.setting_cook_time % 60);
 
     // Oven time
     if (oven.state == COOKING)
@@ -157,37 +159,42 @@ void updateOvenOLED(void)
     }
 
     // Load ui data into buffer
-    if (oven.state == COOKING && oven.cook_mode == BAKE)
+    if (oven.state == COOKING)
     {
-        sprintf(oled_buffer, "|\x01\x01\x01\x01\x01| MODE: %s\n|     | %cTIME: %d:%02d\n|     | %cTEMP: %d\xF8\n|\x03\x03\x03\x03\x03|",
-                cook_mode_ui, time_sel_ui, time_min, time_sec, temp_sel_ui, oven.setting_temperature);
+        if (oven.cook_mode == BAKE)
+        {
+            sprintf(oled_buffer, "|\x01\x01\x01\x01\x01| MODE: %s\n|     | %cTIME: %d:%02d\n|     | %cTEMP: %d\xF8\n|\x03\x03\x03\x03\x03|",
+                    cook_mode_ui, time_sel_ui, time_min, time_sec, temp_sel_ui, oven.setting_temperature);
+        }
+        else if (oven.cook_mode == BROIL)
+        {
+            sprintf(oled_buffer, "|\x01\x01\x01\x01\x01| MODE: %s\n|     | TIME: %d:%02d\n|     | TEMP: %d\xF8\n|\x04\x04\x04\x04\x04|",
+                    cook_mode_ui, time_min, time_sec, oven.setting_temperature);
+        }
+        else if (oven.cook_mode == TOAST)
+        {
+            sprintf(oled_buffer, "|\x02\x02\x02\x02\x02| MODE: %s\n|     | TIME: %d:%02d\n|     |\n|\x03\x03\x03\x03\x03|",
+                    cook_mode_ui, time_min, time_sec);
+        }
     }
-    else if (oven.state == COOKING && oven.cook_mode == BROIL)
+    else
     {
-        sprintf(oled_buffer, "|\x01\x01\x01\x01\x01| MODE: %s\n|     | TIME: %d:%02d\n|     | TEMP: %d\xF8\n|\x04\x04\x04\x04\x04|",
-                cook_mode_ui, time_min, time_sec, oven.setting_temperature);
+        if (oven.cook_mode == TOAST)
+        {
+            sprintf(oled_buffer, "|\x02\x02\x02\x02\x02| MODE: %s\n|     | TIME: %d:%02d\n|     |\n|\x04\x04\x04\x04\x04|",
+                    cook_mode_ui, time_min, time_sec);
+        }
+        else if (oven.cook_mode == BROIL)
+        {
+            sprintf(oled_buffer, "|\x02\x02\x02\x02\x02| MODE: %s\n|     | TIME: %d:%02d\n|     | TEMP: %d\xF8\n|\x04\x04\x04\x04\x04|",
+                    cook_mode_ui, time_min, time_sec, oven.setting_temperature);
+        }
+        else if (oven.cook_mode == BAKE)
+        {
+            sprintf(oled_buffer, "|\x02\x02\x02\x02\x02| MODE: %s\n|     | %cTIME: %d:%02d\n|     | %cTEMP: %d\xF8\n|\x04\x04\x04\x04\x04|",
+                    cook_mode_ui, time_sel_ui, time_min, time_sec, temp_sel_ui, oven.setting_temperature);
+        }
     }
-    else if (oven.state == COOKING && oven.cook_mode == TOAST)
-    {
-        sprintf(oled_buffer, "|\x02\x02\x02\x02\x02| MODE: %s\n|     | TIME: %d:%02d\n|     |\n|\x03\x03\x03\x03\x03|",
-                cook_mode_ui, time_min, time_sec);
-    }
-    else if (oven.cook_mode == TOAST)
-    {
-        sprintf(oled_buffer, "|\x02\x02\x02\x02\x02| MODE: %s\n|     | TIME: %d:%02d\n|     |\n|\x04\x04\x04\x04\x04|",
-                cook_mode_ui, time_min, time_sec);
-    }
-    else if (oven.cook_mode == BROIL)
-    {
-        sprintf(oled_buffer, "|\x02\x02\x02\x02\x02| MODE: %s\n|     | TIME: %d:%02d\n|     | TEMP: %d\xF8\n|\x04\x04\x04\x04\x04|",
-                cook_mode_ui, time_min, time_sec, oven.setting_temperature);
-    }
-    else if (oven.cook_mode == BAKE)
-    {
-        sprintf(oled_buffer, "|\x02\x02\x02\x02\x02| MODE: %s\n|     | %cTIME: %d:%02d\n|     | %cTEMP: %d\xF8\n|\x04\x04\x04\x04\x04|",
-                cook_mode_ui, time_sel_ui, time_min, time_sec, temp_sel_ui, oven.setting_temperature);
-    }
-    
 
     OLED_DrawString(oled_buffer);
     OLED_Update();
@@ -275,44 +282,9 @@ void runOvenSM(void)
             {
                 TimerB.event = FALSE;
 
-                //! do this some other way  
-                uint8_t prog_bar;
-                if ((oven.cook_time_left * 8) / oven.setting_cook_time == 8)
-                {
-                    prog_bar = 0b11111111;
-                }
-                else if ((oven.cook_time_left * 8) / oven.setting_cook_time == 7)
-                {
-                    prog_bar = 0b01111111;
-                }
-                else if ((oven.cook_time_left * 8) / oven.setting_cook_time == 6)
-                {
-                    prog_bar = 0b00111111;
-                }
-                else if ((oven.cook_time_left * 8) / oven.setting_cook_time == 5)
-                {
-                    prog_bar = 0b00011111;
-                }
-                else if ((oven.cook_time_left * 8) / oven.setting_cook_time == 4)
-                {
-                    prog_bar = 0b00001111;
-                }
-                else if ((oven.cook_time_left * 8) / oven.setting_cook_time == 3)
-                {
-                    prog_bar = 0b00000111;
-                }
-                else if ((oven.cook_time_left * 8) / oven.setting_cook_time == 2)
-                {
-                    prog_bar = 0b00000011;
-                }
-                else if ((oven.cook_time_left * 8) / oven.setting_cook_time == 1)
-                {
-                    prog_bar = 0b00000001;
-                }
-                else
-                {
-                    prog_bar = 0;
-                }
+                // Light bar (rounds up according to percentage of time left)
+                uint8_t num_leds_on = ((oven.cook_time_left * 8) / oven.setting_cook_time) + 1;
+                uint8_t prog_bar = (oven.cook_time_left > 0) ? ((0b1 << num_leds_on) - 1) : 0;
 
                 LEDs_Set(prog_bar);
 
@@ -335,10 +307,12 @@ void runOvenSM(void)
             {
                 oven.state = SETUP;
                 updateOvenOLED();
+                LEDs_Set(0);
             }
             else if (buttonEvents & BUTTON_EVENT_4UP)
             { 
                 oven.state = COOKING;
+
             }
             oven.button_hold_time++;
             break;
