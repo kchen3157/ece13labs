@@ -81,8 +81,7 @@ struct AdcResult
 
 // **** Define any module-level, global, or external variables here ****
 static volatile OvenData oven;
-static volatile struct Timer TimerA = {.event = FALSE, .timeRemaining = 0};
-static volatile struct Timer TimerB = {.event = FALSE, .timeRemaining = 0};
+static volatile struct Timer systick = {.event = FALSE, .timeRemaining = 0};
 static volatile uint16_t timestamp = 0;
 static volatile struct AdcResult AdcResult = {.event = FALSE, .value = 1};
 static volatile uint16_t cooking_ticks = 0;
@@ -340,9 +339,9 @@ int main(void)
         // on event, run runOvenSM()
         // clear event flags
 
-        if (TimerA.event == TRUE)
+        if (systick.event == TRUE)
         {
-            TimerA.event = FALSE;
+            systick.event = FALSE;
             runOvenSM();
         }
     }
@@ -361,33 +360,17 @@ int main(void)
  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim == &htim2) // This will be triggered every TIM2_DEFAULT_FREQ_HZ
+    if (htim == &htim4) // This will be triggered every TIM4_DEFAULT_FREQ_HZ
     {
-        
-    }
-    else if (htim == &htim3) // This will be triggered every TIM3_DEFAULT_FREQ_HZ
-    {
-        TimerB.timeRemaining--;
 
-        if (TimerB.timeRemaining <= 0)
+        systick.timeRemaining--;
+
+        if (systick.timeRemaining <= 0)
         {
-            TimerB.event = TRUE;
-
-            // Poll at 2 Hz
-            TimerB.timeRemaining = (50);
-        }
-    }
-    else if (htim == &htim4) // This will be triggered every TIM4_DEFAULT_FREQ_HZ
-    {
-
-        TimerA.timeRemaining--;
-
-        if (TimerA.timeRemaining <= 0)
-        {
-            TimerA.event = TRUE;
+            systick.event = TRUE;
 
             // Poll buttons at 1000 Hz
-            TimerA.timeRemaining = (1);
+            systick.timeRemaining = (1);
         }
     }
 }
