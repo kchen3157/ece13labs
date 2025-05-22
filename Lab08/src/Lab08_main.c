@@ -208,7 +208,7 @@ void runOvenSM(void)
                 {
                     case BROIL:
                         oven.setting_cook_time = BAKE_DEFAULT_TIME;
-                        oven.setting_temperature = BAKE_DEFAULT_TIME;
+                        oven.setting_temperature = BAKE_DEFAULT_TEMP;
                         oven.setting_select = BAKE_DEFAULT_SETTING_SEL;
                         oven.cook_mode = BAKE;
                         break;
