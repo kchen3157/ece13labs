@@ -18,57 +18,48 @@
 #include <Timers.h>
 
 // **** Set any macros or preprocessor directives here ****
+
+// Configs
+#define LONG_PRESS_MS               500         // Length of long press (ms)
+#define OVEN_TEMP_MIN               300         // Minimum oven temp
+#define OVEN_TIME_MIN               1           // Minimum cook time (sec)
+#define OVEN_TEMP_MAX               555         // Maximum oven temp
+#define OVEN_TIME_MAX               256         // Maximum cook time (sec)
+#define OVEN_TOAST_TEMP             500         // Constant temperature of toast cooking
+#define COOK_TIME_FREQ              1           // Frequency of cook timer countdown (Hz)
+#define ALERT_FREQ                  2           // Frequency of cooking done ALERT (Hz)
+
+#define INIT_STATE                  SETUP       // Initial state upon startup
+#define INIT_COOK_MODE              BAKE        // Initial cook mode set upon startup
+#define INIT_SETTING_COOK_TIME      1           // Initial cook time set upon startup
+#define INIT_SETTING_TEMP           350         // Initial temp set upon startup
+#define INIT_SETTING_SEL            TIME        // Initial setting selection set upon startup
+#define INIT_COOK_TIME_LEFT         1           // Initial cook time left value
+#define INIT_BUTTON_HOLD_TIME       0           // Initial button hold counter value
+
+// System Configs
+#define OLED_BUFFER_SIZE            100         // Size of the OLED buffer for updates
+#define NUM_LEDS                    8           // Number of LEDs for use in progress bar
+#define ADC_WINDOW_SIZE             60          // Size of window (lo->hi) of ADC sensitivity
+#define ADC_MAX_READING             4095        // Maximum reading of ADC
+#define ADC_MIN_READING             0           // Minimum reading of ADC
+
+// UI Character Elements
 #define BAKE_UI                     "BAKE"
 #define TOAST_UI                    "TOAST"
 #define BROIL_UI                    "BROIL"
 #define ERROR_UI                    "ERROR"
 #define SEL_UI                      '>'
 #define NOT_SEL_UI                  ' '
-#define SEC_PER_MIN                 60
-#define OLED_BUFFER_SIZE            100
 
-#define LONG_PRESS_MS               500
-
-#define OVEN_TEMP_MIN               300
-#define OVEN_TIME_MIN               1
-#define OVEN_TEMP_MAX               555
-#define OVEN_TIME_MAX               256
-
-#define OVEN_TOAST_TEMP             500
-
-#define INIT_STATE                  SETUP
-#define INIT_COOK_MODE              BAKE
-#define INIT_BUTTON_HOLD_TIME       0
-#define INIT_SETTING_COOK_TIME      1
-#define INIT_COOK_TIME_LEFT         1
-#define INIT_SETTING_TEMP           350
-#define INIT_SETTING_SEL            TIME
-
-#define NUM_LEDS                    8
-
-#define COOK_TIME_FREQ              1
-#define ALERT_FREQ                  2
-
+// Miscellaneous Constants
 #define COOK_TIME_TICK_PERIOD       (TIM4_DEFAULT_FREQ_HZ / COOK_TIME_FREQ)
-#define ALERT_TICK_PERIOD           (TIM4_DEFAULT_FREQ_HZ / ALERT_FREQ)              
-
-
+#define ALERT_TICK_PERIOD           (TIM4_DEFAULT_FREQ_HZ / ALERT_FREQ)   
 #define ADC_TEMP_RES                (OVEN_TEMP_MAX - OVEN_TEMP_MIN)
 #define ADC_TIME_RES                (OVEN_TIME_MAX - OVEN_TIME_MIN)
-
-
-#define DEFAULT_COOK_MODE           BAKE
-
-#define ADC_WINDOW_SIZE             100
-#define ADC_MAX_READING             4095
-#define ADC_MIN_READING             0
+#define SEC_PER_MIN                 60
 
 // **** Set any local typedefs here ****
-struct Timer
-{
-    uint8_t event;
-    int16_t timeRemaining;
-};
 
 typedef enum
 {
@@ -103,13 +94,18 @@ typedef struct
     uint16_t button_hold_time;        // Time button was held in milliseconds
 } OvenData;
 
+// **** Declare any datatypes here ****
 struct AdcResult
 {
     uint8_t event;
     uint16_t value;
 };
 
-// **** Declare any datatypes here ****
+struct Timer
+{
+    uint8_t event;
+    int16_t timeRemaining;
+};
 
 // **** Define any module-level, global, or external variables here ****
 static volatile OvenData oven;
@@ -382,7 +378,7 @@ int main(void)
     };
     updateOvenOLED();
 
-    while (1)
+    while (TRUE)
     {
         // Main system ticking
         if (systick.event == TRUE)
@@ -393,7 +389,7 @@ int main(void)
     }
 
     BOARD_End();
-    while (1)
+    while (TRUE)
         ;
 }
 
@@ -434,6 +430,11 @@ void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef *hadc)
     if (hadc == &hadc1)
     {
         AdcResult.value = HAL_ADC_GetValue(&hadc1);
+
+        if (AdcResult.value <= ADC_MIN_READING || AdcResult.value >= ADC_MAX_READING)
+        {
+            return;
+        }
 
         //******Config ADC watchdog with new window values based upon new result******
 
