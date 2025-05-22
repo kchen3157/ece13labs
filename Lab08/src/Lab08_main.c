@@ -209,35 +209,38 @@ void runOvenSM(void)
             }
             break;
         case SELECTOR_CHANGE_PENDING:
-            buttonEvents = Buttons_CheckEvents();
-            if (buttonEvents & BUTTON_EVENT_3UP)
+
+            if (oven.button_hold_time > 500)
             {
-                if (oven.button_hold_time > 500)
+                switch (oven.cook_mode)
                 {
-                    if (oven.cook_mode == BROIL)
-                    {
+                    case BROIL:
                         oven.cook_mode = BAKE;
-                    }
-                    else if (oven.cook_mode == BAKE)
-                    {
+                        break;
+                    case BAKE:
                         oven.cook_mode = TOAST;
-                    }
-                    else
-                    {
+                        break;
+                    case TOAST:
+                    default:
                         oven.setting_temperature = 500;
                         oven.cook_mode = BROIL;
-                    }
                 }
-                else
-                {
-                    if (oven.cook_mode == BAKE)
-                    {
-                        oven.setting_select = (oven.setting_select == TIME ? TEMP : TIME);
-                    }
-                }
+                
                 updateOvenOLED();
                 oven.state = SETUP;
             }
+
+            if (Buttons_CheckEvents() & BUTTON_EVENT_3UP)
+            {
+                if (oven.cook_mode == BAKE)
+                {
+                    oven.setting_select = (oven.setting_select == TIME ? TEMP : TIME);
+                }
+
+                updateOvenOLED();
+                oven.state = SETUP;
+            }
+            
             oven.button_hold_time++;
             break;
         case COOKING:
