@@ -85,6 +85,8 @@ static volatile struct Timer TimerA = {.event = FALSE, .timeRemaining = 0};
 static volatile struct Timer TimerB = {.event = FALSE, .timeRemaining = 0};
 static volatile uint16_t timestamp = 0;
 static volatile struct AdcResult AdcResult = {.event = FALSE, .value = 1};
+static volatile uint16_t cooking_ticks = 0;
+static volatile uint16_t alert_ticks = 0;
 
 // **** Put any helper functions here ****
 
@@ -93,38 +95,21 @@ void updateOvenOLED(void)
 {
     char oled_buffer[100];
     char *cook_mode_ui;
-    char time_sel_ui;
-    char temp_sel_ui;
-    uint8_t time_min;
-    uint8_t time_sec;
 
     if (oven.state == ALERT)
     {
-        if (OLED_GetPixel(0, 0) == OLED_COLOR_BLACK)
-        {
-            OLED_Clear(OLED_COLOR_WHITE);
-        }
-        else
-        {
-            OLED_Clear(OLED_COLOR_BLACK);
-        }
+        OLED_Clear((OLED_GetPixel(0, 0) == OLED_COLOR_BLACK) ? OLED_COLOR_WHITE : OLED_COLOR_BLACK);
         OLED_Update();
         return;
     }
 
     OLED_Clear(OLED_COLOR_BLACK);
-    
 
-    if (oven.setting_select == TIME)
-    {
-        time_sel_ui = SEL_UI;
-        temp_sel_ui = NOT_SEL_UI;
-    }
-    else
-    {
-        time_sel_ui = NOT_SEL_UI;
-        temp_sel_ui = SEL_UI;
-    }
+    char time_sel_ui = (oven.setting_select == TIME) ? SEL_UI : NOT_SEL_UI;
+    char temp_sel_ui = (oven.setting_select == TIME) ? NOT_SEL_UI : SEL_UI;
+
+    uint8_t time_min = (oven.state == COOKING) ? (oven.cook_time_left / 60) : (oven.setting_cook_time / 60);
+    uint8_t time_sec = (oven.state == COOKING) ? (oven.cook_time_left % 60) : (oven.setting_cook_time % 60);
 
     // Oven cook mode display
     switch (oven.cook_mode)
@@ -141,21 +126,6 @@ void updateOvenOLED(void)
         default:
             cook_mode_ui = ERROR_UI;
             break;
-    }
-
-    time_min = (oven.state == COOKING) ? (oven.cook_time_left / 60) : (oven.setting_cook_time / 60);
-    time_sec = (oven.state == COOKING) ? (oven.cook_time_left % 60) : (oven.setting_cook_time % 60);
-
-    // Oven time
-    if (oven.state == COOKING)
-    {
-        time_min = (uint8_t)(oven.cook_time_left / 60);
-        time_sec = (uint8_t)(oven.cook_time_left % 60);
-    }
-    else
-    {
-        time_min = (uint8_t)(oven.setting_cook_time / 60);
-        time_sec = (uint8_t)(oven.setting_cook_time % 60);
     }
 
     // Load ui data into buffer
@@ -278,9 +248,11 @@ void runOvenSM(void)
                 oven.button_hold_time = 0;
                 oven.state = RESET_PENDING;
             }
-            if (TimerB.event)
+
+            cooking_ticks++;
+            if (cooking_ticks >= 1000)
             {
-                TimerB.event = FALSE;
+                cooking_ticks = 0;
 
                 // Light bar (rounds up according to percentage of time left)
                 uint8_t num_leds_on = ((oven.cook_time_left * 8) / oven.setting_cook_time) + 1;
@@ -317,15 +289,16 @@ void runOvenSM(void)
             oven.button_hold_time++;
             break;
         case ALERT:
-            //! needs to be 2 Hz, currently 1 Hz
             if (Buttons_CheckEvents() == BUTTON_EVENT_4DOWN)
             {
                 oven.state = SETUP;
                 updateOvenOLED();
             }
-            if (TimerB.event)
+
+            alert_ticks++;
+            if (alert_ticks >= 500)
             {
-                TimerB.event = FALSE;
+                alert_ticks = 0;
                 updateOvenOLED();
             }
             break;
@@ -390,18 +363,19 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim == &htim2) // This will be triggered every TIM2_DEFAULT_FREQ_HZ
     {
+        
+    }
+    else if (htim == &htim3) // This will be triggered every TIM3_DEFAULT_FREQ_HZ
+    {
         TimerB.timeRemaining--;
 
         if (TimerB.timeRemaining <= 0)
         {
             TimerB.event = TRUE;
 
-            // Poll at 1 Hz
-            TimerB.timeRemaining = (5);
+            // Poll at 2 Hz
+            TimerB.timeRemaining = (50);
         }
-    }
-    else if (htim == &htim3) // This will be triggered every TIM3_DEFAULT_FREQ_HZ
-    {
     }
     else if (htim == &htim4) // This will be triggered every TIM4_DEFAULT_FREQ_HZ
     {
