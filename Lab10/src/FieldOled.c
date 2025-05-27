@@ -74,15 +74,21 @@ const uint8_t gridSymbols[10][FIELD_SYMBOL_WIDTH] = {
 uint8_t _FieldOledDrawSymbol(int x, int y, SquareStatus s);
 void _FieldOledDrawField(const Field *f, int xOffset);
 
-void FieldOledDrawScreen(const Field *myField, const Field *theirField,
-        FieldOledTurn playerTurn, uint8_t turn_number)
-{
+void FieldOledDrawScreen(
+        const Field *myField,
+        const Field *theirField,
+        FieldOledTurn playerTurn,
+        uint8_t turn_number
+        ) {
 #ifndef __NUCLEO_SIMULATOR
     OLED_Clear(OLED_COLOR_BLACK);
     _FieldOledDrawField(myField, 0);
-    if (theirField) {
+    if (theirField)
+    {
         _FieldOledDrawField(theirField, 76);
-    } else {
+    }
+    else
+    {
         OLED_Update();
         return;
     }
@@ -117,8 +123,8 @@ void _FieldOledDrawField(const Field *f, int xOffset)
     int finalCol = 10 * 5 + 2;
 
     int finalRowOffset = (
-        OLED_DRIVER_PIXEL_ROWS / OLED_DRIVER_BUFFER_LINE_HEIGHT - 1
-    ) * OLED_DRIVER_PIXEL_COLUMNS;
+            OLED_DRIVER_PIXEL_ROWS / OLED_DRIVER_BUFFER_LINE_HEIGHT - 1
+            ) * OLED_DRIVER_PIXEL_COLUMNS;
 
     // Draw the horizontal grid borders.
     for (i = 0; i < finalCol; ++i) {
@@ -177,7 +183,7 @@ uint8_t _FieldOledDrawSymbol(int x, int y, SquareStatus s)
                 uint8_t newCharCol = rgbOledBmp[rowMax * OLED_DRIVER_PIXEL_COLUMNS + oledCol] & ~colMask;
                 // Make sure we grab the proper part of the character from the font.
                 newCharCol |= (gridSymbols[(int) s][j] & (colMask << (OLED_DRIVER_BUFFER_LINE_HEIGHT - rowY))) >>
-                        (OLED_DRIVER_BUFFER_LINE_HEIGHT - rowY);
+                    (OLED_DRIVER_BUFFER_LINE_HEIGHT - rowY);
                 rgbOledBmp[rowMax * OLED_DRIVER_PIXEL_COLUMNS + oledCol] = newCharCol;
             }
         }

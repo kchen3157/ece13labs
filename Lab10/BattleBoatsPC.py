@@ -1,11 +1,13 @@
-""" BattleBoatsPC.py
+"""
+@file       BattleBoatsPC.py
 
 GUI for interracting with BattleBoats running on an STM32 Nucleo F411RE uC.
 
-@date   29 Nov 2024
+@date       10 May 2025
+@version    1.0.1
 
-@todo
-    + Ensure that all daemons properly shut down, i.e. put in a "cleanUp()".
+@todo       Ensure that all daemons properly shut down, i.e. put in a
+            "cleanUp()".
 """
 try:
     from PyQt5.QtCore import *
@@ -113,6 +115,34 @@ fieldSymbols = {FieldStatus.FIELD_SQUARE_EMPTY: " ",
                 FieldStatus.FIELD_SQUARE_CURSOR: " ",
                 FieldStatus.FIELD_SQUARE_INVALID: " "}
 
+""" _check_for_loopback(current_message, previous_message)
+
+Compare a received message with the previously-transmitted message to see if it
+is a loopback message.
+
+@param  current_message
+@param  previous_message    (str)
+@return (bool)  Is it a loopback?
+"""
+def _check_for_loopback(current_message, previous_message):
+    current_message_list = [str(part) for part in current_message]
+    try:
+        previous_message_list = [
+                str(part.strip("$").split("*")[0]
+                    ) for part in previous_message.split(",")
+                ]
+    # If no previous message has beenr recorded, not a loopback.
+    except AttributeError:
+        return False
+
+    for member in zip(current_message_list, previous_message_list):
+        try:
+            if member[0] != member[1]:
+                return False
+        except:
+            break
+    return True
+
 
 class Message(object):
     def __init__(self, eventQueue, rawQueue):
@@ -120,6 +150,7 @@ class Message(object):
         self.outputQueue = queue.Queue()
         self.outputThread = None
         self.receiveThread = None
+        self.prevMessage = None
         # TODO(nubby): unused?
         #self.receivedPackets = queue.Queue()
         self.activeConnection = False
@@ -159,11 +190,15 @@ class Message(object):
                 try:
                     newByte = self.outputQueue.get()
                     self.serialPort.write(newByte.to_bytes(1, byteorder='big'))
-                    time.sleep(0.5)  # NOTE: imadan1 fix.
+                    # Flush input buffer to account for loopback.
+                    # NOTE: This currently discards returned data as well, so 
+                    #       we opt for a more "brute-force" check.
+                    #self.serialPort.reset_input_buffer()
+                    time.sleep(0.03)
                 except serial.serialutil.SerialException as e:
                     pass
             else:
-                time.sleep(.1)
+                time.sleep(0.01)
         return
 
     def handleIncoming(self):
@@ -172,10 +207,11 @@ class Message(object):
 
         while True:
             if not self.activeConnection:
-                time.sleep(.1)
+                time.sleep(0.1)
                 continue
             try:
                 datum = self.serialPort.read(1).decode('ascii')
+                #print(str(datum))
                 rawQueue.append(datum)
                 self.rawQueue.put(datum)
             except serial.serialutil.SerialException as e:
@@ -193,13 +229,13 @@ class Message(object):
                     valueList[0] = messageTypes[valueList[0]]
                 except (ValueError, KeyError):
                     continue
-
-                self.eventQueue.put(valueList, block=True)
+                if not _check_for_loopback(valueList, self.prevMessage):
+                    self.eventQueue.put(valueList, block=True)
                 rawQueue.clear()
                 while not self.rawQueue.empty():
                     self.rawQueue.get()
                 # we are going to ignore checksums for now
-            time.sleep(0.1)
+            time.sleep(0.01)
 
 
     def Connect(self):
@@ -261,6 +297,7 @@ class Message(object):
 
     def sendMessage(self, messageToSend):
         encodedMessage = self.encode_message(messageToSend)
+        self.prevMessage = encodedMessage
         for char in encodedMessage:
             self.outputQueue.put(ord(char))
         return encodedMessage
@@ -340,8 +377,6 @@ class Field(QWidget):
                         for i in range(size):
                             self.setFieldStatus(startYPoint, startXPoint+i, type)
                         break
-                    # break
-            # break
         return
 
     def setFieldButtonsDisabled(self, state):
@@ -591,25 +626,19 @@ class mainInterface(QMainWindow):
             elif self.agentState == AgentStates.ACCEPTING:
                 if curEvent[0] == messageTypes.REV:
                     self.challengeData["A"] = curEvent[1]
-                    print(self.challengeData)
                     order = parity(self.challengeData["A"] ^ self.challengeData["B"])
-                    print(order)
                     if order:
                         self.agentState = AgentStates.DEFENDING
-                    # print('defending')
                     else:
                         self.agentState = AgentStates.WAITING_TO_SEND
                         self.turnOrder = True
                         self.updateGameData()
-                # print(self.challengeData)
                 # print('Implement me Please', self.agentState)
             elif self.agentState == AgentStates.ATTACKING:
                 if curEvent[0] == messageTypes.RES:
-                    # print(curEvent)
                     row = curEvent[1]
                     col = curEvent[2]
                     result = curEvent[3]
-                    # print(shotResults(1))
                     if shotResults(result) == shotResults.RESULT_MISS:
                         self.theirField.setFieldStatus(row, col, FieldStatus.FIELD_SQUARE_MISS)
                     else:
