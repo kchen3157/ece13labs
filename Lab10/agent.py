@@ -125,7 +125,7 @@ student_release_mode = False
 
 #serial config:
 # CHANGE THE BELOW TO MATCH YOUR SYSTEM:
-default_port = "/dev/tty.usbmodem1234" #right now we only support 1
+default_port = "/dev/tty.usbmodem14303" #right now we only support 1
 baud= 115200
 timeout = 0.25
 
