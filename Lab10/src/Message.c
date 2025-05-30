@@ -71,11 +71,60 @@ uint8_t Message_CalculateChecksum(const char* payload)
  * @note    Please note!  sscanf() has a couple compiler bugs that make it an
  *          unreliable tool for implementing this function.
  */
-int Message_ParseMessage(
-        const char* payload,
-        const char* checksum_string,
-        BB_Event * message_event
-        );
+int Message_ParseMessage(const char* payload, const char* checksum_string,
+        BB_Event* message_event)
+{
+    char* payload_ptr = payload;
+
+    if (strlen(checksum_string) != MESSAGE_CHECKSUM_LEN)
+    {
+        message_event->type = BB_EVENT_ERROR;
+        return STANDARD_ERROR;
+    }
+
+    uint8_t checksum = (uint8_t) strtoul(checksum_string, (char**) NULL, 16);
+    if (Message_CalculateChecksum(payload) != checksum)
+    {
+        message_event->type = BB_EVENT_ERROR;
+        return STANDARD_ERROR;
+    }
+
+    if (!strncmp(payload, "CHA,", 4))
+    {
+        message_event->type = BB_EVENT_CHA_RECEIVED;
+        message_event->param0 = (uint16_t) strtoul(payload + 4, NULL, 10);
+    }
+    else if (!strncmp(payload, "ACC,", 4))
+    {
+        message_event->type = BB_EVENT_ACC_RECEIVED;
+        message_event->param0 = (uint16_t) strtoul(payload + 4, NULL, 10);
+    }
+    else if (!strncmp(payload, "REV,", 4))
+    {
+        message_event->type = BB_EVENT_REV_RECEIVED;
+        message_event->param0 = (uint16_t) strtoul(payload + 4, NULL, 10);
+    }
+    else if (!strncmp(payload, "SHO,", 4))
+    {
+        message_event->type = BB_EVENT_SHO_RECEIVED;
+        message_event->param0 = (uint16_t) strtoul(payload + 4, payload_ptr, 10);
+        message_event->param1 = (uint16_t) strtoul(payload_ptr + 1, NULL, 10);
+    }
+    else if (!strncmp(payload, "RES,", 4))
+    {
+        message_event->type = BB_EVENT_RES_RECEIVED;
+        message_event->param0 = (uint16_t) strtoul(payload + 4, payload_ptr, 10);
+        message_event->param1 = (uint16_t) strtoul(payload_ptr + 1, payload_ptr, 10);
+        message_event->param2 = (uint16_t) strtoul(payload_ptr + 1, NULL, 10);
+    }
+    else
+    {
+        message_event->type = BB_EVENT_ERROR;
+        return STANDARD_ERROR;
+    }
+
+    return SUCCESS;
+}
 
 /** Message_Encode(*message_string, message_to_encode)
  *
