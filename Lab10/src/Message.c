@@ -1,15 +1,11 @@
-#ifndef MESSAGE_H
-#define MESSAGE_H
 /**
- * @file    Message.h
+ * @file    Message.c
  *
- * Message module header file.
+ * Implementation of Message module
  *
- * @author  HARE Lab
- * @author  jLab
- * @version 1.0.1
+ * @author  Kyle Chen
  *
- * @date    26 Apr 2025
+ * @date    29 May 2025
  */
 #include <stdint.h>
 
@@ -18,96 +14,6 @@
 #endif  /*  BOARD_H */
 
 #include "BattleBoats.h"
-
-
-/**
- * According to the NMEA standard, messages cannot be longer than 82,
- * including the delimiters $, *, \r, and \n.
- */
-#define MESSAGE_MAX_LEN 82
-
-/**
- * The maximum payload length is the maximum message length,
- * -1 start delimiter ($),
- * -1 checksum delimiter (*),
- * -2 checksum characters, 
- * -1 end delimiter #1 (\r), and
- * -1 end delimiter #2 (\n).
- */
-#define MESSAGE_MAX_PAYLOAD_LEN (MESSAGE_MAX_LEN - 1 - 1 - 2 - 1 - 1)
-
-/* NMEA also defines a specific  checksum length. */
-#define MESSAGE_CHECKSUM_LEN 2
-
-/** MessageType
- * The types of messages that can be sent or received:
- */
-typedef enum {
-    MESSAGE_NONE, // Used if no message is to be sent.
-    MESSAGE_CHA,
-    MESSAGE_ACC,
-    MESSAGE_REV,
-    MESSAGE_SHO,
-    MESSAGE_RES,
-    // While not required, an error message can be a useful debugging tool:
-    MESSAGE_ERROR = -1
-} MessageType;
-
-/** Message
- * Messages follow this struct:
- */
-typedef struct {
-    MessageType type;
-    unsigned int param0;
-    unsigned int param1;
-    unsigned int param2;
-} Message;
-
-
-/** 
- * Each (almost*) follows the NMEA0183 syntax for message payloads:  
- *		The first three characters describe the message type;
- * 		zero or more comma-separated fields follow, containing various kinds of
- * 		    data.
- *
- * (* True NEMA0183 payloads begin with two characters that describe the
- *    "talker", which we omit from the BattleBoats protocol.)
- */
-#define PAYLOAD_TEMPLATE_CHA "CHA,%u" 		// Challenge message:  		hash_a (see protocol)
-#define PAYLOAD_TEMPLATE_ACC "ACC,%u" 		// Accept message:	 		B (see protocol)
-#define PAYLOAD_TEMPLATE_REV "REV,%u"       // Reveal message: 			A (see protocol)
-#define PAYLOAD_TEMPLATE_SHO "SHO,%d,%d"    // Shot (guess) message: 	row, col
-#define PAYLOAD_TEMPLATE_RES "RES,%u,%u,%u" // Result message: 			row, col, GuessResult
-
-
-/** 
- * NEMA0183 messages wrap the payload with a start delimiter, a checksum to
- * verify the contents of the message in case of transmission errors, and an end
- * delimiter.
- * This template defines the wrapper.
- * Note that it uses printf-style tokens so that it can be used with sprintf().
- * 
- * Here is an example message:
- *                 
- * 1 start delimiter    (a literal $)
- * 2 payload            (any string, represented by %s in the template)
- * 3 checksum delimiter (a literal *)
- * 4 checksum			(two ascii characters representing hex digits, %02x in
- *                       the template)
- * 5 end delimiter      (a literal \r\n)
- * 
- * example message:      1       3  5      
- *						 v       v  vvvv
- *                       $SHO,2,9*5F\r\n
- *                        ^^^^^^^ ^^      
- *                          2     4      
- * 
- * Note that 2 and 4 correspond to %s and %02x in the template.
- * 
- * Also note that valid BattleBoats messages use 
- * strictly upper-case letters, so $SHO,2,3*5f\r\n is an invalid message.
- */
-#define MESSAGE_TEMPLATE "$%s*%02X\r\n"
 
 /**
  * Given a payload string, calculate its checksum.
@@ -193,6 +99,3 @@ int Message_Encode(char *message_string, Message message_to_encode);
  * @todo    Make "returned" event variable name consistent.
  */
 int Message_Decode(unsigned char char_in, BB_Event * decoded_message_event);
-
-
-#endif // MESSAGE_H
