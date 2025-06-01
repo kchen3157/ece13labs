@@ -9,6 +9,8 @@
  */
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #ifndef BOARD_H
 #include <BOARD.h>
@@ -74,7 +76,7 @@ uint8_t Message_CalculateChecksum(const char* payload)
 int Message_ParseMessage(const char* payload, const char* checksum_string,
         BB_Event* message_event)
 {
-    char* payload_ptr = payload;
+    char* payload_ptr = (char*) payload;
 
     if (strlen(checksum_string) != MESSAGE_CHECKSUM_LEN)
     {
@@ -107,14 +109,14 @@ int Message_ParseMessage(const char* payload, const char* checksum_string,
     else if (!strncmp(payload, "SHO,", 4))
     {
         message_event->type = BB_EVENT_SHO_RECEIVED;
-        message_event->param0 = (uint16_t) strtoul(payload + 4, payload_ptr, 10);
+        message_event->param0 = (uint16_t) strtoul(payload + 4, &payload_ptr, 10);
         message_event->param1 = (uint16_t) strtoul(payload_ptr + 1, NULL, 10);
     }
     else if (!strncmp(payload, "RES,", 4))
     {
         message_event->type = BB_EVENT_RES_RECEIVED;
-        message_event->param0 = (uint16_t) strtoul(payload + 4, payload_ptr, 10);
-        message_event->param1 = (uint16_t) strtoul(payload_ptr + 1, payload_ptr, 10);
+        message_event->param0 = (uint16_t) strtoul(payload + 4, &payload_ptr, 10);
+        message_event->param1 = (uint16_t) strtoul(payload_ptr + 1, &payload_ptr, 10);
         message_event->param2 = (uint16_t) strtoul(payload_ptr + 1, NULL, 10);
     }
     else
