@@ -225,7 +225,7 @@ Message AgentRun(BB_Event event)
                 // Draw screen
                 FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn);
                 
-                if (FieldGetBoatStates(&op_field)) // States = 0, all op boats sunk
+                if (FieldGetBoatStates(&op_field) == 0) // States = 0, all op boats sunk
                 {
                     agent_state = AGENT_STATE_END_SCREEN; // VICTORY
                 }
@@ -258,7 +258,7 @@ Message AgentRun(BB_Event event)
                 // Draw screen
                 FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn);
 
-                if (FieldGetBoatStates(&my_field)) // States = 0, all of my boats sunk
+                if (FieldGetBoatStates(&my_field) == 0) // States = 0, all of my boats sunk
                 {
                     agent_state = AGENT_STATE_END_SCREEN; // DEFEAT
                 }
