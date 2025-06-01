@@ -9,6 +9,8 @@
  */
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
 
 #include "Agent.h"
 #include "Oled.h"
@@ -23,6 +25,8 @@ static volatile FieldOledTurn playerTurn;
 static volatile uint8_t turn;
 static Field my_field;
 static Field op_field;
+
+static volatile GuessData guess;
 
 static volatile NegotiationData hash_A;    // A
 static volatile NegotiationData hash_B;    // B
@@ -77,6 +81,7 @@ Message AgentRun(BB_Event event)
             if (event.type == BB_EVENT_START_BUTTON)
             {
                 // Generate A hash
+                srand(time(NULL));
                 hash_A = (int16_t) (rand() & 0xFFFF);
 
                 // Generate #A hash
@@ -135,6 +140,8 @@ Message AgentRun(BB_Event event)
                     playerTurn = FIELD_OLED_TURN_THEIRS;
                     agent_state = AGENT_STATE_DEFENDING;
                 }
+
+                FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn);
             }
             else
             {
@@ -163,8 +170,6 @@ Message AgentRun(BB_Event event)
                 {
                     playerTurn = FIELD_OLED_TURN_THEIRS;
                     agent_state = AGENT_STATE_DEFENDING;
-
-                    FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn);
                 }
                 else
                 {
@@ -180,6 +185,8 @@ Message AgentRun(BB_Event event)
 
                     agent_state = AGENT_STATE_ATTACKING;
                 }
+
+                FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn);
                 
             }
             else
@@ -195,7 +202,7 @@ Message AgentRun(BB_Event event)
                 turn++;
 
                 // Decide guess
-                GuessData guess = FieldAIDecideGuess(&op_field);
+                guess = FieldAIDecideGuess(&op_field);
 
                 // Send SHO
                 message_out.type = MESSAGE_SHO;
