@@ -21,7 +21,18 @@
  * @param   payload The string whose checksum we wish to calculate.
  * @return  The resulting 8-bit checksum.
  */
-uint8_t Message_CalculateChecksum(const char* payload);
+uint8_t Message_CalculateChecksum(const char* payload)
+{
+    uint8_t checksum = 0;
+    const unsigned char* payload_ptr = (const unsigned char*) payload;
+
+    for (; *payload_ptr != '\0'; payload_ptr++)
+    {
+        checksum ^= *payload_ptr;  
+    }
+
+    return checksum;
+}
 
 /** Message_ParseMessage(*payload, *checksum_string, *message_event)
  *
