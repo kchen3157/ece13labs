@@ -8,18 +8,27 @@
  * @date    28 May 2025
  */
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "Agent.h"
 #include "Oled.h"
 #include "Field.h"
 #include "FieldOled.h"
+#include "Negotiation.h"
 
 
 // * Global Vars
 static volatile AgentState agent_state;
-static volatile uint16_t turn;
-static volatile Field my_field;
-static volatile Field op_field;
+static volatile FieldOledTurn playerTurn;
+static volatile uint8_t turn;
+static Field my_field;
+static Field op_field;
+
+static volatile NegotiationData hash_A;    // A
+static volatile NegotiationData hash_B;    // B
+static volatile NegotiationData hash_sA;   // #A
+
+static volatile NegotiationOutcome outcome;
 
 
 /** AgentInit()
@@ -38,6 +47,7 @@ void AgentInit(void)
 {
     agent_state = AGENT_STATE_START;
     turn = 0;
+    playerTurn = FIELD_OLED_TURN_NONE;
 
     OLED_Clear(OLED_COLOR_BLACK);
     OLED_DrawString("BATTLEBOATS:\n\nPress BTN4 to begin,\nor wait for PLAYER2.");
@@ -66,13 +76,15 @@ Message AgentRun(BB_Event event)
         {
             if (event.type == BB_EVENT_START_BUTTON)
             {
-                message_out.type = MESSAGE_CHA;
-
                 // Generate A hash
-                int16_t hash_A = (int16_t) (rand() & 0xFFFF);
+                hash_A = (int16_t) (rand() & 0xFFFF);
+
+                // Generate #A hash
+                hash_sA = NegotiationHash(hash_A);
                 
-                // Generate #a secret key
-                message_out.param0 = (hash_A * hash_A) % 0xBEEF;
+                // Send out #A hash
+                message_out.type = MESSAGE_CHA;
+                message_out.param0 = hash_sA;
 
                 // Init fields
                 FieldInit(&my_field, &op_field);
@@ -86,8 +98,9 @@ Message AgentRun(BB_Event event)
             {
                 message_out.type = MESSAGE_ACC;
                 // Generate B
-                message_out.param0 = (int16_t) (rand() & 0xFFFF);
+                hash_B = (int16_t) (rand() & 0xFFFF);
                 // Send ACC
+                message_out.param0 = hash_B;
                 // Init fields
                 FieldInit(&my_field, &op_field);
                 // Place own boats
@@ -99,17 +112,153 @@ Message AgentRun(BB_Event event)
         }
         case AGENT_STATE_CHALLENGING:
         {
+            if (event.type == BB_EVENT_ACC_RECEIVED)
+            {
+                // Send out B hash
+                message_out.type = MESSAGE_REV;
+                hash_B = event.param0;
+
+                // Determine heads/tails
+                outcome = NegotiateCoinFlip(hash_A, hash_B);
+
+                if (outcome == HEADS)
+                {
+                    playerTurn = FIELD_OLED_TURN_MINE;
+                    agent_state = AGENT_STATE_WAITING_TO_SEND;
+                }
+                else
+                {
+                    playerTurn = FIELD_OLED_TURN_THEIRS;
+                    agent_state = AGENT_STATE_DEFENDING;
+                }
+            }
             break;
         }
         case AGENT_STATE_ACCEPTING:
         {
+            if (event.type == BB_EVENT_REV_RECEIVED)
+            {
+                // Receive A hash
+                hash_A = event.param0;
+
+                // No message
+                message_out.type = MESSAGE_NONE;
+
+                // Determine heads/tails
+                outcome = NegotiateCoinFlip(hash_A, hash_B);
+
+                if (NegotiationVerify(hash_A, hash_sA))
+                {
+                    agent_state = AGENT_STATE_END_SCREEN;
+                }
+                else if (outcome == HEADS)
+                {
+                    playerTurn = FIELD_OLED_TURN_THEIRS;
+                    agent_state = AGENT_STATE_DEFENDING;
+                }
+                else
+                {
+                    playerTurn = FIELD_OLED_TURN_MINE;
+
+                    // Decide guess
+                    GuessData guess = FieldAIDecideGuess(&op_field);
+
+                    // Send SHO
+                    message_out.type = MESSAGE_SHO;
+                    message_out.param0 = guess.row;
+                    message_out.param1 = guess.col;
+
+                    agent_state = AGENT_STATE_ATTACKING;
+                }
+                
+            }
             break;
+        }
+        case AGENT_STATE_WAITING_TO_SEND:
+        {
+            if (event.type == BB_EVENT_MESSAGE_SENT)
+            {
+                turn++;
+
+                // Decide guess
+                GuessData guess = FieldAIDecideGuess(&op_field);
+
+                // Send SHO
+                message_out.type = MESSAGE_SHO;
+                message_out.param0 = guess.row;
+                message_out.param1 = guess.col;
+
+                agent_state = AGENT_STATE_ATTACKING;
+            }
+        }
+        case AGENT_STATE_ATTACKING:
+        {
+            if (event.type == BB_EVENT_RES_RECEIVED)
+            {
+                // No message
+                message_out.type = MESSAGE_NONE;
+
+                GuessData attack_result;
+                attack_result.row = event.param0;
+                attack_result.col = event.param1;
+                attack_result.result = event.param2;
+
+                FieldUpdateKnowledge(&op_field, &attack_result);
+
+                // Draw screen
+                FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn);
+                
+                if (FieldGetBoatStates(&op_field)) // States = 0, all op boats sunk
+                {
+                    agent_state = AGENT_STATE_END_SCREEN; // VICTORY
+                }
+                else
+                {
+                    agent_state = AGENT_STATE_DEFENDING;
+                }
+            }
+        }
+        case AGENT_STATE_DEFENDING:
+        {
+            if (event.type == BB_EVENT_SHO_RECEIVED)
+            {
+                GuessData attack;
+                attack.row = event.param0;
+                attack.col = event.param1;
+
+                FieldRegisterEnemyAttack(&my_field, &attack);
+
+                message_out.type = MESSAGE_RES;
+                message_out.param0 = attack.row;
+                message_out.param1 = attack.col;
+                message_out.param2 = attack.result;
+
+                // Draw screen
+                FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn);
+
+                if (FieldGetBoatStates(&my_field)) // States = 0, all of my boats sunk
+                {
+                    agent_state = AGENT_STATE_END_SCREEN; // DEFEAT
+                }
+                else
+                {
+                    agent_state = AGENT_STATE_WAITING_TO_SEND;
+                }
+            }
+        }
+        case AGENT_STATE_END_SCREEN:
+        {
+            OLED_Clear(OLED_COLOR_BLACK);
+            OLED_DrawString("END.");
+            OLED_Update();
         }
         default:
         {
             break;
         }
     }
+
+    return message_out;
 }
 
 /** AgentGetState() 
