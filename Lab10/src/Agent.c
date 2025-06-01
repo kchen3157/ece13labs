@@ -163,6 +163,8 @@ Message AgentRun(BB_Event event)
                 {
                     playerTurn = FIELD_OLED_TURN_THEIRS;
                     agent_state = AGENT_STATE_DEFENDING;
+
+                    FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn);
                 }
                 else
                 {
