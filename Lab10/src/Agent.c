@@ -36,19 +36,6 @@ static volatile NegotiationOutcome outcome;
 
 static char endscreen_str[100];
 
-
-/** AgentInit()
- *
- * The Init() function for an Agent sets up everything necessary for an agent
- * before the game starts.  At a minimum, this requires:
- *   -setting the start state of the Agent SM.
- *   -setting turn counter to 0
- *
- * If you are using any other persistent data in Agent SM, that should be reset
- * as well.
- * 
- * It is not advised to call srand() inside of AgentInit().
- */
 void AgentInit(void)
 {
     // Set initial state and turn counter
@@ -61,18 +48,6 @@ void AgentInit(void)
     OLED_Update();
 }
 
-/** AgentRun(event)
- *
- * AgentRun() evolves the Agent state machine in response to an event.
- * 
- * If the returned Message struct is a valid message (that is, not of type
- * MESSAGE_NONE), then it will be passed to the transmission module and sent via
- * UART. This is handled at the top level! AgentRun is ONLY responsible for
- * generating the Message struct, not for encoding or sending it.
- * 
- * @param   event   The most recently detected event
- * @return  Message, a Message struct to send to the opponent. 
- */
 Message AgentRun(BB_Event event)
 {
     Message message_out;
@@ -308,23 +283,11 @@ Message AgentRun(BB_Event event)
     return message_out;
 }
 
-/** AgentGetState() 
- *
- * This function is very useful for testing AgentRun().
- *
- * @return  Returns the current state that AgentGetState() is in.
- */
 AgentState AgentGetState(void)
 {
     return agent_state;
 }
 
-/** AgentSetState(newState)
- * 
- * This function is very useful for testing AgentRun().
- *
- * @param   newState    Force the agent into the state given by AgentState.
- */
 void AgentSetState(AgentState newState)
 {
     agent_state = newState;
