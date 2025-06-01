@@ -409,9 +409,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 // Provide weak implementations for students that didn't implement every
 // function.
-__attribute__((weak)) GuessData FieldAIDecideGuess(const Field *opp_field)
-{
-    GuessData ret = {0,0,RESULT_MISS};
-    return ret;
-}
+// __attribute__((weak)) GuessData FieldAIDecideGuess(const Field *opp_field)
+// {
+//     GuessData ret = {0,0,RESULT_MISS};
+//     return ret;
+// }
 
