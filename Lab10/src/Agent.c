@@ -108,6 +108,10 @@ Message AgentRun(BB_Event event)
 
                 agent_state = AGENT_STATE_ACCEPTING;
             }
+            else
+            {
+                message_out.type = MESSAGE_NONE;
+            }
             break;
         }
         case AGENT_STATE_CHALLENGING:
@@ -131,6 +135,10 @@ Message AgentRun(BB_Event event)
                     playerTurn = FIELD_OLED_TURN_THEIRS;
                     agent_state = AGENT_STATE_DEFENDING;
                 }
+            }
+            else
+            {
+                message_out.type = MESSAGE_NONE;
             }
             break;
         }
@@ -172,6 +180,10 @@ Message AgentRun(BB_Event event)
                 }
                 
             }
+            else
+            {
+                message_out.type = MESSAGE_NONE;
+            }
             break;
         }
         case AGENT_STATE_WAITING_TO_SEND:
@@ -190,6 +202,11 @@ Message AgentRun(BB_Event event)
 
                 agent_state = AGENT_STATE_ATTACKING;
             }
+            else
+            {
+                message_out.type = MESSAGE_NONE;
+            }
+            break;
         }
         case AGENT_STATE_ATTACKING:
         {
@@ -217,6 +234,11 @@ Message AgentRun(BB_Event event)
                     agent_state = AGENT_STATE_DEFENDING;
                 }
             }
+            else
+            {
+                message_out.type = MESSAGE_NONE;
+            }
+            break;
         }
         case AGENT_STATE_DEFENDING:
         {
@@ -245,15 +267,25 @@ Message AgentRun(BB_Event event)
                     agent_state = AGENT_STATE_WAITING_TO_SEND;
                 }
             }
+            else
+            {
+                message_out.type = MESSAGE_NONE;
+            }
+            break;
         }
         case AGENT_STATE_END_SCREEN:
         {
             OLED_Clear(OLED_COLOR_BLACK);
             OLED_DrawString("END.");
             OLED_Update();
+
+            message_out.type = MESSAGE_NONE;
+
+            break;
         }
         default:
         {
+            message_out.type = MESSAGE_NONE;
             break;
         }
     }
