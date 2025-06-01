@@ -8,14 +8,12 @@
  * @date    29 May 2025
  */
 #include <stdint.h>
-#include <string.h>
 
 #ifndef BOARD_H
 #include <BOARD.h>
 #endif  /*  BOARD_H */
 
 #include "BattleBoats.h"
-#include "Message.h"
 
 /**
  * Given a payload string, calculate its checksum.
@@ -86,49 +84,7 @@ int Message_ParseMessage(
  * @return  The length of the string stored into 'message_string'. Return 0 if
  *          message type is MESSAGE_NONE.
  */
-int Message_Encode(char *message_string, Message message_to_encode)
-{
-    // Recap: Encodes Message datatype into NMEA string
-    char payload[MESSAGE_MAX_PAYLOAD_LEN];
-
-    switch (message_to_encode.type)
-    {
-        case MESSAGE_CHA:
-        {
-            sprintf(payload, PAYLOAD_TEMPLATE_CHA, message_to_encode.param0);
-            break;
-        }
-        case MESSAGE_ACC:
-        {
-            sprintf(payload, PAYLOAD_TEMPLATE_ACC, message_to_encode.param0);
-            break;
-        }
-        case MESSAGE_REV:
-        {
-            sprintf(payload, PAYLOAD_TEMPLATE_REV, message_to_encode.param0);
-            break;
-        }
-        case MESSAGE_SHO:
-        {
-            sprintf(payload, PAYLOAD_TEMPLATE_SHO,
-                message_to_encode.param0, message_to_encode.param1);
-            break;
-        }
-        case MESSAGE_RES:
-        {
-            sprintf(payload, PAYLOAD_TEMPLATE_RES, message_to_encode.param0, 
-                message_to_encode.param1, message_to_encode.param2);
-            break;
-        }
-        default:
-        {
-            return -1;
-        }
-    }
-
-    sprintf(message_string, MESSAGE_TEMPLATE, payload, Message_CalculateChecksum(payload));
-
-}
+int Message_Encode(char *message_string, Message message_to_encode);
 
 /** Message_Decode(char_in, *decoded_message_event)
  *
