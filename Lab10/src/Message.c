@@ -17,6 +17,14 @@
 #include "BattleBoats.h"
 #include "Message.h"
 
+
+typedef enum
+{
+    MSG_DECODE_STATE_WAITING_FOR_START,
+    MSG_DECODE_STATE_REC_PAYLOAD,
+    MSG_DECODE_STATE_REC_CHECKSUM
+} MessageDecodeState;
+
 /**
  * Given a payload string, calculate its checksum.
  * 
@@ -126,7 +134,8 @@ int Message_Encode(char *message_string, Message message_to_encode)
         }
     }
 
-    sprintf(message_string, MESSAGE_TEMPLATE, payload, Message_CalculateChecksum(payload));
+    return sprintf(message_string, MESSAGE_TEMPLATE, payload, 
+        Message_CalculateChecksum(payload));
 
 }
 
@@ -153,4 +162,88 @@ int Message_Encode(char *message_string, Message message_to_encode)
  * @note    ANY call to Message_Decode may modify decoded_message.
  * @todo    Make "returned" event variable name consistent.
  */
-int Message_Decode(unsigned char char_in, BB_Event * decoded_message_event);
+int Message_Decode(unsigned char char_in, BB_Event * decoded_message_event)
+{
+    static MessageDecodeState msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
+    static char payload[MESSAGE_MAX_PAYLOAD_LEN];
+    static char *payload_ptr = payload;
+    static char checksum[MESSAGE_CHECKSUM_LEN];
+    static char *checksum_ptr = checksum;
+
+
+    switch (msg_decode_state)
+    {
+        case MSG_DECODE_STATE_WAITING_FOR_START:
+        {
+            if (char_in == '$')
+            {
+                payload_ptr = payload;
+                msg_decode_state = MSG_DECODE_STATE_REC_PAYLOAD;
+            }
+            break;
+        }
+        case MSG_DECODE_STATE_REC_PAYLOAD:
+        {
+            if ((payload_ptr - payload) >= MESSAGE_MAX_PAYLOAD_LEN)
+            {
+                msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
+                return STANDARD_ERROR;
+            }
+
+            if (char_in == '$' || char_in == '\n')
+            {
+                msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
+                return STANDARD_ERROR;
+            }
+            else if (char_in == '*')
+            {
+                checksum_ptr = checksum;
+                *payload_ptr = '\0';
+                msg_decode_state = MSG_DECODE_STATE_REC_CHECKSUM;
+            }
+            else
+            {
+                *payload_ptr = char_in;
+                payload_ptr++;
+            }
+            break;
+        }
+        case MSG_DECODE_STATE_REC_CHECKSUM:
+        {
+            if ((checksum_ptr - checksum) >= MESSAGE_CHECKSUM_LEN)
+            {
+                msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
+                return STANDARD_ERROR;
+            }
+
+            if ((char_in >= '0' && char_in <= '9') || (char_in >= 'A' && char_in <= 'F'))
+            {
+                *checksum_ptr = char_in;
+                checksum_ptr++;
+            }
+            else if (char_in == '\n')
+            {
+                *checksum_ptr = '\0';
+
+                if (Message_ParseMessage(payload, checksum, decoded_message_event) == SUCCESS)
+                {
+                    msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
+                    return SUCCESS;
+                }
+                else
+                {
+                    msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
+                    return STANDARD_ERROR;
+                }
+            }
+            else
+            {
+                msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
+                return STANDARD_ERROR;
+            }
+            break;
+        }
+    }
+
+    return SUCCESS;
+}
