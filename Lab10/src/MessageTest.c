@@ -18,7 +18,7 @@ int main(void)
     //********* Message_ParseMessage *********
     char* payload_uut;
     char* checksum_uut;
-    char* msg_uut;
+    char* msg_str_uut;
     BB_Event event_uut;
 
 
@@ -83,8 +83,8 @@ int main(void)
 
 
     //********* Message_Decode *********
-    msg_uut = "$SHO,4,8*58\r\n";
-    char* msg_uut_ptr = msg_uut;
+    msg_str_uut = "$SHO,4,8*58\r\n";
+    char* msg_uut_ptr = msg_str_uut;
     memset(&event_uut, 0, sizeof(BB_Event));
 
     for (; *msg_uut_ptr != '\0'; msg_uut_ptr++)
@@ -92,15 +92,15 @@ int main(void)
         Message_Decode((unsigned char) *msg_uut_ptr, &event_uut);
     }
     
-    printf("Using msg \"%s\"\n", msg_uut);
+    printf("Using msg \"%s\"\n", msg_str_uut);
     printf("\tevent_uut.type:%u\n", event_uut.type);
     printf("\tevent_uut.param0:%u\n", event_uut.param0);
     printf("\tevent_uut.param1:%u\n", event_uut.param1);
     printf("\tevent_uut.param2:%u\n", event_uut.param2);
 
 
-    msg_uut = "$ACC,57203*5E\r\n";
-    msg_uut_ptr = msg_uut;
+    msg_str_uut = "$ACC,57203*5E\r\n";
+    msg_uut_ptr = msg_str_uut;
     memset(&event_uut, 0, sizeof(BB_Event));
 
     for (; *msg_uut_ptr != '\0'; msg_uut_ptr++)
@@ -108,7 +108,7 @@ int main(void)
         Message_Decode((unsigned char) *msg_uut_ptr, &event_uut);
     }
     
-    printf("Using msg \"%s\"\n", msg_uut);
+    printf("Using msg \"%s\"\n", msg_str_uut);
     printf("\tevent_uut.type:%u\n", event_uut.type);
     printf("\tevent_uut.param0:%u\n", event_uut.param0);
     printf("\tevent_uut.param1:%u\n", event_uut.param1);
@@ -118,6 +118,22 @@ int main(void)
 
 
     //********* Message_Encode *********
+    Message msg_uut;
+    char msg_encoded[MESSAGE_MAX_PAYLOAD_LEN];
+
+    memset(&msg_uut, 0, sizeof(msg_uut));
+    msg_uut.type = MESSAGE_ACC;
+    msg_uut.param0 = 57203;
+    Message_Encode(msg_encoded, msg_uut);
+    printf("Trying to encode ACC,57203\n\tResult:\"%s\"\n", msg_encoded);
+
+    memset(&msg_uut, 0, sizeof(msg_uut));
+    msg_uut.type = MESSAGE_RES;
+    msg_uut.param0 = 1;
+    msg_uut.param1 = 0;
+    msg_uut.param2 = 3;
+    Message_Encode(msg_encoded, msg_uut);
+    printf("Trying to encode ACC,57203\n\tResult:\"%s\"\n", msg_encoded);
 
     while (TRUE);
 
