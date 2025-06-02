@@ -58,6 +58,12 @@ Message AgentRun(BB_Event event)
         
         AgentInit();
     }
+
+    if (event.type == BB_EVENT_ERROR)
+    {
+        sprintf(endscreen_str, "Error detected.\nPlease reset.");
+        agent_state = AGENT_STATE_END_SCREEN;
+    }
     
     switch (agent_state)
     {
@@ -77,6 +83,10 @@ Message AgentRun(BB_Event event)
                 // Init fields
                 FieldInit(&my_field, &op_field);
                 FieldAIPlaceAllBoats(&my_field);
+
+                OLED_Clear(OLED_COLOR_BLACK);
+                OLED_DrawString("Waiting for\nopponent...");
+                OLED_Update();
 
                 agent_state = AGENT_STATE_CHALLENGING;
             }
