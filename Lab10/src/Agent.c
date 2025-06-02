@@ -51,6 +51,13 @@ void AgentInit(void)
 Message AgentRun(BB_Event event)
 {
     Message message_out;
+
+    if (event.type == BB_EVENT_RESET_BUTTON)
+    {
+        agent_state = AGENT_STATE_START;
+        
+        AgentInit();
+    }
     
     switch (agent_state)
     {
