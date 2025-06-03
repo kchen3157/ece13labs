@@ -26,8 +26,8 @@ INCLUDES := -I$(COMMON_DIR) -Iinclude
 # Source files.
 AGENT_SRCS := src/AgentTest.c src/Agent.c src/Field.c src/Negotiation.c $(COMMON_DIR)/BOARD.c
 FIELD_SRCS := src/FieldTest.c src/Field.c $(COMMON_DIR)/BOARD.c
-MESSAGE_SRCS := src/MessageTest.c src/Message.c
-NEGOTIATION_SRCS := src/NegotiationTest.c src/Negotiation.c
+MESSAGE_SRCS := src/MessageTest.c src/Message.c $(COMMON_DIR)/BOARD.c
+NEGOTIATION_SRCS := src/NegotiationTest.c src/Negotiation.c $(COMMON_DIR)/BOARD.c
 
 # Uncomment the default target of your dreams.
 SRCS := $(AGENT_SRCS) $(FIELD_SRCS) $(MESSAGE_SRCS) $(NEGOTIATION_SRCS)
