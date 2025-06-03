@@ -1,6 +1,7 @@
 // Negotiation.c
 
 /**
+ * author: Sai Akhil Madurakavi (smadurak)
  * Negotiation.c
  *
  * Implements functions for the coin-flip commitment protocol used in BattleBoats.
@@ -54,54 +55,4 @@ NegotiationOutcome NegotiateCoinFlip(NegotiationData A, NegotiationData B)
         x >>= 1;
     }
     return (parity == 1) ? HEADS : TAILS;
-}
-
-/**
- * NegotiateGenerateBGivenHash()
- *
- * EXTRA CREDIT: Choose B to bias coin flip, given commitment hash_a.
- * Count how many possible secrets produce even/odd parity. Pick B = 0 if
- * at least as many even-parity secrets; else pick B = 1.
- *
- * @param hash_a   The received commitment (#a).
- * @return         B value (0 or 1) that biases outcome.
- */
-NegotiationData NegotiateGenerateBGivenHash(NegotiationData hash_a)
-{
-    int countEven = 0, countOdd = 0;
-    for (uint32_t candidate = 0; candidate <= 0xFFFF; candidate++)
-    {
-        if (((candidate * candidate) % PUBLIC_KEY) == hash_a)
-        {
-            uint16_t temp = candidate;
-            uint8_t p = 0;
-            for (int i = 0; i < 16; i++)
-            {
-                p ^= (temp & 1);
-                temp >>= 1;
-            }
-            if (p == 0)
-            {
-                countEven++;
-            }
-            else
-            {
-                countOdd++;
-            }
-        }
-    }
-    return (countEven >= countOdd) ? 0 : 1;
-}
-
-/**
- * NegotiateGenerateAGivenB()
- *
- * EXTRA CREDIT: Choose A to bias coin flip, given B. (Left unimplemented.)
- *
- * @param B   The accepting agent's number.
- * @return    A value (unused in base credit).
- */
-NegotiationData NegotiateGenerateAGivenB(NegotiationData B)
-{
-    return 0;
 }
