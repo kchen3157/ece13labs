@@ -24,7 +24,8 @@ typedef enum
 {
     MSG_DECODE_STATE_WAITING_FOR_START,
     MSG_DECODE_STATE_REC_PAYLOAD,
-    MSG_DECODE_STATE_REC_CHECKSUM
+    MSG_DECODE_STATE_REC_CHECKSUM,
+    MSG_DECODE_STATE_END
 } MessageDecodeState;
 
 /**
@@ -91,33 +92,57 @@ int Message_ParseMessage(const char* payload, const char* checksum_string,
         return STANDARD_ERROR;
     }
 
-    if (!strncmp(payload, "CHA,", 4))
+    if (strchr(payload, ',') == strrchr(payload, ','))
     {
-        message_event->type = BB_EVENT_CHA_RECEIVED;
-        message_event->param0 = (uint16_t) strtoul(payload + 4, NULL, 10);
+        if (!strncmp(payload, "CHA,", 4))
+        {
+            message_event->type = BB_EVENT_CHA_RECEIVED;
+            message_event->param0 = (uint16_t) strtoul(payload + 4, NULL, 10);
+        }
+        else if (!strncmp(payload, "ACC,", 4))
+        {
+            message_event->type = BB_EVENT_ACC_RECEIVED;
+            message_event->param0 = (uint16_t) strtoul(payload + 4, NULL, 10);
+        }
+        else if (!strncmp(payload, "REV,", 4))
+        {
+            message_event->type = BB_EVENT_REV_RECEIVED;
+            message_event->param0 = (uint16_t) strtoul(payload + 4, NULL, 10);
+        }
+        else
+        {
+            message_event->type = BB_EVENT_ERROR;
+            return STANDARD_ERROR;
+        }
     }
-    else if (!strncmp(payload, "ACC,", 4))
+    else if (strchr(payload + 4, ',') == strrchr(payload, ','))
     {
-        message_event->type = BB_EVENT_ACC_RECEIVED;
-        message_event->param0 = (uint16_t) strtoul(payload + 4, NULL, 10);
+        if (!strncmp(payload, "SHO,", 4))
+        {
+            message_event->type = BB_EVENT_SHO_RECEIVED;
+            message_event->param0 = (uint16_t) strtoul(payload + 4, &payload_ptr, 10);
+            message_event->param1 = (uint16_t) strtoul(payload_ptr + 1, NULL, 10);
+        }
+        else
+        {
+            message_event->type = BB_EVENT_ERROR;
+            return STANDARD_ERROR;
+        }
     }
-    else if (!strncmp(payload, "REV,", 4))
+    else if (strchr(strchr(payload + 4, ',') + 1, ',') == strrchr(payload, '.'))
     {
-        message_event->type = BB_EVENT_REV_RECEIVED;
-        message_event->param0 = (uint16_t) strtoul(payload + 4, NULL, 10);
-    }
-    else if (!strncmp(payload, "SHO,", 4))
-    {
-        message_event->type = BB_EVENT_SHO_RECEIVED;
-        message_event->param0 = (uint16_t) strtoul(payload + 4, &payload_ptr, 10);
-        message_event->param1 = (uint16_t) strtoul(payload_ptr + 1, NULL, 10);
-    }
-    else if (!strncmp(payload, "RES,", 4))
-    {
-        message_event->type = BB_EVENT_RES_RECEIVED;
-        message_event->param0 = (uint16_t) strtoul(payload + 4, &payload_ptr, 10);
-        message_event->param1 = (uint16_t) strtoul(payload_ptr + 1, &payload_ptr, 10);
-        message_event->param2 = (uint16_t) strtoul(payload_ptr + 1, NULL, 10);
+        if (!strncmp(payload, "RES,", 4))
+        {
+            message_event->type = BB_EVENT_RES_RECEIVED;
+            message_event->param0 = (uint16_t) strtoul(payload + 4, &payload_ptr, 10);
+            message_event->param1 = (uint16_t) strtoul(payload_ptr + 1, &payload_ptr, 10);
+            message_event->param2 = (uint16_t) strtoul(payload_ptr + 1, NULL, 10);
+        }
+        else
+        {
+            message_event->type = BB_EVENT_ERROR;
+            return STANDARD_ERROR;
+        }
     }
     else
     {
@@ -221,8 +246,6 @@ int Message_Decode(unsigned char char_in, BB_Event * decoded_message_event)
     static char checksum[MESSAGE_CHECKSUM_LEN];
     static char *checksum_ptr = checksum;
 
-    static uint8_t cr_passed = FALSE;
-
     switch (msg_decode_state)
     {
         case MSG_DECODE_STATE_WAITING_FOR_START:
@@ -236,40 +259,38 @@ int Message_Decode(unsigned char char_in, BB_Event * decoded_message_event)
         }
         case MSG_DECODE_STATE_REC_PAYLOAD:
         {
-            if ((payload_ptr - payload) >= MESSAGE_MAX_PAYLOAD_LEN)
-            {
-                msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
-                return STANDARD_ERROR;
-            }
-
             if (char_in == '$' || char_in == '\n')
             {
                 msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
                 return STANDARD_ERROR;
             }
-            else if (char_in == '*')
+
+            if (char_in == '*')
             {
                 checksum_ptr = checksum;
                 *payload_ptr = '\0';
-                cr_passed = FALSE;
                 msg_decode_state = MSG_DECODE_STATE_REC_CHECKSUM;
             }
             else
             {
                 *payload_ptr = char_in;
                 payload_ptr++;
+                if ((payload_ptr - payload) >= MESSAGE_MAX_PAYLOAD_LEN)
+                {
+                    msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
+                    return STANDARD_ERROR;
+                }
             }
             break;
         }
         case MSG_DECODE_STATE_REC_CHECKSUM:
         {
-            if ((checksum_ptr - checksum) > MESSAGE_CHECKSUM_LEN)
+            if (char_in == '\r')
             {
-                msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
-                return STANDARD_ERROR;
+                msg_decode_state = MSG_DECODE_STATE_END;
+                return SUCCESS;
             }
-
-            if (cr_passed && char_in == '\n')
+            else if (char_in == '\n') // Allow both \r\n and \n line ends
             {
                 *checksum_ptr = '\0';
 
@@ -283,29 +304,39 @@ int Message_Decode(unsigned char char_in, BB_Event * decoded_message_event)
                     msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
                     return STANDARD_ERROR;
                 }
+
             }
-            else if (cr_passed)
+            else if ((char_in >= '0' && char_in <= '9') || (char_in >= 'A' && char_in <= 'F'))
+            {
+                *checksum_ptr = char_in;
+                checksum_ptr++;
+                if ((checksum_ptr - checksum) > MESSAGE_CHECKSUM_LEN)
+                {
+                    msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
+                    return STANDARD_ERROR;
+                }
+            }
+            break;
+        }
+        case MSG_DECODE_STATE_END:
+        {
+            if (char_in != '\n')
             {
                 msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
                 return STANDARD_ERROR;
             }
 
-            
-
-            if ((char_in >= '0' && char_in <= '9') || (char_in >= 'A' && char_in <= 'F'))
+            if (Message_ParseMessage(payload, checksum, decoded_message_event) == SUCCESS)
             {
-                *checksum_ptr = char_in;
-                checksum_ptr++;
-            }
-            else if (char_in == '\r')
-            {
-                cr_passed = TRUE;
+                msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
+                return SUCCESS;
             }
             else
             {
                 msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
                 return STANDARD_ERROR;
             }
+
             break;
         }
     }
