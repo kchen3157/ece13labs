@@ -72,8 +72,7 @@ Message AgentRun(BB_Event event)
             if (event.type == BB_EVENT_START_BUTTON) // You are Challenger
             {
                 // Generate A and #A hash
-                srand(time(NULL));
-                hash_A = (int16_t) (rand() & 0xFFFF);
+                hash_A = (uint16_t) (rand() & 0xFFFF);
                 hash_sA = NegotiationHash(hash_A);
                 
                 // Send out #A hash
@@ -89,11 +88,13 @@ Message AgentRun(BB_Event event)
                 OLED_Update();
 
                 agent_state = AGENT_STATE_CHALLENGING;
+
+                printf("%u", hash_A);
             }
             else if (event.type == BB_EVENT_CHA_RECEIVED) // Upon getting A
             {
                 // Generate B hash
-                hash_B = (int16_t) (rand() & 0xFFFF);
+                hash_B = (uint16_t) (rand() & 0xFFFF);
 
                 // Send out B hash
                 message_out.type = MESSAGE_ACC;
