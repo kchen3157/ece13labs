@@ -110,6 +110,37 @@ int main(void)
     if (guess_uut.result != RESULT_MISS) {FAIL("bp23a")}
 
     //******** FieldUpdateKnowledge ********
+    guess_uut.row = 0;
+    guess_uut.col = 0;
+    guess_uut.result = RESULT_HIT;
+    FieldUpdateKnowledge(&oppfield_uut, &guess_uut);
+
+    guess_uut.row = 1;
+    guess_uut.col = 0;
+    guess_uut.result = RESULT_MISS;
+    FieldUpdateKnowledge(&oppfield_uut, &guess_uut);
+
+    guess_uut.row = 2;
+    guess_uut.col = 0;
+    guess_uut.result = RESULT_HUGE_BOAT_SUNK;
+    FieldUpdateKnowledge(&oppfield_uut, &guess_uut);
+
+    guess_uut.row = 3;
+    guess_uut.col = 0;
+    guess_uut.result = RESULT_LARGE_BOAT_SUNK;
+    FieldUpdateKnowledge(&oppfield_uut, &guess_uut);
+
+    guess_uut.row = 4;
+    guess_uut.col = 0;
+    guess_uut.result = RESULT_MEDIUM_BOAT_SUNK;
+    FieldUpdateKnowledge(&oppfield_uut, &guess_uut);
+
+    guess_uut.row = 5;
+    guess_uut.col = 0;
+    guess_uut.result = RESULT_SMALL_BOAT_SUNK;
+    FieldUpdateKnowledge(&oppfield_uut, &guess_uut);
+
+    FieldPrint_UART(&ownfield_uut, &oppfield_uut);
 
     //******** FieldGetSquareStatus ********
     //******** FieldSetSquareStatus ********
@@ -117,7 +148,22 @@ int main(void)
     
     //******** FieldGetBoatStates ********
     //******** FieldAIPlaceAllBoats ********
+    FieldInit(&ownfield_uut, &oppfield_uut);
+    FieldAIPlaceAllBoats(&ownfield_uut);
+    FieldPrint_UART(&ownfield_uut, &oppfield_uut);
     //******** FieldAIDecideGuess ********
+    
+    guess_uut = FieldAIDecideGuess(&oppfield_uut);
+    guess_uut.result = RESULT_HIT;
+    FieldUpdateKnowledge(&oppfield_uut, &guess_uut);
+
+    FieldPrint_UART(&ownfield_uut, &oppfield_uut);
+
+    guess_uut = FieldAIDecideGuess(&oppfield_uut);
+    guess_uut.result = RESULT_HIT;
+    FieldUpdateKnowledge(&oppfield_uut, &guess_uut);
+
+    FieldPrint_UART(&ownfield_uut, &oppfield_uut);
 
     return 0;
 }
