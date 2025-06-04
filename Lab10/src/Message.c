@@ -7,6 +7,10 @@
  *
  * @date    29 May 2025
  */
+
+
+// TODO: Add Null Pointer Checks
+
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
@@ -19,6 +23,7 @@
 #include "BattleBoats.h"
 #include "Message.h"
 
+#define PAYLOAD_TEMPLATE_SHO_UNSIGNED "SHO,%u,%u" 
 
 typedef enum
 {
@@ -194,7 +199,7 @@ int Message_Encode(char *message_string, Message message_to_encode)
         }
         case MESSAGE_SHO:
         {
-            sprintf(payload, PAYLOAD_TEMPLATE_SHO,
+            sprintf(payload, PAYLOAD_TEMPLATE_SHO_UNSIGNED,
                 message_to_encode.param0, message_to_encode.param1);
             break;
         }
@@ -206,7 +211,7 @@ int Message_Encode(char *message_string, Message message_to_encode)
         }
         default:
         {
-            return -1;
+            return 0;
         }
     }
 
