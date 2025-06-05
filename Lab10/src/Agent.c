@@ -18,6 +18,8 @@
 #include "FieldOled.h"
 #include "Negotiation.h"
 
+// TODO: Challenging one where the challenger flips to their_turn, fails to start (opponent fails to start their turn)
+
 
 // * Global Vars
 static volatile AgentState agent_state;
@@ -136,6 +138,15 @@ Message AgentRun(BB_Event event)
                     agent_state = AGENT_STATE_DEFENDING;
                 }
 
+                if (playerTurn == FIELD_OLED_TURN_MINE)
+                {
+                    printf("My turn\n");
+                }
+                else if (playerTurn == FIELD_OLED_TURN_THEIRS)
+                {
+                    printf("Their turn\n");
+                }
+
                 FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn_count);
             }
             else
@@ -176,6 +187,15 @@ Message AgentRun(BB_Event event)
                     message_out.param1 = guess.col;
 
                     agent_state = AGENT_STATE_ATTACKING;
+                }
+
+                if (playerTurn == FIELD_OLED_TURN_MINE)
+                {
+                    printf("My turn\n");
+                }
+                else if (playerTurn == FIELD_OLED_TURN_THEIRS)
+                {
+                    printf("Their turn\n");
                 }
 
                 FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn_count);
@@ -224,11 +244,17 @@ Message AgentRun(BB_Event event)
 
                 // Draw screen
                 FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn_count);
+                printf("op lives: %u, %u, %u, %u\n", op_field.hugeBoatLives, op_field.largeBoatLives, op_field.mediumBoatLives, op_field.smallBoatLives);
                 
                 // Determine if endgame
                 if (FieldGetBoatStates(&op_field) == 0) // States = 0, all op boats sunk
                 {
+                    printf("Victory");
+                    // TODO: MOve this to the end screen state
                     sprintf(endscreen_str, "END: Victory.");
+                    OLED_Clear(OLED_COLOR_BLACK);
+                    OLED_DrawString(endscreen_str);
+                    OLED_Update();
                     agent_state = AGENT_STATE_END_SCREEN; // VICTORY
                 }
                 else
