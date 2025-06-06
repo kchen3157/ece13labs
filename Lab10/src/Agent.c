@@ -18,8 +18,7 @@
 #include "FieldOled.h"
 #include "Negotiation.h"
 
-// TODO: Challenging one where the challenger flips to their_turn, fails to start (opponent fails to start their turn)
-
+// TODO: Ensure Everything is random
 
 // * Global Vars
 static volatile AgentState agent_state;
@@ -38,6 +37,13 @@ static volatile NegotiationOutcome outcome;
 
 static char endscreen_str[100];
 
+void DrawEndScreen(void)
+{
+    OLED_Clear(OLED_COLOR_BLACK);
+    OLED_DrawString(endscreen_str);
+    OLED_Update();
+}
+
 void AgentInit(void)
 {
     // Set initial state and turn counter
@@ -52,12 +58,11 @@ void AgentInit(void)
 
 Message AgentRun(BB_Event event)
 {
-    Message message_out;
+    Message message_out = {.type = MESSAGE_NONE, .param0 = 0, .param1 = 0, .param2 = 0};
 
     if (event.type == BB_EVENT_RESET_BUTTON)
     {
         agent_state = AGENT_STATE_START;
-        
         AgentInit();
     }
 
@@ -108,10 +113,6 @@ Message AgentRun(BB_Event event)
 
                 agent_state = AGENT_STATE_ACCEPTING;
             }
-            else
-            {
-                message_out.type = MESSAGE_NONE;
-            }
             break;
         }
         case AGENT_STATE_CHALLENGING: 
@@ -149,10 +150,6 @@ Message AgentRun(BB_Event event)
 
                 FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn_count);
             }
-            else
-            {
-                message_out.type = MESSAGE_NONE;
-            }
             break;
         }
         case AGENT_STATE_ACCEPTING: // You are B
@@ -167,6 +164,7 @@ Message AgentRun(BB_Event event)
                 if (NegotiationVerify(hash_A, hash_sA))  // Verify A hash with commitment
                 {
                     sprintf(endscreen_str, "END: Cheating Detected.");
+                    DrawEndScreen();
                     agent_state = AGENT_STATE_END_SCREEN;
                 }
                 else if (outcome == HEADS) 
@@ -189,23 +187,7 @@ Message AgentRun(BB_Event event)
                     agent_state = AGENT_STATE_ATTACKING;
                 }
 
-                if (playerTurn == FIELD_OLED_TURN_MINE)
-                {
-                    printf("My turn\n");
-                }
-                else if (playerTurn == FIELD_OLED_TURN_THEIRS)
-                {
-                    printf("Their turn\n");
-                }
-
                 FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn_count);
-
-                // Don't send a message
-                message_out.type = MESSAGE_NONE;  
-            }
-            else
-            {
-                message_out.type = MESSAGE_NONE;
             }
             break;
         }
@@ -225,10 +207,6 @@ Message AgentRun(BB_Event event)
 
                 agent_state = AGENT_STATE_ATTACKING;
             }
-            else
-            {
-                message_out.type = MESSAGE_NONE;
-            }
             break;
         }
         case AGENT_STATE_ATTACKING:
@@ -244,30 +222,18 @@ Message AgentRun(BB_Event event)
 
                 // Draw screen
                 FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn_count);
-                printf("op lives: %u, %u, %u, %u\n", op_field.hugeBoatLives, op_field.largeBoatLives, op_field.mediumBoatLives, op_field.smallBoatLives);
                 
                 // Determine if endgame
                 if (FieldGetBoatStates(&op_field) == 0) // States = 0, all op boats sunk
                 {
-                    printf("Victory");
-                    // TODO: MOve this to the end screen state
                     sprintf(endscreen_str, "END: Victory.");
-                    OLED_Clear(OLED_COLOR_BLACK);
-                    OLED_DrawString(endscreen_str);
-                    OLED_Update();
+                    DrawEndScreen();
                     agent_state = AGENT_STATE_END_SCREEN; // VICTORY
                 }
                 else
                 {
                     agent_state = AGENT_STATE_DEFENDING;
-                }
-
-                // Don't send a message
-                message_out.type = MESSAGE_NONE;
-            }
-            else
-            {
-                message_out.type = MESSAGE_NONE;
+                }  
             }
             break;
         }
@@ -301,25 +267,15 @@ Message AgentRun(BB_Event event)
                     agent_state = AGENT_STATE_WAITING_TO_SEND;
                 }
             }
-            else
-            {
-                message_out.type = MESSAGE_NONE;
-            }
             break;
         }
         case AGENT_STATE_END_SCREEN:
         {
-            OLED_Clear(OLED_COLOR_BLACK);
-            OLED_DrawString(endscreen_str);
-            OLED_Update();
-
-            message_out.type = MESSAGE_NONE;
-
+            DrawEndScreen();
             break;
         }
         default:
         {
-            message_out.type = MESSAGE_NONE;
             break;
         }
     }
