@@ -253,9 +253,9 @@ int Message_Encode(char *message_string, Message message_to_encode)
 int Message_Decode(unsigned char char_in, BB_Event * decoded_message_event)
 {
     static MessageDecodeState msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
-    static char payload[MESSAGE_MAX_PAYLOAD_LEN];
+    static char payload[MESSAGE_MAX_PAYLOAD_LEN + 1];
     static char *payload_ptr = payload;
-    static char checksum[MESSAGE_CHECKSUM_LEN];
+    static char checksum[MESSAGE_CHECKSUM_LEN + 1];
     static char *checksum_ptr = checksum;
 
     switch (msg_decode_state)
@@ -299,6 +299,7 @@ int Message_Decode(unsigned char char_in, BB_Event * decoded_message_event)
         {
             if (char_in == '\r')
             {
+                *checksum_ptr = '\0';
                 msg_decode_state = MSG_DECODE_STATE_END;
                 return SUCCESS;
             }
