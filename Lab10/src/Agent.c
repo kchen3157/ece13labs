@@ -21,19 +21,19 @@
 // TODO: Ensure Everything is random
 
 // * Global Vars
-static volatile AgentState agent_state;
-static volatile FieldOledTurn playerTurn;
-static volatile uint8_t turn_count;
+static AgentState agent_state;
+static FieldOledTurn playerTurn;
+static uint8_t turn_count;
 static Field my_field;
 static Field op_field;
 
-static volatile GuessData guess;
+static GuessData guess;
 
-static volatile NegotiationData hash_A;    // A
-static volatile NegotiationData hash_B;    // B
-static volatile NegotiationData hash_sA;   // #A
+static NegotiationData hash_A;    // A
+static NegotiationData hash_B;    // B
+static NegotiationData hash_sA;   // #A
 
-static volatile NegotiationOutcome outcome;
+static NegotiationOutcome outcome;
 
 static char dialog_buffer[100];
 
@@ -97,7 +97,6 @@ Message AgentRun(BB_Event event)
 
                 agent_state = AGENT_STATE_CHALLENGING;
 
-                printf("%u", hash_A);
             }
             else if (event.type == BB_EVENT_CHA_RECEIVED) // Upon getting A
             {
@@ -140,15 +139,6 @@ Message AgentRun(BB_Event event)
                     agent_state = AGENT_STATE_DEFENDING;
                 }
 
-                if (playerTurn == FIELD_OLED_TURN_MINE)
-                {
-                    printf("My turn\n");
-                }
-                else if (playerTurn == FIELD_OLED_TURN_THEIRS)
-                {
-                    printf("Their turn\n");
-                }
-
                 FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn_count);
             }
             break;
@@ -162,7 +152,7 @@ Message AgentRun(BB_Event event)
 
                 // Determine heads/tails
                 outcome = NegotiateCoinFlip(hash_A, hash_B);
-                if (NegotiationVerify(hash_A, hash_sA))  // Verify A hash with commitment
+                if (!NegotiationVerify(hash_A, hash_sA))  // Verify A hash with commitment
                 {
                     sprintf(dialog_buffer, "END: Cheating Detected.");
                     DrawDialog();
