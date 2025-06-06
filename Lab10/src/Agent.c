@@ -10,7 +10,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
 
 #include "Agent.h"
 #include "Oled.h"
@@ -18,7 +17,8 @@
 #include "FieldOled.h"
 #include "Negotiation.h"
 
-// TODO: Ensure Everything is random
+// * Macros
+#define DIALOG_BUFFER_SIZE      100
 
 // * Global Vars
 static AgentState agent_state;
@@ -33,7 +33,7 @@ static NegotiationData hash_sA;   // #A
 
 static NegotiationOutcome outcome;
 
-static char dialog_buffer[100];
+static char dialog_buffer[DIALOG_BUFFER_SIZE];
 
 void DrawDialog(void)
 {
