@@ -1,9 +1,7 @@
 /*
  * AgentTest.c
  *
- * Minimalistic test harness for the updated agent.c
- * It includes stubs for all external dependencies such as negotiation, field, oled
- * It verifies key fsm transitions and returned message types and parameters
+ *Author: Sai Akhil Madurakavi
  */
 
 #include <stdio.h>
