@@ -221,6 +221,7 @@ int Message_Decode(unsigned char char_in, BB_Event * decoded_message_event)
     static char checksum[MESSAGE_CHECKSUM_LEN];
     static char *checksum_ptr = checksum;
 
+    static uint8_t cr_passed = FALSE;
 
     switch (msg_decode_state)
     {
@@ -250,6 +251,7 @@ int Message_Decode(unsigned char char_in, BB_Event * decoded_message_event)
             {
                 checksum_ptr = checksum;
                 *payload_ptr = '\0';
+                cr_passed = FALSE;
                 msg_decode_state = MSG_DECODE_STATE_REC_CHECKSUM;
             }
             else
@@ -261,18 +263,13 @@ int Message_Decode(unsigned char char_in, BB_Event * decoded_message_event)
         }
         case MSG_DECODE_STATE_REC_CHECKSUM:
         {
-            if ((checksum_ptr - checksum) >= MESSAGE_CHECKSUM_LEN)
+            if ((checksum_ptr - checksum) > MESSAGE_CHECKSUM_LEN)
             {
                 msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
                 return STANDARD_ERROR;
             }
 
-            if ((char_in >= '0' && char_in <= '9') || (char_in >= 'A' && char_in <= 'F'))
-            {
-                *checksum_ptr = char_in;
-                checksum_ptr++;
-            }
-            else if (char_in == '\n')
+            if (cr_passed && char_in == '\n')
             {
                 *checksum_ptr = '\0';
 
@@ -286,6 +283,23 @@ int Message_Decode(unsigned char char_in, BB_Event * decoded_message_event)
                     msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
                     return STANDARD_ERROR;
                 }
+            }
+            else if (cr_passed)
+            {
+                msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
+                return STANDARD_ERROR;
+            }
+
+            
+
+            if ((char_in >= '0' && char_in <= '9') || (char_in >= 'A' && char_in <= 'F'))
+            {
+                *checksum_ptr = char_in;
+                checksum_ptr++;
+            }
+            else if (char_in == '\r')
+            {
+                cr_passed = TRUE;
             }
             else
             {
