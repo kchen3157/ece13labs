@@ -27,8 +27,6 @@ static uint8_t turn_count;
 static Field my_field;
 static Field op_field;
 
-static GuessData guess;
-
 static NegotiationData hash_A;    // A
 static NegotiationData hash_B;    // B
 static NegotiationData hash_sA;   // #A
@@ -51,7 +49,8 @@ void AgentInit(void)
     turn_count = 0;
     playerTurn = FIELD_OLED_TURN_NONE;
 
-    sprintf(dialog_buffer, "BATTLEBOATS:\n\nPress BTN4 to begin,\nor wait for PLAYER2.");
+    snprintf(dialog_buffer, sizeof (dialog_buffer), 
+        "BATTLEBOATS:\n\nPress BTN4 to begin,\nor wait for PLAYER2.");
     DrawDialog();
 }
 
@@ -68,7 +67,7 @@ Message AgentRun(BB_Event event)
 
     if (event.type == BB_EVENT_ERROR)
     {
-        sprintf(dialog_buffer, "Error detected.\nPlease reset.");
+        snprintf(dialog_buffer, sizeof (dialog_buffer), "Error detected.\nPlease reset.");
         DrawDialog();
         agent_state = AGENT_STATE_END_SCREEN;
         return message_out;
@@ -92,7 +91,7 @@ Message AgentRun(BB_Event event)
                 FieldInit(&my_field, &op_field);
                 FieldAIPlaceAllBoats(&my_field);
 
-                sprintf(dialog_buffer, "Waiting for\nopponent...");
+                snprintf(dialog_buffer, sizeof (dialog_buffer), "Waiting for\nopponent...");
                 DrawDialog();
 
                 agent_state = AGENT_STATE_CHALLENGING;
@@ -154,7 +153,7 @@ Message AgentRun(BB_Event event)
                 outcome = NegotiateCoinFlip(hash_A, hash_B);
                 if (!NegotiationVerify(hash_A, hash_sA))  // Verify A hash with commitment
                 {
-                    sprintf(dialog_buffer, "END: Cheating Detected.");
+                    snprintf(dialog_buffer, sizeof (dialog_buffer), "END: Cheating Detected.");
                     DrawDialog();
                     agent_state = AGENT_STATE_END_SCREEN;
                 }
@@ -189,7 +188,7 @@ Message AgentRun(BB_Event event)
                 turn_count++;
 
                 // Decide guess shot
-                guess = FieldAIDecideGuess(&op_field);
+                GuessData guess = FieldAIDecideGuess(&op_field);
 
                 // Send shot
                 message_out.type = MESSAGE_SHO;
@@ -217,7 +216,7 @@ Message AgentRun(BB_Event event)
                 // Determine if endgame
                 if (FieldGetBoatStates(&op_field) == 0) // States = 0, all op boats sunk
                 {
-                    sprintf(dialog_buffer, "END: Victory.");
+                    snprintf(dialog_buffer, sizeof (dialog_buffer), "END: Victory.");
                     DrawDialog();
                     agent_state = AGENT_STATE_END_SCREEN; // VICTORY
                 }
@@ -250,7 +249,7 @@ Message AgentRun(BB_Event event)
                 // Determine if endgame
                 if (FieldGetBoatStates(&my_field) == 0) // States = 0, all of my boats sunk
                 {
-                    sprintf(dialog_buffer, "END: Defeat.");
+                    snprintf(dialog_buffer, sizeof (dialog_buffer), "END: Defeat.");
                     DrawDialog();
                     agent_state = AGENT_STATE_END_SCREEN; // DEFEAT
                 }
@@ -269,7 +268,7 @@ Message AgentRun(BB_Event event)
         }
         default:
         {
-            sprintf(dialog_buffer, "FATAL ERROR:\nInvalid State");
+            snprintf(dialog_buffer, sizeof (dialog_buffer), "FATAL ERROR:\nInvalid State");
             DrawDialog();
             break;
         }
