@@ -35,12 +35,12 @@ static volatile NegotiationData hash_sA;   // #A
 
 static volatile NegotiationOutcome outcome;
 
-static char endscreen_str[100];
+static char dialog_buffer[100];
 
-void DrawEndScreen(void)
+void DrawDialog(void)
 {
     OLED_Clear(OLED_COLOR_BLACK);
-    OLED_DrawString(endscreen_str);
+    OLED_DrawString(dialog_buffer);
     OLED_Update();
 }
 
@@ -51,9 +51,8 @@ void AgentInit(void)
     turn_count = 0;
     playerTurn = FIELD_OLED_TURN_NONE;
 
-    OLED_Clear(OLED_COLOR_BLACK);
-    OLED_DrawString("BATTLEBOATS:\n\nPress BTN4 to begin,\nor wait for PLAYER2.");
-    OLED_Update();
+    sprintf(dialog_buffer, "BATTLEBOATS:\n\nPress BTN4 to begin,\nor wait for PLAYER2.");
+    DrawDialog();
 }
 
 Message AgentRun(BB_Event event)
@@ -64,12 +63,15 @@ Message AgentRun(BB_Event event)
     {
         agent_state = AGENT_STATE_START;
         AgentInit();
+        return message_out;
     }
 
     if (event.type == BB_EVENT_ERROR)
     {
-        sprintf(endscreen_str, "Error detected.\nPlease reset.");
+        sprintf(dialog_buffer, "Error detected.\nPlease reset.");
+        DrawDialog();
         agent_state = AGENT_STATE_END_SCREEN;
+        return message_out;
     }
     
     switch (agent_state)
@@ -90,9 +92,8 @@ Message AgentRun(BB_Event event)
                 FieldInit(&my_field, &op_field);
                 FieldAIPlaceAllBoats(&my_field);
 
-                OLED_Clear(OLED_COLOR_BLACK);
-                OLED_DrawString("Waiting for\nopponent...");
-                OLED_Update();
+                sprintf(dialog_buffer, "Waiting for\nopponent...");
+                DrawDialog();
 
                 agent_state = AGENT_STATE_CHALLENGING;
 
@@ -163,8 +164,8 @@ Message AgentRun(BB_Event event)
                 outcome = NegotiateCoinFlip(hash_A, hash_B);
                 if (NegotiationVerify(hash_A, hash_sA))  // Verify A hash with commitment
                 {
-                    sprintf(endscreen_str, "END: Cheating Detected.");
-                    DrawEndScreen();
+                    sprintf(dialog_buffer, "END: Cheating Detected.");
+                    DrawDialog();
                     agent_state = AGENT_STATE_END_SCREEN;
                 }
                 else if (outcome == HEADS) 
@@ -226,8 +227,8 @@ Message AgentRun(BB_Event event)
                 // Determine if endgame
                 if (FieldGetBoatStates(&op_field) == 0) // States = 0, all op boats sunk
                 {
-                    sprintf(endscreen_str, "END: Victory.");
-                    DrawEndScreen();
+                    sprintf(dialog_buffer, "END: Victory.");
+                    DrawDialog();
                     agent_state = AGENT_STATE_END_SCREEN; // VICTORY
                 }
                 else
@@ -259,7 +260,8 @@ Message AgentRun(BB_Event event)
                 // Determine if endgame
                 if (FieldGetBoatStates(&my_field) == 0) // States = 0, all of my boats sunk
                 {
-                    sprintf(endscreen_str, "END: Defeat.");
+                    sprintf(dialog_buffer, "END: Defeat.");
+                    DrawDialog();
                     agent_state = AGENT_STATE_END_SCREEN; // DEFEAT
                 }
                 else
@@ -271,11 +273,14 @@ Message AgentRun(BB_Event event)
         }
         case AGENT_STATE_END_SCREEN:
         {
-            DrawEndScreen();
+            // If entered, stay here.
+            DrawDialog();
             break;
         }
         default:
         {
+            sprintf(dialog_buffer, "FATAL ERROR:\nInvalid State");
+            DrawDialog();
             break;
         }
     }
