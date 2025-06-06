@@ -19,6 +19,9 @@ int main(void)
     GuessData guess_uut;
     
     memset(&guess_uut, 0, sizeof(GuessData));
+
+    printf("Additional automated tests are done by the script, which will\n"
+        "automatically halt and give the testpoint that failed.\n\n");
     
 
     //******** FieldInit/FieldPrint_UART ********
@@ -154,6 +157,9 @@ int main(void)
 
     //******** FieldUpdateKnowledge ********
     printf("FieldUpdateKnowledge Test\n");
+    printf("Verify below Opp field has the first column filled with X, except 0,1 with M\n");
+
+    // Do each attack result
 
     guess_uut.row = 0;
     guess_uut.col = 0;
@@ -197,19 +203,95 @@ int main(void)
     if (oppfield_uut.smallBoatLives != 0) {FAIL("bp31b")}
 
     FieldPrint_UART(&ownfield_uut, &oppfield_uut);
+    printf("\n\n");
 
     //******** FieldGetSquareStatus ********
-    //******** FieldSetSquareStatus ********
+    printf("FieldGetSquareStatus Test\n");
+    printf("No manual testing action needed.\n");
+
+    // Test a few squares from both fields
+
+    if (FieldGetSquareStatus(&ownfield_uut, 0, 0) != FIELD_SQUARE_HIT) {FAIL("bp32")}
+    if (FieldGetSquareStatus(&ownfield_uut, 1, 6) != FIELD_SQUARE_EMPTY) {FAIL("bp33")}
+    if (FieldGetSquareStatus(&ownfield_uut, 0, 1) != FIELD_SQUARE_HUGE_BOAT) {FAIL("bp32")}
+    if (FieldGetSquareStatus(&ownfield_uut, 2, 2) != FIELD_SQUARE_MEDIUM_BOAT) {FAIL("bp33")}
+    if (FieldGetSquareStatus(&ownfield_uut, 3, 1) != FIELD_SQUARE_HIT) {FAIL("bp34")}
+    if (FieldGetSquareStatus(&ownfield_uut, 1, 8) != FIELD_SQUARE_LARGE_BOAT) {FAIL("bp35")}
+    if (FieldGetSquareStatus(&ownfield_uut, 49, -8) != FIELD_SQUARE_INVALID) {FAIL("bp36")}
+    if (FieldGetSquareStatus(&ownfield_uut, 1, 7) != FIELD_SQUARE_MISS) {FAIL("bp37")}
+
+    if (FieldGetSquareStatus(&oppfield_uut, 0, 0) != FIELD_SQUARE_HIT) {FAIL("bp38")}
+    if (FieldGetSquareStatus(&oppfield_uut, 1, 0) != FIELD_SQUARE_MISS) {FAIL("bp39")}
+    if (FieldGetSquareStatus(&oppfield_uut, 3, 0) != FIELD_SQUARE_HIT) {FAIL("bp40")}
+    if (FieldGetSquareStatus(&oppfield_uut, 3, 6) != FIELD_SQUARE_UNKNOWN) {FAIL("bp41")}
+    if (FieldGetSquareStatus(&oppfield_uut, -1, 20) != FIELD_SQUARE_INVALID) {FAIL("bp42")}
     
+    printf("\n\n");
+
+    //******** FieldSetSquareStatus ********
+    printf("FieldSetSquareStatus Test\n");
+    printf("Verify two fields are unchanged from the last print\n");
+
+    // Flip own originally hit square with miss
+    if (FieldSetSquareStatus(&ownfield_uut, 0, 0, FIELD_SQUARE_MISS) != FIELD_SQUARE_HIT) {FAIL("bp43a")}
+    if (FieldGetSquareStatus(&ownfield_uut, 0, 0) != FIELD_SQUARE_MISS) {FAIL("bp43b")}
+    if (FieldSetSquareStatus(&ownfield_uut, 0, 0, FIELD_SQUARE_HIT) != FIELD_SQUARE_MISS) {FAIL("bp43c")}
+    if (FieldGetSquareStatus(&ownfield_uut, 0, 0) != FIELD_SQUARE_HIT) {FAIL("bp43d")}
+
+    // Flip own originally empty square with miss
+    if (FieldSetSquareStatus(&ownfield_uut, 1, 6, FIELD_SQUARE_MISS) != FIELD_SQUARE_EMPTY) {FAIL("bp44a")}
+    if (FieldGetSquareStatus(&ownfield_uut, 1, 6) != FIELD_SQUARE_MISS) {FAIL("bp44b")}
+    if (FieldSetSquareStatus(&ownfield_uut, 1, 6, FIELD_SQUARE_EMPTY) != FIELD_SQUARE_MISS) {FAIL("bp44c")}
+    if (FieldGetSquareStatus(&ownfield_uut, 1, 6) != FIELD_SQUARE_EMPTY) {FAIL("bp44d")}
+
+    // Flip own originally occupied square with hit
+    if (FieldSetSquareStatus(&ownfield_uut, 1, 8, FIELD_SQUARE_HIT) != FIELD_SQUARE_LARGE_BOAT) {FAIL("bp45a")}
+    if (FieldGetSquareStatus(&ownfield_uut, 1, 8) != FIELD_SQUARE_HIT) {FAIL("bp45b")}
+    if (FieldSetSquareStatus(&ownfield_uut, 1, 8, FIELD_SQUARE_LARGE_BOAT) != FIELD_SQUARE_HIT) {FAIL("bp45c")}
+    if (FieldGetSquareStatus(&ownfield_uut, 1, 8) != FIELD_SQUARE_LARGE_BOAT) {FAIL("bp45d")}   
+    
+    // Flip opponent's originally unknown square with hit
+    if (FieldSetSquareStatus(&oppfield_uut, 0, 1, FIELD_SQUARE_HIT) != FIELD_SQUARE_UNKNOWN) {FAIL("bp46a")}
+    if (FieldGetSquareStatus(&oppfield_uut, 0, 1) != FIELD_SQUARE_HIT) {FAIL("bp46b")}
+    if (FieldSetSquareStatus(&oppfield_uut, 0, 1, FIELD_SQUARE_UNKNOWN) != FIELD_SQUARE_HIT) {FAIL("bp46c")}
+    if (FieldGetSquareStatus(&oppfield_uut, 0, 1) != FIELD_SQUARE_UNKNOWN) {FAIL("bp46d")}
+
+    // Flip opponent's originally hit square with miss
+    if (FieldSetSquareStatus(&oppfield_uut, 0, 0, FIELD_SQUARE_MISS) != FIELD_SQUARE_HIT) {FAIL("bp47a")}
+    if (FieldGetSquareStatus(&oppfield_uut, 0, 0) != FIELD_SQUARE_MISS) {FAIL("bp47b")}
+    if (FieldSetSquareStatus(&oppfield_uut, 0, 0, FIELD_SQUARE_HIT) != FIELD_SQUARE_MISS) {FAIL("bp47c")}
+    if (FieldGetSquareStatus(&oppfield_uut, 0, 0) != FIELD_SQUARE_HIT) {FAIL("bp47d")}
+
+    // Attempt to set invalid square
+    if (FieldSetSquareStatus(&ownfield_uut, -6, 243, FIELD_SQUARE_HIT) != FIELD_SQUARE_INVALID) {FAIL("bp48")}
+
+    FieldPrint_UART(&ownfield_uut, &oppfield_uut);
+    
+    printf("\n\n");
     
     //******** FieldGetBoatStates ********
+    printf("FieldGetBoatStates Test\n");
+    printf("No manual testing action needed.\n");
+
+    if (FieldGetBoatStates(&ownfield_uut) != 0b1110) {FAIL("bp49")}
+    if (FieldGetBoatStates(&oppfield_uut) != 0) {FAIL("bp50")}
+
+    printf("\n\n");
+
     //******** FieldAIPlaceAllBoats ********
+    printf("FieldAIPlaceAllBoats Test\n");
+    printf("Verify all boats placed properly\n");
 
     FieldInit(&ownfield_uut, &oppfield_uut);
     FieldAIPlaceAllBoats(&ownfield_uut);
     FieldPrint_UART(&ownfield_uut, &oppfield_uut);
 
+    printf("\n\n");
+    
+
     //******** FieldAIDecideGuess ********
+    printf("FieldAIPlaceAllBoats Test\n");
+    printf("Verify there are 8 proper shots in opp\n");
 
     guess_uut = FieldAIDecideGuess(&oppfield_uut);
     guess_uut.result = RESULT_HIT;
@@ -244,6 +326,10 @@ int main(void)
     FieldUpdateKnowledge(&oppfield_uut, &guess_uut);
 
     FieldPrint_UART(&ownfield_uut, &oppfield_uut);
+
+    printf("\n\n");
+
+    printf("Test suite complete, all automated passed.\n");
 
     return 0;
 }
