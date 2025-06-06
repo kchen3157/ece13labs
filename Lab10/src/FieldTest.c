@@ -205,7 +205,6 @@ int main(void)
     //******** FieldGetBoatStates ********
     //******** FieldAIPlaceAllBoats ********
 
-    printf("FieldAIPlaceAllBoats Run %u", i + 1);
     FieldInit(&ownfield_uut, &oppfield_uut);
     FieldAIPlaceAllBoats(&ownfield_uut);
     FieldPrint_UART(&ownfield_uut, &oppfield_uut);
