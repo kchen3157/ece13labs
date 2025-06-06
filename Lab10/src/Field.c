@@ -21,14 +21,6 @@
 #define STANDARD_ERROR 1
 #endif
 
-/**
- * FieldPrint_UART()
- *
- * Print both own and opponent fields side by side over UART for debugging.
- *
- * @param ownField   Pointer to this agent's field.
- * @param oppField   Pointer to the opponent's field.
- */
 void FieldPrint_UART(Field *ownField, Field *oppField)
 {
     if (!ownField || !oppField)
@@ -120,15 +112,6 @@ void FieldPrint_UART(Field *ownField, Field *oppField)
     }
 }
 
-/**
- * FieldInit()
- *
- * Initialize ownField to all EMPTY squares and zero boat lives.
- * Initialize oppField to all UNKNOWN squares and full boat lives.
- *
- * @param ownField   Pointer to this agent's field.
- * @param oppField   Pointer to the opponent's field.
- */
 void FieldInit(Field *ownField, Field *oppField)
 {
     if (ownField)
@@ -161,16 +144,6 @@ void FieldInit(Field *ownField, Field *oppField)
     }
 }
 
-/**
- * FieldGetSquareStatus()
- *
- * Return the status of the square at (row, col) in field f.
- *
- * @param f    Pointer to the field.
- * @param row  Row index (0..FIELD_ROWS-1).
- * @param col  Column index (0..FIELD_COLS-1).
- * @return     The SquareStatus, or FIELD_SQUARE_INVALID if out of range.
- */
 SquareStatus FieldGetSquareStatus(const Field *f, uint8_t row, uint8_t col)
 {
     if (!f || row >= FIELD_ROWS || col >= FIELD_COLS)
@@ -180,17 +153,6 @@ SquareStatus FieldGetSquareStatus(const Field *f, uint8_t row, uint8_t col)
     return (SquareStatus)f->grid[row][col];
 }
 
-/**
- * FieldSetSquareStatus()
- *
- * Set the square at (row, col) in field f to status p.
- *
- * @param f    Pointer to the field.
- * @param row  Row index.
- * @param col  Column index.
- * @param p    New SquareStatus.
- * @return     The old SquareStatus, or FIELD_SQUARE_INVALID if out of range.
- */
 SquareStatus FieldSetSquareStatus(
     Field *f,
     uint8_t row,
@@ -206,18 +168,6 @@ SquareStatus FieldSetSquareStatus(
     return old;
 }
 
-/**
- * FieldAddBoat()
- *
- * Place a boat of type boatType at (row, col) facing dir if space is clear.
- *
- * @param ownField   Pointer to this agent's field.
- * @param row        Starting row.
- * @param col        Starting column.
- * @param dir        Direction (FIELD_DIR_SOUTH or FIELD_DIR_EAST).
- * @param boatType   One of FIELD_BOAT_TYPE_SMALL..FIELD_BOAT_TYPE_HUGE.
- * @return           SUCCESS if placed, STANDARD_ERROR otherwise.
- */
 uint8_t FieldAddBoat(
     Field *ownField,
     uint8_t row,
@@ -312,16 +262,6 @@ uint8_t FieldAddBoat(
     return SUCCESS;
 }
 
-/**
- * FieldRegisterEnemyAttack()
- *
- * Register that the opponent attacked ownField at (row, col). Update boat
- * lives and grid. Fill opp_guess->result with the appropriate ShotResult.
- *
- * @param ownField   Pointer to this agent's field.
- * @param opp_guess  Coordinates of opponent's guess; result is updated.
- * @return           The SquareStatus that was at (row, col) before attack.
- */
 SquareStatus FieldRegisterEnemyAttack(Field *ownField, GuessData *opp_guess)
 {
     if (!ownField || !opp_guess)
@@ -425,17 +365,6 @@ SquareStatus FieldRegisterEnemyAttack(Field *ownField, GuessData *opp_guess)
     return old;
 }
 
-/**
- * FieldUpdateKnowledge()
- *
- * Update the opponent's field after this agent's guess. If result is MISS,
- * mark the square as MISS; otherwise mark as HIT. If a boat was sunk, set
- * its lives to zero.
- *
- * @param oppField   Pointer to opponent's field.
- * @param own_guess  Coordinates and result of this agent's guess.
- * @return           The SquareStatus that was at (row, col) before update.
- */
 SquareStatus FieldUpdateKnowledge(Field *oppField, const GuessData *own_guess)
 {
     if (!oppField || !own_guess)
@@ -483,15 +412,6 @@ SquareStatus FieldUpdateKnowledge(Field *oppField, const GuessData *own_guess)
     return old;
 }
 
-/**
- * FieldGetBoatStates()
- *
- * Return a 4-bit mask of which boats are still alive in field f.
- * Bit 0 = small, bit 1 = medium, bit 2 = large, bit 3 = huge.
- *
- * @param f   Pointer to the field.
- * @return    4-bit BoatStatusFlag mask.
- */
 uint8_t FieldGetBoatStates(const Field *f)
 {
     if (!f)
@@ -519,15 +439,6 @@ uint8_t FieldGetBoatStates(const Field *f)
     return state;
 }
 
-/**
- * FieldAIPlaceAllBoats()
- *
- * Randomly place one of each boat (small, medium, large, huge) onto ownField.
- * Keep trying random positions until all boats are placed.
- *
- * @param ownField   Pointer to this agent's field.
- * @return           SUCCESS if all boats placed, STANDARD_ERROR otherwise.
- */
 uint8_t FieldAIPlaceAllBoats(Field *ownField)
 {
     if (!ownField)
@@ -591,14 +502,6 @@ uint8_t FieldAIPlaceAllBoats(Field *ownField)
     return SUCCESS;
 }
 
-/**
- * FieldAIDecideGuess()
- *
- * Choose a random square on oppField that is still UNKNOWN.
- *
- * @param oppField   Pointer to opponent's field.
- * @return           GuessData with row,col set to chosen square.
- */
 GuessData FieldAIDecideGuess(const Field *oppField)
 {
     GuessData g = {0, 0, RESULT_MISS};
