@@ -86,6 +86,8 @@ int Message_ParseMessage(const char* payload, const char* checksum_string,
 
     if (strlen(checksum_string) != MESSAGE_CHECKSUM_LEN)
     {
+        printf("bp1, %u\n", strlen(checksum_string));
+        printf("checksum: %s\n", checksum_string);
         message_event->type = BB_EVENT_ERROR;
         return STANDARD_ERROR;
     }
@@ -93,6 +95,7 @@ int Message_ParseMessage(const char* payload, const char* checksum_string,
     uint8_t checksum = (uint8_t) strtoul(checksum_string, (char**) NULL, 16);
     if (Message_CalculateChecksum(payload) != checksum)
     {
+        printf("bp2\n");
         message_event->type = BB_EVENT_ERROR;
         return STANDARD_ERROR;
     }
@@ -116,6 +119,7 @@ int Message_ParseMessage(const char* payload, const char* checksum_string,
         }
         else
         {
+            printf("bp3\n");
             message_event->type = BB_EVENT_ERROR;
             return STANDARD_ERROR;
         }
@@ -130,6 +134,7 @@ int Message_ParseMessage(const char* payload, const char* checksum_string,
         }
         else
         {
+            printf("bp4\n");
             message_event->type = BB_EVENT_ERROR;
             return STANDARD_ERROR;
         }
@@ -145,12 +150,14 @@ int Message_ParseMessage(const char* payload, const char* checksum_string,
         }
         else
         {
+            printf("bp5\n");
             message_event->type = BB_EVENT_ERROR;
             return STANDARD_ERROR;
         }
     }
     else
     {
+        printf("bp6\n");
         message_event->type = BB_EVENT_ERROR;
         return STANDARD_ERROR;
     }
