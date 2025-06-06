@@ -129,7 +129,7 @@ int Message_ParseMessage(const char* payload, const char* checksum_string,
             return STANDARD_ERROR;
         }
     }
-    else if (strchr(strchr(payload + 4, ',') + 1, ',') == strrchr(payload, '.'))
+    else if (strchr(strchr(payload + 4, ',') + 1, ',') == strrchr(payload, ','))
     {
         if (!strncmp(payload, "RES,", 4))
         {
