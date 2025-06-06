@@ -1,3 +1,14 @@
+/**
+ * @file    FieldTest.c
+ * 
+ * Testbench for Field module
+ *
+ * @author  Kyle Chen
+ *
+ * @date    6 June 2025
+ */
+
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

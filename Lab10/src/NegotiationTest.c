@@ -1,3 +1,13 @@
+/**
+ * @file    NegotiationTest.c
+ * 
+ * Testbench for Negotiation module
+ *
+ * @author  Kyle Chen
+ *
+ * @date    6 June 2025
+ */
+
 #include <stdio.h>
 #include "Negotiation.h"
 
@@ -26,7 +36,11 @@ int main(void)
 
     //******** NegotiationCoinFlip ********
     printf("Testing NegotiateCoinFlip(0b00001011, 0b01100000)...\n");
+    printf("\tExpected: 0 (HEADS)\n");
     printf("\tGot: %u\n", NegotiateCoinFlip((NegotiationData) 0b00001011, (NegotiationData) 0b01100000));
 
+    printf("Testing NegotiateCoinFlip(0b10000000, 0b00000001)...\n");
+    printf("\tExpected: 1 (TAILS)\n");
+    printf("\tGot:%u\n", NegotiateCoinFlip((NegotiationData) 0b10000000, (NegotiationData) 0b00000001));
     return 0;
 }
