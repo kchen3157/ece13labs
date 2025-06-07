@@ -37,9 +37,11 @@ static char dialog_buffer[DIALOG_BUFFER_SIZE];
 
 void DrawDialog(void)
 {
+#ifdef STM32F4
     OLED_Clear(OLED_COLOR_BLACK);
     OLED_DrawString(dialog_buffer);
     OLED_Update();
+#endif
 }
 
 void AgentInit(void)
@@ -137,8 +139,9 @@ Message AgentRun(BB_Event event)
                     playerTurn = FIELD_OLED_TURN_THEIRS;
                     agent_state = AGENT_STATE_DEFENDING;
                 }
-
+#ifdef STM32F4
                 FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn_count);
+#endif
             }
             break;
         }
@@ -176,8 +179,9 @@ Message AgentRun(BB_Event event)
 
                     agent_state = AGENT_STATE_ATTACKING;
                 }
-
+#ifdef STM32F4
                 FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn_count);
+#endif
             }
             break;
         }
@@ -211,7 +215,9 @@ Message AgentRun(BB_Event event)
                 FieldUpdateKnowledge(&op_field, &attack_result);
 
                 // Draw screen
+#ifdef STM32F4
                 FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn_count);
+#endif
                 
                 // Determine if endgame
                 if (FieldGetBoatStates(&op_field) == 0) // States = 0, all op boats sunk
@@ -244,7 +250,9 @@ Message AgentRun(BB_Event event)
                 message_out.param2 = attack.result;
 
                 // Draw screen
+#ifdef STM32F4
                 FieldOledDrawScreen(&my_field, &op_field, playerTurn, turn_count);
+#endif
 
                 // Determine if endgame
                 if (FieldGetBoatStates(&my_field) == 0) // States = 0, all of my boats sunk
