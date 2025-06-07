@@ -80,7 +80,7 @@ Message AgentRun(BB_Event event)
         case AGENT_STATE_START:
         {
             if (event.type == BB_EVENT_START_BUTTON) // You are Challenger
-            {
+            {            
                 // Generate A and #A hash
                 hash_A = (uint16_t) (rand() & 0xFFFF);
                 hash_sA = NegotiationHash(hash_A);
@@ -99,8 +99,11 @@ Message AgentRun(BB_Event event)
                 agent_state = AGENT_STATE_CHALLENGING;
 
             }
-            else if (event.type == BB_EVENT_CHA_RECEIVED) // Upon getting A
+            else if (event.type == BB_EVENT_CHA_RECEIVED) // Upon getting sA
             {
+                // Receive sA
+                hash_sA = event.param0;
+
                 // Generate B hash
                 hash_B = (uint16_t) (rand() & 0xFFFF);
 
@@ -154,6 +157,7 @@ Message AgentRun(BB_Event event)
 
                 // Determine heads/tails
                 outcome = NegotiateCoinFlip(hash_A, hash_B);
+                printf("%u, %u\n", hash_A, hash_sA);
                 if (NegotiationVerify(hash_A, hash_sA))  // Verify A hash with commitment
                 {
                     snprintf(dialog_buffer, sizeof (dialog_buffer), "END: Cheating Detected.");
@@ -293,4 +297,21 @@ AgentState AgentGetState(void)
 void AgentSetState(AgentState newState)
 {
     agent_state = newState;
+}
+
+void AgentSetHash(NegotiationData A, NegotiationData B, NegotiationData sA)
+{
+    hash_A = A;
+    hash_B = B;
+    hash_sA = sA;
+}
+
+void AgentSetHashA(NegotiationData A)
+{
+    hash_A = A;
+}
+
+void AgentSetHashB(NegotiationData B)
+{
+    hash_B = B;
 }
