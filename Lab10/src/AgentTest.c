@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include "Agent.h"
 #include "Message.h"
+#include "Negotiation.h"
 
 /* Simple assertion macro */
 #define ASSERT(cond, msg)                           \
@@ -20,7 +21,12 @@
         }                                            \
     } while (0)
 
-/* Test 1: after agentInit state must be agent_state_start */
+extern void AgentSetHash(NegotiationData A, NegotiationData B, NegotiationData sA);
+extern void AgentSetHashA(NegotiationData A);
+extern void AgentSetHashB(NegotiationData B);
+
+
+// * Test 1: after agentInit state must be agent_state_start
 static void test_initial_state(void) {
     AgentInit();
     ASSERT(AgentGetState() == AGENT_STATE_START,
@@ -28,7 +34,7 @@ static void test_initial_state(void) {
     printf("PASS: test_initial_state\n");
 }
 
-/* Test 2: agentSetState and agentGetState should work correctly */
+//* Test 2: agentSetState and agentGetState should work correctly
 static void test_set_get_state(void) {
     AgentSetState(AGENT_STATE_DEFENDING);
     ASSERT(AgentGetState() == AGENT_STATE_DEFENDING,
@@ -39,8 +45,8 @@ static void test_set_get_state(void) {
     printf("PASS: test_set_get_state\n");
 }
 
-/* Test 3: start -> challenging on bb_event_start_button,
-   returned message must be message_cha with correct param0 */
+//* Test 3: start -> challenging on bb_event_start_button,
+//* returned message must be message_cha with correct param0
 static void test_start_to_challenging(void) {
 
     AgentSetState(AGENT_STATE_START);
@@ -57,8 +63,8 @@ static void test_start_to_challenging(void) {
     printf("PASS: test_start_to_challenging\n");
 }
 
-/* Test 4: start -> accepting on bb_event_cha_received,
-   returned message must be message_acc with param0 = (rand() & 0xFFFF) */
+//* Test 4: start -> accepting on bb_event_cha_received,
+//* returned message must be message_acc with param0 = (rand() & 0xFFFF) */
 static void test_start_to_accepting(void) {
     AgentSetState(AGENT_STATE_START);
     BB_Event evt = { .type = BB_EVENT_CHA_RECEIVED, .param0 = 0x9999 };
@@ -72,16 +78,18 @@ static void test_start_to_accepting(void) {
     printf("PASS: test_start_to_accepting\n");
 }
 
-/* Test 5: challenging -> waiting_to_send on bb_event_acc_received,
-   returned message must be message_rev with param0 = hash_a */
+//* Test 5: challenging -> waiting_to_send on bb_event_acc_received,
+//* returned message must be message_rev with param0 = hash_a
 static void test_challenging_to_waiting(void) {
     AgentInit();
-    /* first, set hash_a by simulating start button */
+    // first, set hash_a by simulating start button
     AgentSetState(AGENT_STATE_START);
     BB_Event start_evt = { .type = BB_EVENT_START_BUTTON };
-    AgentRun(start_evt);  /* now state is CHALLENGING, hash_a = 0x1234 */
+    AgentRun(start_evt);  // now state is CHALLENGING
+    // Though set hash_a = 0x1234
+    AgentSetHashA((NegotiationData) 0x1234);
 
-    /* now simulate receiving acc */
+    // now simulate receiving acc
     AgentSetState(AGENT_STATE_CHALLENGING);
     BB_Event acc_evt = { .type = BB_EVENT_ACC_RECEIVED, .param0 = 0x7777 };
     Message msg = AgentRun(acc_evt);
@@ -95,19 +103,24 @@ static void test_challenging_to_waiting(void) {
     printf("PASS: test_challenging_to_waiting\n");
 }
 
-/* Test 6: accepting -> end_screen on bb_event_rev_received,
-   since negotiationVerify returns false */
+//* Test 6: accepting -> end_screen on bb_event_rev_received,
+//* since negotiationVerify returns false
 static void test_accepting_cheating(void) {
-    /* prepare for accepting state by simulating cha_received */
+    // prepare for accepting state by simulating cha_received
     AgentSetState(AGENT_STATE_START);
     BB_Event cha_evt = { .type = BB_EVENT_CHA_RECEIVED, .param0 = 0xAAAA };
-    AgentRun(cha_evt);  /* now state is ACCEPTING, hash_b = 0x1234 */
+    AgentRun(cha_evt);  // now state is ACCEPTING, 
+    // Though set hash_b = 0x1234 
+    AgentSetHashB((NegotiationData) 0x1234);
 
-    /* simulate rev_received; negotiationVerify is false, so go to end_screen */
+    printf("%d", AgentGetState());
+
+    // simulate rev_received; negotiationVerify is false, so go to end_screen
     AgentSetState(AGENT_STATE_ACCEPTING);
     BB_Event rev_evt = { .type = BB_EVENT_REV_RECEIVED, .param0 = 0xBBBB };
     Message msg = AgentRun(rev_evt);
 
+    
     ASSERT(AgentGetState() == AGENT_STATE_END_SCREEN,
            "accepting with failed verify did not go to END_SCREEN");
     ASSERT(msg.type == MESSAGE_NONE,
