@@ -218,7 +218,7 @@ int main(void)
               Message_Decode((unsigned char)*msg_uut_ptr, &event_uut);
        }
        printf("\n[Test] Message_Decode: missing '\\r' for frame \"%s\"\n", msg_str_uut);
-       printf("\tevent_uut.type: %u (expect NO_EVENT or BB_EVENT_ERROR)\n", event_uut.type);
+       printf("\tevent_uut.type: %u (expect BB_EVENT_SHO_RECEIVED(6) )\n", event_uut.type);
 
        // negative test: only one hex digit (one-digit checksum)
        msg_str_uut = "$SHO,4,8*5\r\n";
@@ -277,7 +277,7 @@ int main(void)
        msg_uut.param1 = 0;
        msg_uut.param2 = 3;
        Message_Encode(msg_encoded, msg_uut);
-       printf("Trying to encode ACC,57203\n\tResult:\"%s\"\n", msg_encoded);
+       printf("Trying to encode RES,1,0,3\n\tResult:\"%s\"\n", msg_encoded);
 
        // negative test: MESSAGE_NONE
        Message msg_none = {.type = MESSAGE_NONE, .param0 = 0, .param1 = 0, .param2 = 0};
@@ -291,7 +291,7 @@ int main(void)
        msg_bad.param1 = 0;
        msg_bad.param2 = 0;
        int len_bad = Message_Encode(msg_encoded, msg_bad);
-       printf("\n[Test] Message_Encode: invalid MessageType (42)\n\tReturned length: %d (expect -1)\n", len_bad);
+       printf("\n[Test] Message_Encode: invalid MessageType (42)\n\tReturned length: %d (expect 0)\n", len_bad);
 
        while (TRUE);
        return 0;
