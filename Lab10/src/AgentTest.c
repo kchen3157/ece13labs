@@ -8,11 +8,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+
 #include "Agent.h"
 #include "Message.h"
 #include "Negotiation.h"
 
-/* Simple assertion macro */
+// Simple assertion macro
 #define ASSERT(cond, msg)                           \
     do {                                             \
         if (!(cond)) {                               \
@@ -21,6 +22,7 @@
         }                                            \
     } while (0)
 
+// Extra functions to manually set hash to predetermined values
 extern void AgentSetHash(NegotiationData A, NegotiationData B, NegotiationData sA);
 extern void AgentSetHashA(NegotiationData A);
 extern void AgentSetHashB(NegotiationData B);
@@ -50,9 +52,7 @@ static void test_set_get_state(void) {
 static void test_start_to_challenging(void) {
 
     AgentSetState(AGENT_STATE_START);
-    
     BB_Event evt = { .type = BB_EVENT_START_BUTTON, .param0 = 0, .param1 = 0, .param2 = 0 };
-    
     Message msg = AgentRun(evt);
 
     ASSERT(AgentGetState() == AGENT_STATE_CHALLENGING,
@@ -66,6 +66,7 @@ static void test_start_to_challenging(void) {
 //* Test 4: start -> accepting on bb_event_cha_received,
 //* returned message must be message_acc with param0 = (rand() & 0xFFFF) */
 static void test_start_to_accepting(void) {
+
     AgentSetState(AGENT_STATE_START);
     BB_Event evt = { .type = BB_EVENT_CHA_RECEIVED, .param0 = 0x9999 };
     Message msg = AgentRun(evt);
@@ -94,7 +95,6 @@ static void test_challenging_to_waiting(void) {
     BB_Event acc_evt = { .type = BB_EVENT_ACC_RECEIVED, .param0 = 0x7777 };
     Message msg = AgentRun(acc_evt);
 
-    printf("%d", AgentGetState());
     ASSERT(AgentGetState() == AGENT_STATE_WAITING_TO_SEND,
            "state did not become WAITING_TO_SEND after ACC_RECEIVED");
     ASSERT(msg.type == MESSAGE_REV,
@@ -113,8 +113,6 @@ static void test_accepting_cheating(void) {
     // Though set hash_b = 0x1234 
     AgentSetHashB((NegotiationData) 0x1234);
 
-    printf("%d", AgentGetState());
-
     // simulate rev_received; negotiationVerify is false, so go to end_screen
     AgentSetState(AGENT_STATE_ACCEPTING);
     BB_Event rev_evt = { .type = BB_EVENT_REV_RECEIVED, .param0 = 0xBBBB };
@@ -128,8 +126,8 @@ static void test_accepting_cheating(void) {
     printf("PASS: test_accepting_cheating\n");
 }
 
-/* Test 7: waiting_to_send -> attacking on bb_event_message_sent,
-   returned message must be message_sho with row=1, col=2 */
+//* Test 7: waiting_to_send -> attacking on bb_event_message_sent,
+//* returned message must be message_sho with row=1, col=2
 static void test_waiting_to_attacking(void) {
     AgentSetState(AGENT_STATE_WAITING_TO_SEND);
     BB_Event sent_evt = { .type = BB_EVENT_MESSAGE_SENT };
@@ -140,20 +138,20 @@ static void test_waiting_to_attacking(void) {
     ASSERT(msg.type == MESSAGE_SHO,
            "expected MESSAGE_SHO in WAITING_TO_SEND->ATTACKING");
 
-    /* FieldAIDecideGuess stub returns row=1, col=2 */
+    // FieldAIDecideGuess stub returns row=1, col=2
     ASSERT(msg.param0 == 1 && msg.param1 == 2,
            "MESSAGE_SHO.row/col incorrect (should be 1,2)");
     printf("PASS: test_waiting_to_attacking\n");
 }
 
-/* Test 8: attacking -> defending on bb_event_res_received */
+//* Test 8: attacking -> defending on bb_event_res_received
 static void test_attacking_to_defending(void) {
     AgentSetState(AGENT_STATE_ATTACKING);
     BB_Event res_evt = {
         .type   = BB_EVENT_RES_RECEIVED,
-        .param0 = 4,  /* row */
-        .param1 = 5,  /* col */
-        .param2 = 1   /* result (ignored by stub) */
+        .param0 = 4,  
+        .param1 = 5,  
+        .param2 = 1   
     };
     Message msg = AgentRun(res_evt);
 
@@ -164,14 +162,14 @@ static void test_attacking_to_defending(void) {
     printf("PASS: test_attacking_to_defending\n");
 }
 
-/* Test 9: defending -> waiting_to_send on bb_event_sho_received,
-   returned message must be message_res with row/col matching event */
+//* Test 9: defending -> waiting_to_send on bb_event_sho_received,
+//* returned message must be message_res with row/col matching event
 static void test_defending_to_waiting(void) {
     AgentSetState(AGENT_STATE_DEFENDING);
     BB_Event sho_evt = {
         .type   = BB_EVENT_SHO_RECEIVED,
-        .param0 = 7,  /* row */
-        .param1 = 8   /* col */
+        .param0 = 7,  
+        .param1 = 8  
     };
     Message msg = AgentRun(sho_evt);
 
@@ -184,7 +182,7 @@ static void test_defending_to_waiting(void) {
     printf("PASS: test_defending_to_waiting\n");
 }
 
-/* Test 10: bb_event_reset_button resets to agent_state_start */
+//* Test 10: bb_event_reset_button resets to agent_state_start
 static void test_reset_button(void) {
     AgentSetState(AGENT_STATE_DEFENDING);
     BB_Event reset_evt = { .type = BB_EVENT_RESET_BUTTON };
@@ -197,7 +195,7 @@ static void test_reset_button(void) {
     printf("PASS: test_reset_button\n");
 }
 
-/* Test 11: bb_event_error forces agent_state_end_screen */
+//* Test 11: bb_event_error forces agent_state_end_screen
 static void test_error_event(void) {
     AgentSetState(AGENT_STATE_CHALLENGING);
     BB_Event err_evt = { .type = BB_EVENT_ERROR };
@@ -210,7 +208,7 @@ static void test_error_event(void) {
     printf("PASS: test_error_event\n");
 }
 
-/* Test 12: agent_state_end_screen ignores any event and stays in end_screen */
+//* Test 12: agent_state_end_screen ignores any event and stays in end_screen
 static void test_end_screen_behavior(void) {
     AgentSetState(AGENT_STATE_END_SCREEN);
     BB_Event dummy = { .type = BB_EVENT_START_BUTTON };
@@ -238,5 +236,10 @@ int main(void) {
     test_end_screen_behavior();
 
     printf("All tests passed.\n");
+
+#ifdef STM32F4
+    while (TRUE);
+#endif
+
     return 0;
 }

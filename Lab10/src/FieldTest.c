@@ -304,6 +304,7 @@ int main(void)
     printf("FieldAIPlaceAllBoats Test\n");
     printf("Verify there are 8 proper shots in opp\n");
 
+    // Try every possible result
     guess_uut = FieldAIDecideGuess(&oppfield_uut);
     guess_uut.result = RESULT_HIT;
     FieldUpdateKnowledge(&oppfield_uut, &guess_uut);
@@ -341,6 +342,10 @@ int main(void)
     printf("\n\n");
 
     printf("Test suite complete, all automated passed.\n");
+
+#ifdef STM32F4
+    while (TRUE);
+#endif
 
     return 0;
 }
