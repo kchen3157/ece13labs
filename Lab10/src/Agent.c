@@ -157,8 +157,7 @@ Message AgentRun(BB_Event event)
 
                 // Determine heads/tails
                 outcome = NegotiateCoinFlip(hash_A, hash_B);
-                printf("%u, %u\n", hash_A, hash_sA);
-                if (NegotiationVerify(hash_A, hash_sA))  // Verify A hash with commitment
+                if (!NegotiationVerify(hash_A, hash_sA))  // Verify A hash with commitment
                 {
                     snprintf(dialog_buffer, sizeof (dialog_buffer), "END: Cheating Detected.");
                     DrawDialog();
