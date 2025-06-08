@@ -8,9 +8,6 @@
  * @date    29 May 2025
  */
 
-
-// TODO: Add Null Pointer Checks
-
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
@@ -41,6 +38,11 @@ typedef enum
  */
 uint8_t Message_CalculateChecksum(const char* payload)
 {
+    if (!payload)
+    {
+        return 0;
+    }
+
     uint8_t checksum = 0;
     const unsigned char* payload_ptr = (const unsigned char*) payload;
 
@@ -82,6 +84,11 @@ uint8_t Message_CalculateChecksum(const char* payload)
 int Message_ParseMessage(const char* payload, const char* checksum_string,
         BB_Event* message_event)
 {
+    if (!payload || !checksum_string || !message_event)
+    {
+        return STANDARD_ERROR;
+    }
+
     char* payload_ptr = (char*) payload;
 
     if (strlen(checksum_string) != MESSAGE_CHECKSUM_LEN)
@@ -184,6 +191,11 @@ int Message_ParseMessage(const char* payload, const char* checksum_string,
  */
 int Message_Encode(char *message_string, Message message_to_encode)
 {
+    if (!message_string)
+    {
+        return 0;
+    }
+
     // Recap: Encodes Message datatype into NMEA string
     char payload[MESSAGE_MAX_PAYLOAD_LEN];
 
@@ -258,6 +270,11 @@ int Message_Decode(unsigned char char_in, BB_Event * decoded_message_event)
     static char checksum[MESSAGE_CHECKSUM_LEN + 1];
     static char *checksum_ptr = checksum;
 
+    if (!decoded_message_event)
+    {
+        return STANDARD_ERROR;
+    }
+    
     switch (msg_decode_state)
     {
         case MSG_DECODE_STATE_WAITING_FOR_START:
@@ -315,6 +332,7 @@ int Message_Decode(unsigned char char_in, BB_Event * decoded_message_event)
                 else
                 {
                     msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
+                    decoded_message_event->type = BB_EVENT_ERROR;
                     return STANDARD_ERROR;
                 }
 
@@ -347,6 +365,7 @@ int Message_Decode(unsigned char char_in, BB_Event * decoded_message_event)
             else
             {
                 msg_decode_state = MSG_DECODE_STATE_WAITING_FOR_START;
+                decoded_message_event->type = BB_EVENT_ERROR;
                 return STANDARD_ERROR;
             }
 

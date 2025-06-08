@@ -196,7 +196,7 @@ int main(void)
        // negative test: bad checksum inside full frame
        msg_str_uut = "$SHO,4,8*59\r\n"; // wrong checksum
        msg_uut_ptr = msg_str_uut;
-       memset(&event_uut, 0xFF, sizeof(BB_Event));
+       memset(&event_uut, 0, sizeof(BB_Event));
        for (; *msg_uut_ptr != '\0'; msg_uut_ptr++)
        {
               int ret = Message_Decode((unsigned char)*msg_uut_ptr, &event_uut);
@@ -223,7 +223,7 @@ int main(void)
        // negative test: only one hex digit (one-digit checksum)
        msg_str_uut = "$SHO,4,8*5\r\n";
        msg_uut_ptr = msg_str_uut;
-       memset(&event_uut, 0xFF, sizeof(BB_Event));
+       memset(&event_uut, 0, sizeof(BB_Event));
        for (; *msg_uut_ptr != '\0'; msg_uut_ptr++)
        {
               int ret = Message_Decode((unsigned char)*msg_uut_ptr, &event_uut);
@@ -245,7 +245,7 @@ int main(void)
               }
               long_payload[MESSAGE_MAX_PAYLOAD_LEN + 1] = '\0';
 
-              memset(&event_uut, 0xFF, sizeof(BB_Event));
+              memset(&event_uut, 0, sizeof(BB_Event));
               Message_Decode('$', &event_uut);
               for (int i = 0; i < MESSAGE_MAX_PAYLOAD_LEN + 1; i++)
               {
