@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "Oled.h"
+#include "BOARD.h"
 #include "Agent.h"
 #include "Message.h"
 #include "Negotiation.h"
@@ -136,6 +138,7 @@ static void test_accepting_cheating(void)
 //* returned message must be message_sho with row=1, col=2
 static void test_waiting_to_attacking(void)
 {
+#ifndef STM32F4 // DO NOT test when on nucleo, as random function is alive.
     AgentSetState(AGENT_STATE_WAITING_TO_SEND);
     BB_Event sent_evt = {.type = BB_EVENT_MESSAGE_SENT};
     Message msg = AgentRun(sent_evt);
@@ -149,7 +152,9 @@ static void test_waiting_to_attacking(void)
     ASSERT(msg.param0 == 1 && msg.param1 == 2,
            "MESSAGE_SHO.row/col incorrect (should be 1,2)");
     printf("PASS: test_waiting_to_attacking\n");
+#endif
 }
+
 
 //* Test 8: attacking -> defending on bb_event_res_received
 static void test_attacking_to_defending(void)
@@ -233,6 +238,11 @@ static void test_end_screen_behavior(void)
 
 int main(void)
 {
+#ifdef STM32F4
+    BOARD_Init();
+    OLED_Init();
+#endif
+    
     test_initial_state();
     test_set_get_state();
     test_start_to_challenging();

@@ -9,10 +9,15 @@
  */
 
 #include <stdio.h>
+
+#include "BOARD.h"
 #include "Negotiation.h"
 
 int main(void)
 {
+#ifdef STM32F4
+    BOARD_Init();
+#endif
 
     //******** NegotiationHash ********
     printf("Testing NegotiationHash(3)...\n");
